@@ -45,3 +45,19 @@ Thumbs.db
 # Frontend
 node_modules/
 dist/
+
+.venv/
+__pycache__/
+*.py[cod]
+.env
+db.sqlite3
+*.log
+media/*
+staticfiles/
+.pytest_cache/
+.coverage
+htmlcov/
+.vscode/
+.idea/
+.DS_Store
+
