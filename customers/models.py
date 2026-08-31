@@ -88,3 +88,33 @@ class Customer(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+class Address(models.Model):
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="addresses",
+    )
+    title = models.CharField(max_length=100)
+    province = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    address_line = models.TextField()
+    postal_code = models.CharField(max_length=10)
+    recipient_name = models.CharField(max_length=150)
+    recipient_phone = models.CharField(max_length=20)
+    is_default = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-is_default", "-id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["customer"],
+                condition=models.Q(is_default=True),
+                name="one_default_address_per_customer",
+            ),
+        ]
+        verbose_name = "Address"
+        verbose_name_plural = "Addresses"
+
+    def __str__(self):
+        return f"{self.customer.username} - {self.title}"
