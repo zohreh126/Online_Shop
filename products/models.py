@@ -1,9 +1,11 @@
-from django.core.exceptions import ValidationError
-from core.models import TimeStampedModel
 from decimal import Decimal
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.text import slugify
+from core.models import TimeStampedModel
+
 
 class Category(TimeStampedModel):
     name = models.CharField(
@@ -171,3 +173,130 @@ class Product(TimeStampedModel):
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
+
+class Discount(TimeStampedModel):
+    class DiscountType(models.TextChoices):
+        PERCENTAGE = "percentage", "Percentage"
+        FIXED = "fixed", "Fixed amount"
+
+    product = models.OneToOneField(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="discount",
+    )
+
+    discount_type = models.CharField(
+        max_length=20,
+        choices=DiscountType.choices,
+    )
+
+    value = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(Decimal("0.00")),
+        ],
+    )
+
+    max_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(Decimal("0.00")),
+        ],
+        help_text="Only applies to percentage discounts.",
+    )
+
+    starts_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    ends_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Discount"
+        verbose_name_plural = "Discounts"
+
+    def clean(self):
+        super().clean()
+
+        if (
+            self.discount_type == self.DiscountType.PERCENTAGE
+            and self.value > Decimal("100.00")
+        ):
+            raise ValidationError(
+                {"value": "Percentage discount cannot exceed 100."}
+            )
+
+        if (
+            self.discount_type == self.DiscountType.FIXED
+            and self.max_amount is not None
+        ):
+            raise ValidationError(
+                {
+                    "max_amount": (
+                        "Maximum amount is only allowed "
+                        "for percentage discounts."
+                    )
+                }
+            )
+
+        if (
+            self.starts_at
+            and self.ends_at
+            and self.ends_at <= self.starts_at
+        ):
+            raise ValidationError(
+                {"ends_at": "End date must be after start date."}
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    @property
+    def is_valid_now(self):
+        if not self.is_active:
+            return False
+
+        now = timezone.now()
+
+        if self.starts_at and now < self.starts_at:
+            return False
+
+        if self.ends_at and now > self.ends_at:
+            return False
+
+        return True
+
+    def calculate_discount(self, price):
+        price = Decimal(price)
+
+        if not self.is_valid_now:
+            return Decimal("0.00")
+
+        if self.discount_type == self.DiscountType.PERCENTAGE:
+            amount = price * self.value / Decimal("100")
+
+            if self.max_amount is not None:
+                amount = min(amount, self.max_amount)
+        else:
+            amount = self.value
+
+        amount = min(amount, price)
+
+        return amount.quantize(Decimal("0.01"))
+
+    def __str__(self):
+        return f"{self.product.name} - {self.value}"
