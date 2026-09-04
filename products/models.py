@@ -300,3 +300,165 @@ class Discount(TimeStampedModel):
 
     def __str__(self):
         return f"{self.product.name} - {self.value}"
+
+class DiscountCode(TimeStampedModel):
+    code = models.CharField(
+        max_length=50,
+        unique=True,
+    )
+
+    discount_type = models.CharField(
+        max_length=20,
+        choices=Discount.DiscountType.choices,
+    )
+
+    value = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(Decimal("0.00")),
+        ],
+    )
+
+    max_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(Decimal("0.00")),
+        ],
+        help_text="Only applies to percentage discounts.",
+    )
+
+    minimum_order_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[
+            MinValueValidator(Decimal("0.00")),
+        ],
+    )
+
+    usage_limit = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+    )
+
+    used_count = models.PositiveIntegerField(
+        default=0,
+    )
+
+    starts_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    ends_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Discount code"
+        verbose_name_plural = "Discount codes"
+        indexes = [
+            models.Index(fields=("code",)),
+            models.Index(fields=("is_active",)),
+        ]
+
+    def clean(self):
+        super().clean()
+
+        if (
+            self.discount_type == Discount.DiscountType.PERCENTAGE
+            and self.value > Decimal("100.00")
+        ):
+            raise ValidationError(
+                {"value": "Percentage discount cannot exceed 100."}
+            )
+
+        if (
+            self.discount_type == Discount.DiscountType.FIXED
+            and self.max_amount is not None
+        ):
+            raise ValidationError(
+                {
+                    "max_amount": (
+                        "Maximum amount is only allowed "
+                        "for percentage discounts."
+                    )
+                }
+            )
+
+        if (
+            self.starts_at
+            and self.ends_at
+            and self.ends_at <= self.starts_at
+        ):
+            raise ValidationError(
+                {"ends_at": "End date must be after start date."}
+            )
+
+        if (
+            self.usage_limit is not None
+            and self.used_count > self.usage_limit
+        ):
+            raise ValidationError(
+                {"used_count": "Used count cannot exceed usage limit."}
+            )
+
+    def save(self, *args, **kwargs):
+        self.code = self.code.strip().upper()
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    @property
+    def is_valid_now(self):
+        if not self.is_active:
+            return False
+
+        if (
+            self.usage_limit is not None
+            and self.used_count >= self.usage_limit
+        ):
+            return False
+
+        now = timezone.now()
+
+        if self.starts_at and now < self.starts_at:
+            return False
+
+        if self.ends_at and now > self.ends_at:
+            return False
+
+        return True
+
+    def calculate_discount(self, subtotal):
+        subtotal = Decimal(subtotal)
+
+        if not self.is_valid_now:
+            return Decimal("0.00")
+
+        if subtotal < self.minimum_order_amount:
+            return Decimal("0.00")
+
+        if self.discount_type == Discount.DiscountType.PERCENTAGE:
+            amount = subtotal * self.value / Decimal("100")
+
+            if self.max_amount is not None:
+                amount = min(amount, self.max_amount)
+        else:
+            amount = self.value
+
+        amount = min(amount, subtotal)
+
+        return amount.quantize(Decimal("0.01"))
+
+    def __str__(self):
+        return self.code
