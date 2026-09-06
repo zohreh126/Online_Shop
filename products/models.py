@@ -44,7 +44,7 @@ class Category(TimeStampedModel):
     def clean(self):
         super().clean()
 
-        if self.parent_id == self.pk:
+        if self.pk is not None and self.parent_id == self.pk:
             raise ValidationError(
                 {"parent": "A category cannot be its own parent."}
             )
