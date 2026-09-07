@@ -13,6 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .authentication import CookieJWTAuthentication
 from .serializers import CustomerProfileSerializer
+from rest_framework.exceptions import AuthenticationFailed
 
 
 REFRESH_COOKIE_PATH = "/api/v1/auth/"
@@ -70,7 +71,17 @@ class CookieLoginView(APIView):
             data=request.data,
             context={"request": request},
         )
-        serializer.is_valid(raise_exception=True)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except AuthenticationFailed as exc:
+            return Response(
+                {"detail": exc.detail},
+                status=status.HTTP_401_UNAUTHORIZED,
+                headers={
+                    "WWW-Authenticate": 'Bearer realm="api"',
+                },
+            )
 
         tokens = serializer.validated_data
         response = Response(
