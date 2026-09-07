@@ -1,8 +1,9 @@
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 from rest_framework import serializers
 
-from .models import Customer
+from .models import Address, Customer
 
 
 class CustomerRegistrationSerializer(serializers.ModelSerializer):
@@ -93,3 +94,72 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             "date_joined",
         )
         read_only_fields = fields
+
+class AddressSerializer(serializers.ModelSerializer):
+    customer = serializers.HiddenField(
+        default=serializers.CurrentUserDefault(),
+    )
+
+    class Meta:
+        model = Address
+        fields = (
+            "id",
+            "customer",
+            "title",
+            "province",
+            "city",
+            "address_line",
+            "postal_code",
+            "recipient_name",
+            "recipient_phone",
+            "is_default",
+        )
+        read_only_fields = ("id",)
+
+    def validate_postal_code(self, value):
+        value = value.strip().replace(" ", "")
+
+        if len(value) != 10 or not value.isdigit():
+            raise serializers.ValidationError(
+                "Postal code must contain exactly 10 digits."
+            )
+
+        return value
+
+    @staticmethod
+    def clear_other_defaults(customer, exclude_pk=None):
+        queryset = Address.objects.filter(
+            customer=customer,
+            is_default=True,
+        )
+
+        if exclude_pk is not None:
+            queryset = queryset.exclude(pk=exclude_pk)
+
+        queryset.update(is_default=False)
+
+    @transaction.atomic
+    def create(self, validated_data):
+        customer = validated_data["customer"]
+
+        has_existing_address = Address.objects.filter(
+            customer=customer,
+        ).exists()
+
+        if not has_existing_address:
+            validated_data["is_default"] = True
+
+        if validated_data.get("is_default", False):
+            self.clear_other_defaults(customer)
+
+        return Address.objects.create(**validated_data)
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        if validated_data.get("is_default", False):
+            self.clear_other_defaults(
+                instance.customer,
+                exclude_pk=instance.pk,
+            )
+
+        return super().update(instance, validated_data)

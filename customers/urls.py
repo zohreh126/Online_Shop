@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
 from .auth_views import (
     CSRFTokenView,
@@ -7,12 +8,21 @@ from .auth_views import (
     CookieRefreshView,
 )
 from .views import (
+    AddressViewSet,
     CustomerProfileView,
     CustomerRegistrationView,
 )
 
 
-urlpatterns = [
+router = DefaultRouter()
+router.register(
+    "addresses",
+    AddressViewSet,
+    basename="customer-address",
+)
+
+
+urlpatterns = router.urls + [
     path(
         "csrf/",
         CSRFTokenView.as_view(),
