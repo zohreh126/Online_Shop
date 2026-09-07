@@ -142,9 +142,39 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "customers.Customer"
+AUTH_COOKIE_ACCESS = env(
+    "AUTH_COOKIE_ACCESS",
+    default="access_token",
+)
+
+AUTH_COOKIE_REFRESH = env(
+    "AUTH_COOKIE_REFRESH",
+    default="refresh_token",
+)
+
+AUTH_COOKIE_SECURE = env.bool(
+    "AUTH_COOKIE_SECURE",
+    default=False,
+)
+
+AUTH_COOKIE_SAMESITE = env(
+    "AUTH_COOKIE_SAMESITE",
+    default="Lax",
+)
+
+CSRF_COOKIE_SECURE = env.bool(
+    "CSRF_COOKIE_SECURE",
+    default=False,
+)
+
+CSRF_COOKIE_SAMESITE = env(
+    "CSRF_COOKIE_SAMESITE",
+    default="Lax",
+)
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "customers.authentication.CookieJWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
