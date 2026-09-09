@@ -15,7 +15,7 @@ from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 
 from .authentication import CookieJWTAuthentication
-from .serializers import CustomerProfileSerializer
+from .serializers import CustomerProfileSerializer, PasswordChangeSerializer
 from rest_framework.exceptions import AuthenticationFailed
 
 
@@ -81,8 +81,13 @@ class CookieLoginView(APIView):
     def post(self, request):
         _enforce_csrf(request)
 
+        login_data = request.data.copy()
+        identifier = login_data.get("identifier") or login_data.get("email")
+        if identifier and not login_data.get("username"):
+            login_data["username"] = identifier
+
         serializer = TokenObtainPairSerializer(
-            data=request.data,
+            data=login_data,
             context={"request": request},
         )
 
@@ -211,3 +216,23 @@ class CookieLogoutView(APIView):
         )
 
         return response
+
+
+class PasswordChangeView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    @extend_schema(
+        request=PasswordChangeSerializer,
+        responses={200: OpenApiTypes.OBJECT, 400: OpenApiTypes.OBJECT},
+    )
+    def post(self, request):
+        serializer = PasswordChangeSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "Password changed successfully."},
+            status=status.HTTP_200_OK,
+        )

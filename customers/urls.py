@@ -6,6 +6,7 @@ from .auth_views import (
     CookieLoginView,
     CookieLogoutView,
     CookieRefreshView,
+    PasswordChangeView,
 )
 from .views import (
     AddressViewSet,
@@ -52,5 +53,10 @@ urlpatterns = router.urls + [
         "profile/",
         CustomerProfileView.as_view(),
         name="customer-profile",
+    ),
+    path(
+        "password/change/",
+        PasswordChangeView.as_view(),
+        name="password-change",
     ),
 ]

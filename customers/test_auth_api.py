@@ -132,6 +132,58 @@ class CookieJWTAuthAPITests(APITestCase):
             status.HTTP_401_UNAUTHORIZED,
         )
 
+    def test_login_accepts_email_as_identifier(self):
+        csrf_token = self.get_csrf_token()
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+
+        response = self.client.post(
+            self.login_url,
+            {
+                "email": "authuser@example.com",
+                "password": self.password,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["user"]["email"], "authuser@example.com")
+
+    def test_password_change_updates_password(self):
+        self.login()
+        csrf_token = self.client.cookies[settings.CSRF_COOKIE_NAME].value
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+
+        response = self.client.post(
+            reverse("password-change"),
+            {
+                "current_password": self.password,
+                "new_password": "NewSecurePass#2026",
+                "new_password_confirm": "NewSecurePass#2026",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.customer.refresh_from_db()
+        self.assertTrue(self.customer.check_password("NewSecurePass#2026"))
+
+    def test_password_change_rejects_wrong_current_password(self):
+        self.login()
+        csrf_token = self.client.cookies[settings.CSRF_COOKIE_NAME].value
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+
+        response = self.client.post(
+            reverse("password-change"),
+            {
+                "current_password": "WrongPassword#2026",
+                "new_password": "NewSecurePass#2026",
+                "new_password_confirm": "NewSecurePass#2026",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_profile_requires_authentication(self):
         response = self.client.get(self.profile_url)
 

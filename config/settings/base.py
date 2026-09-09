@@ -82,6 +82,10 @@ MEDIA_ROOT = PROJECT_ROOT / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "customers.Customer"
+AUTHENTICATION_BACKENDS = (
+    "customers.authentication.CustomerAuthenticationBackend",
+    "django.contrib.auth.backends.ModelBackend",
+)
 
 AUTH_COOKIE_ACCESS = env("AUTH_COOKIE_ACCESS", default="access_token")
 AUTH_COOKIE_REFRESH = env("AUTH_COOKIE_REFRESH", default="refresh_token")
