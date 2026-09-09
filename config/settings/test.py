@@ -10,6 +10,13 @@ DATABASES = {
     }
 }
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "nexora-test-cache",
+    }
+}
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 REST_FRAMEWORK = {
     **REST_FRAMEWORK,
     "DEFAULT_THROTTLE_CLASSES": (),

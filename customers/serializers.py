@@ -140,6 +140,21 @@ class PasswordChangeSerializer(serializers.Serializer):
         customer.save(update_fields=["password"])
         return customer
 
+
+class OTPRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        return value.strip().lower()
+
+
+class OTPVerifySerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.RegexField(regex=r"^\d{6}$")
+
+    def validate_email(self, value):
+        return value.strip().lower()
+
 class AddressSerializer(serializers.ModelSerializer):
     customer = serializers.HiddenField(
         default=serializers.CurrentUserDefault(),

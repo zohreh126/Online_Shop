@@ -15,7 +15,13 @@ from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 
 from .authentication import CookieJWTAuthentication
-from .serializers import CustomerProfileSerializer, PasswordChangeSerializer
+from .otp import request_otp, verify_otp
+from .serializers import (
+    CustomerProfileSerializer,
+    OTPRequestSerializer,
+    OTPVerifySerializer,
+    PasswordChangeSerializer,
+)
 from rest_framework.exceptions import AuthenticationFailed
 
 
@@ -234,5 +240,54 @@ class PasswordChangeView(APIView):
         serializer.save()
         return Response(
             {"detail": "Password changed successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class OTPRequestView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    @extend_schema(request=OTPRequestSerializer, responses={200: OpenApiTypes.OBJECT})
+    def post(self, request):
+        serializer = OTPRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            request_otp(serializer.validated_data["email"])
+        except ValueError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        return Response(
+            {"detail": "Verification code sent."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class OTPVerifyView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    @extend_schema(request=OTPVerifySerializer, responses={200: OpenApiTypes.OBJECT})
+    def post(self, request):
+        serializer = OTPVerifySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            verify_otp(
+                serializer.validated_data["email"],
+                serializer.validated_data["code"],
+            )
+        except ValueError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            {"detail": "Email verified successfully.", "verified": True},
             status=status.HTTP_200_OK,
         )

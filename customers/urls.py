@@ -7,6 +7,8 @@ from .auth_views import (
     CookieLogoutView,
     CookieRefreshView,
     PasswordChangeView,
+    OTPRequestView,
+    OTPVerifyView,
 )
 from .views import (
     AddressViewSet,
@@ -59,4 +61,6 @@ urlpatterns = router.urls + [
         PasswordChangeView.as_view(),
         name="password-change",
     ),
+    path("otp/request/", OTPRequestView.as_view(), name="otp-request"),
+    path("otp/verify/", OTPVerifyView.as_view(), name="otp-verify"),
 ]
