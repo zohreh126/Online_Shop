@@ -65,6 +65,34 @@ class CheckoutAPITests(APITestCase):
         self.assertEqual(self.product.stock_quantity, 2)
         self.assertFalse(CartItem.objects.exists())
 
+    def test_checkout_uses_default_address_when_address_is_omitted(self):
+        self.add_to_cart()
+
+        response = self.client.post(
+            self.checkout_url,
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        order = Order.objects.get()
+        self.assertEqual(order.shipping_title, self.address.title)
+        self.assertEqual(order.shipping_address_line, self.address.address_line)
+
+    def test_checkout_requires_an_address_when_no_default_exists(self):
+        self.address.delete()
+        self.add_to_cart()
+
+        response = self.client.post(
+            self.checkout_url,
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("address_id", response.data)
+        self.assertFalse(Order.objects.exists())
+
     def test_checkout_rejects_empty_cart(self):
         response = self.client.post(
             self.checkout_url,

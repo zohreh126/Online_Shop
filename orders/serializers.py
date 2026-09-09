@@ -280,6 +280,7 @@ class CheckoutSerializer(serializers.Serializer):
     address_id = serializers.PrimaryKeyRelatedField(
         source="address",
         queryset=Address.objects.all(),
+        required=False,
     )
     payment_method = serializers.ChoiceField(
         choices=Order.PaymentMethod.choices,
@@ -292,12 +293,35 @@ class CheckoutSerializer(serializers.Serializer):
         max_length=50,
     )
 
-    def validate_address(self, address):
-        if address.customer_id != self.context["request"].user.id:
-            raise serializers.ValidationError(
-                "The selected address does not belong to you."
+    def validate(self, attrs):
+        customer = self.context["request"].user
+        address = attrs.get("address")
+
+        if address is None:
+            address = (
+                Address.objects.filter(
+                    customer=customer,
+                    is_default=True,
+                )
+                .first()
             )
-        return address
+
+            if address is None:
+                raise serializers.ValidationError(
+                    {
+                        "address_id": (
+                            "Provide an address or set a default address "
+                            "before checkout."
+                        )
+                    }
+                )
+            attrs["address"] = address
+        elif address.customer_id != customer.id:
+            raise serializers.ValidationError(
+                {"address_id": "The selected address does not belong to you."}
+            )
+
+        return attrs
 
     @transaction.atomic
     def create(self, validated_data):
