@@ -21,11 +21,13 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from core.health import health_check
 
 import customers.schema  # noqa: F401
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("health/", health_check, name="health-check"),
     path("api/v1/", include("products.urls")),
     path("api/v1/auth/", include("customers.urls")),
     path("api/v1/cart/", include("orders.urls")),
