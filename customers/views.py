@@ -26,6 +26,9 @@ class AddressViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Address.objects.none()
+
         return Address.objects.filter(
             customer=self.request.user,
         ).order_by("-is_default", "-id")

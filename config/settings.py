@@ -214,8 +214,18 @@ SIMPLE_JWT = {
 
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Online Store API",
-    "DESCRIPTION": "REST API for the online store project",
+    "TITLE": "Nexora Store API",
+    "DESCRIPTION": (
+        "Professional commerce API for the Nexora digital accessories store."
+    ),
     "VERSION": "1.0.0",
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    "TAGS": [
+        {"name": "Catalog", "description": "Public products and categories."},
+        {"name": "Authentication", "description": "Customer authentication."},
+        {"name": "Cart", "description": "Active customer cart and checkout."},
+        {"name": "Orders", "description": "Customer order history and actions."},
+        {"name": "Admin orders", "description": "Staff order operations."},
+    ],
     "SERVE_INCLUDE_SCHEMA": False,
 }

@@ -1,5 +1,6 @@
 from django.db import IntegrityError, transaction
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -34,6 +35,7 @@ def get_active_cart(customer):
 class CartDetailView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
+    @extend_schema(responses=CartSerializer)
     def get(self, request):
         cart = get_active_cart(request.user)
         return Response(CartSerializer(cart).data)
@@ -48,6 +50,9 @@ class CartItemViewSet(viewsets.ModelViewSet):
         return get_active_cart(self.request.user)
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return CartItem.objects.none()
+
         return (
             CartItem.objects.filter(cart=self.get_cart())
             .select_related("product")
@@ -71,6 +76,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
 class CheckoutView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
+    @extend_schema(request=CheckoutSerializer, responses=OrderSerializer)
     def post(self, request):
         serializer = CheckoutSerializer(
             data=request.data,
@@ -92,6 +98,9 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Order.objects.none()
+
         return (
             Order.objects.filter(customer=self.request.user)
             .prefetch_related("items__product")
@@ -167,6 +176,9 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
     http_method_names = ("get", "patch", "head", "options")
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Order.objects.none()
+
         return (
             Order.objects.all()
             .select_related("customer")

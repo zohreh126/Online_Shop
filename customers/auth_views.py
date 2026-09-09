@@ -10,6 +10,9 @@ from rest_framework_simplejwt.serializers import (
 )
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
 
 from .authentication import CookieJWTAuthentication
 from .serializers import CustomerProfileSerializer
@@ -50,6 +53,7 @@ class CSRFTokenView(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
 
+    @extend_schema(request=None, responses={200: OpenApiTypes.OBJECT})
     def get(self, request):
         token = get_token(request)
         response = Response(
@@ -64,6 +68,16 @@ class CookieLoginView(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
 
+    @extend_schema(
+        request=inline_serializer(
+            name="CookieLoginRequest",
+            fields={
+                "username": serializers.CharField(),
+                "password": serializers.CharField(),
+            },
+        ),
+        responses={200: OpenApiTypes.OBJECT, 401: OpenApiTypes.OBJECT},
+    )
     def post(self, request):
         _enforce_csrf(request)
 
@@ -117,6 +131,7 @@ class CookieRefreshView(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
 
+    @extend_schema(request=None, responses={200: OpenApiTypes.OBJECT})
     def post(self, request):
         _enforce_csrf(request)
 
@@ -167,6 +182,7 @@ class CookieLogoutView(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
 
+    @extend_schema(request=None, responses={200: OpenApiTypes.OBJECT})
     def post(self, request):
         _enforce_csrf(request)
 

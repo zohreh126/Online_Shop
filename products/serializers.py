@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import Category, Discount, Product
@@ -64,6 +66,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
         return discount
 
+    @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_discount_amount(self, product):
         discount = self.get_product_discount(product)
 
@@ -72,12 +75,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
         return discount.calculate_discount(product.price)
 
+    @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_final_price(self, product):
         discount_amount = self.get_discount_amount(product)
         final_price = product.price - discount_amount
 
         return max(final_price, Decimal("0.00"))
 
+    @extend_schema_field(OpenApiTypes.URI)
     def get_image_url(self, product):
         if not product.image:
             return None

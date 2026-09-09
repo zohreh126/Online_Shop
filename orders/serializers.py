@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from django.db import transaction
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from customers.models import Address
@@ -169,9 +171,11 @@ class CartSerializer(serializers.ModelSerializer):
         )
         read_only_fields = fields
 
+    @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_subtotal(self, cart):
         return cart.subtotal
 
+    @extend_schema_field(OpenApiTypes.INT)
     def get_item_count(self, cart):
         return sum(
             item.quantity
