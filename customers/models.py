@@ -47,6 +47,11 @@ class CustomerManager(BaseUserManager):
 
 
 class Customer(AbstractBaseUser, PermissionsMixin):
+    class Role(models.TextChoices):
+        PRODUCT_MANAGER = "product_manager", "Product manager"
+        SUPERVISOR = "supervisor", "Supervisor"
+        OPERATOR = "operator", "Operator"
+
     username = models.CharField(
         max_length=150,
         unique=True,
@@ -69,6 +74,13 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(
         max_length=20,
         blank=True,
+    )
+
+    role = models.CharField(
+        max_length=30,
+        choices=Role.choices,
+        blank=True,
+        default="",
     )
 
     is_staff = models.BooleanField(default=False)
