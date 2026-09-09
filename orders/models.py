@@ -25,6 +25,13 @@ class Cart(TimeStampedModel):
         null=True,
         blank=True,
     )
+    discount_code = models.ForeignKey(
+        DiscountCode,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="carts",
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:

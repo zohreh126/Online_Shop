@@ -36,7 +36,10 @@ class OrderActionAPITests(APITestCase):
 
     def test_mock_payment_confirms_and_marks_order_paid(self):
         order = self.create_order()
-        url = reverse("order-pay", kwargs={"pk": order.pk})
+        url = reverse(
+            "order-pay",
+            kwargs={"order_number": order.order_number},
+        )
 
         response = self.client.post(url, {}, format="json")
 
@@ -49,7 +52,10 @@ class OrderActionAPITests(APITestCase):
 
     def test_order_cannot_be_paid_twice(self):
         order = self.create_order()
-        url = reverse("order-pay", kwargs={"pk": order.pk})
+        url = reverse(
+            "order-pay",
+            kwargs={"order_number": order.order_number},
+        )
         self.client.post(url, {}, format="json")
 
         response = self.client.post(url, {}, format="json")
@@ -58,7 +64,10 @@ class OrderActionAPITests(APITestCase):
 
     def test_pending_unpaid_order_can_be_cancelled(self):
         order = self.create_order()
-        url = reverse("order-cancel", kwargs={"pk": order.pk})
+        url = reverse(
+            "order-cancel",
+            kwargs={"order_number": order.order_number},
+        )
 
         response = self.client.post(url, {}, format="json")
 
@@ -72,7 +81,10 @@ class OrderActionAPITests(APITestCase):
             status=Order.Status.CONFIRMED,
             payment_status=Order.PaymentStatus.PAID,
         )
-        url = reverse("order-cancel", kwargs={"pk": order.pk})
+        url = reverse(
+            "order-cancel",
+            kwargs={"order_number": order.order_number},
+        )
 
         response = self.client.post(url, {}, format="json")
 

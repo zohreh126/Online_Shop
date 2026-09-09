@@ -1,7 +1,7 @@
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,6 +12,7 @@ from .serializers import (
     CartItemSerializer,
     CartSerializer,
     CheckoutSerializer,
+    CouponSerializer,
     OrderSerializer,
 )
 
@@ -95,6 +96,58 @@ class CartItemViewSet(viewsets.ModelViewSet):
         )
 
 
+class CartCouponView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    @extend_schema(request=CouponSerializer, responses=CartSerializer)
+    def post(self, request):
+        cart = get_request_cart(request)
+        if not cart.items.exists():
+            return Response(
+                {"detail": "Cannot apply a coupon to an empty cart."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = CouponSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        code = serializer.validated_data["code"]
+
+        from products.models import DiscountCode
+
+        try:
+            discount_code = DiscountCode.objects.get(code=code)
+        except DiscountCode.DoesNotExist as exc:
+            raise serializers.ValidationError(
+                {"code": "Invalid discount code."}
+            ) from exc
+
+        if not discount_code.is_valid_now:
+            return Response(
+                {"code": "This discount code is no longer valid."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if cart.subtotal < discount_code.minimum_order_amount:
+            return Response(
+                {"code": "The cart does not meet the minimum amount."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cart.discount_code = discount_code
+        cart.save(update_fields=["discount_code", "updated_at"])
+        return Response(
+            CartSerializer(cart, context={"request": request}).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(request=None, responses={204: None})
+    def delete(self, request):
+        cart = get_request_cart(request)
+        cart.discount_code = None
+        cart.save(update_fields=["discount_code", "updated_at"])
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class CheckoutView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -118,6 +171,7 @@ class CheckoutView(APIView):
 class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    lookup_field = "order_number"
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
@@ -131,8 +185,10 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="pay")
     @transaction.atomic
-    def pay(self, request, pk=None):
-        order = self.get_queryset().select_for_update().get(pk=pk)
+    def pay(self, request, *args, **kwargs):
+        order = self.get_queryset().select_for_update().get(
+            order_number=kwargs["order_number"],
+        )
 
         if order.payment_method != Order.PaymentMethod.MOCK:
             return Response(
@@ -171,8 +227,10 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="cancel")
     @transaction.atomic
-    def cancel(self, request, pk=None):
-        order = self.get_queryset().select_for_update().get(pk=pk)
+    def cancel(self, request, *args, **kwargs):
+        order = self.get_queryset().select_for_update().get(
+            order_number=kwargs["order_number"],
+        )
 
         if order.status != Order.Status.PENDING:
             return Response(

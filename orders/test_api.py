@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from customers.models import Customer
-from products.models import Category, Product
+from products.models import Category, Discount, DiscountCode, Product
 
 
 class CartAPITests(APITestCase):
@@ -117,3 +117,47 @@ class CartAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(self.client.get(self.cart_url).data["items"], [])
+
+    def test_coupon_can_be_applied_and_removed_from_cart(self):
+        self.authenticate()
+        self.client.post(
+            self.items_url,
+            {"product_id": self.product.pk, "quantity": 1},
+            format="json",
+        )
+        DiscountCode.objects.create(
+            code="CART10",
+            discount_type=Discount.DiscountType.PERCENTAGE,
+            value=Decimal("10.00"),
+        )
+
+        apply_response = self.client.post(
+            reverse("cart-coupon"),
+            {"code": "cart10"},
+            format="json",
+        )
+        self.assertEqual(apply_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(apply_response.data["coupon_code"], "CART10")
+
+        remove_response = self.client.delete(reverse("cart-coupon"))
+        self.assertEqual(
+            remove_response.status_code,
+            status.HTTP_204_NO_CONTENT,
+        )
+        self.assertIsNone(self.client.get(self.cart_url).data["coupon_code"])
+
+    def test_invalid_coupon_is_rejected(self):
+        self.authenticate()
+        self.client.post(
+            self.items_url,
+            {"product_id": self.product.pk, "quantity": 1},
+            format="json",
+        )
+
+        response = self.client.post(
+            reverse("cart-coupon"),
+            {"code": "NOT-REAL"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

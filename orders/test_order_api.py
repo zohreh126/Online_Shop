@@ -66,7 +66,10 @@ class OrderAPITests(APITestCase):
 
     def test_order_detail_contains_snapshot_items(self):
         self.client.force_authenticate(self.customer)
-        url = reverse("order-detail", kwargs={"pk": self.order.pk})
+        url = reverse(
+            "order-detail",
+            kwargs={"order_number": self.order.order_number},
+        )
 
         response = self.client.get(url)
 
@@ -79,7 +82,10 @@ class OrderAPITests(APITestCase):
 
     def test_customer_cannot_access_another_customers_order(self):
         self.client.force_authenticate(self.customer)
-        url = reverse("order-detail", kwargs={"pk": self.other_order.pk})
+        url = reverse(
+            "order-detail",
+            kwargs={"order_number": self.other_order.order_number},
+        )
 
         response = self.client.get(url)
 

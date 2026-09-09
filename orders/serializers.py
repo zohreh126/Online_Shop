@@ -159,6 +159,11 @@ class CartSerializer(serializers.ModelSerializer):
     )
     subtotal = serializers.SerializerMethodField()
     item_count = serializers.SerializerMethodField()
+    coupon_code = serializers.CharField(
+        source="discount_code.code",
+        read_only=True,
+        allow_null=True,
+    )
 
     class Meta:
         model = Cart
@@ -167,6 +172,7 @@ class CartSerializer(serializers.ModelSerializer):
             "items",
             "item_count",
             "subtotal",
+            "coupon_code",
             "updated_at",
         )
         read_only_fields = fields
@@ -377,6 +383,8 @@ class CheckoutSerializer(serializers.Serializer):
         coupon_discount_amount = Decimal("0.00")
         discount_code = None
         coupon_code = validated_data.get("coupon_code", "").strip().upper()
+        if not coupon_code and cart.discount_code_id:
+            coupon_code = cart.discount_code.code
 
         if coupon_code:
             try:
@@ -449,4 +457,13 @@ class CheckoutSerializer(serializers.Serializer):
             discount_code.save(update_fields=["used_count", "updated_at"])
 
         CartItem.objects.filter(cart=cart).delete()
+        cart.discount_code = None
+        cart.save(update_fields=["discount_code", "updated_at"])
         return order
+
+
+class CouponSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=50)
+
+    def validate_code(self, value):
+        return value.strip().upper()
