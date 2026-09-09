@@ -1,5 +1,7 @@
 from django.db import IntegrityError, transaction
+from django.utils import timezone
 from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -94,3 +96,65 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
             .prefetch_related("items__product")
             .order_by("-created_at")
         )
+
+    @action(detail=True, methods=["post"], url_path="pay")
+    @transaction.atomic
+    def pay(self, request, pk=None):
+        order = self.get_queryset().select_for_update().get(pk=pk)
+
+        if order.payment_method != Order.PaymentMethod.MOCK:
+            return Response(
+                {"detail": "Only mock payments are supported here."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if order.payment_status != Order.PaymentStatus.UNPAID:
+            return Response(
+                {"detail": "This order has already been processed for payment."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if order.status == Order.Status.CANCELLED:
+            return Response(
+                {"detail": "Cancelled orders cannot be paid."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        order.payment_status = Order.PaymentStatus.PAID
+        order.status = Order.Status.CONFIRMED
+        order.payment_reference = f"MOCK-{order.order_number}"
+        order.paid_at = timezone.now()
+        order.save(
+            update_fields=[
+                "payment_status",
+                "status",
+                "payment_reference",
+                "paid_at",
+                "updated_at",
+            ]
+        )
+
+        return Response(OrderSerializer(order).data)
+
+    @action(detail=True, methods=["post"], url_path="cancel")
+    @transaction.atomic
+    def cancel(self, request, pk=None):
+        order = self.get_queryset().select_for_update().get(pk=pk)
+
+        if order.status != Order.Status.PENDING:
+            return Response(
+                {"detail": "Only pending orders can be cancelled."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if order.payment_status != Order.PaymentStatus.UNPAID:
+            return Response(
+                {"detail": "Paid orders cannot be cancelled here."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        order.status = Order.Status.CANCELLED
+        order.cancelled_at = timezone.now()
+        order.save(update_fields=["status", "cancelled_at", "updated_at"])
+
+        return Response(OrderSerializer(order).data)
