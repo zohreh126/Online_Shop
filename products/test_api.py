@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Category, Product
+from .models import Category, Discount, Product
 
 
 class ProductCatalogAPITests(APITestCase):
@@ -136,6 +136,36 @@ class ProductCatalogAPITests(APITestCase):
         self.assertEqual(
             [item["slug"] for item in response.data["results"]],
             [self.headphones.slug],
+        )
+
+    def test_discount_filter_returns_only_products_with_active_discount(self):
+        Discount.objects.create(
+            product=self.keyboard,
+            discount_type=Discount.DiscountType.PERCENTAGE,
+            value=Decimal("15.00"),
+        )
+
+        response = self.client.get(
+            reverse("product-list"),
+            {"has_discount": "true"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            [item["slug"] for item in response.data["results"]],
+            [self.keyboard.slug],
+        )
+
+    def test_stock_range_filters_work(self):
+        response = self.client.get(
+            reverse("product-list"),
+            {"min_stock": "6", "max_stock": "12"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            [item["slug"] for item in response.data["results"]],
+            [self.keyboard.slug],
         )
 
     def test_product_category_and_price_filters_work(self):
