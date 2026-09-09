@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from customers.models import Address
-from products.models import Product
+from products.models import DiscountCode, Product
 from products.serializers import ProductSerializer
 
 from .models import Cart, CartItem, Order, OrderItem
@@ -286,6 +286,11 @@ class CheckoutSerializer(serializers.Serializer):
         default=Order.PaymentMethod.MOCK,
     )
     notes = serializers.CharField(required=False, allow_blank=True)
+    coupon_code = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        max_length=50,
+    )
 
     def validate_address(self, address):
         if address.customer_id != self.context["request"].user.id:
@@ -341,7 +346,40 @@ class CheckoutSerializer(serializers.Serializer):
 
         subtotal = subtotal.quantize(Decimal("0.01"))
         product_discount_amount = product_discount_amount.quantize(Decimal("0.01"))
-        total_amount = subtotal - product_discount_amount
+        coupon_discount_amount = Decimal("0.00")
+        discount_code = None
+        coupon_code = validated_data.get("coupon_code", "").strip().upper()
+
+        if coupon_code:
+            try:
+                discount_code = DiscountCode.objects.select_for_update().get(
+                    code=coupon_code,
+                )
+            except DiscountCode.DoesNotExist as exc:
+                raise serializers.ValidationError(
+                    {"coupon_code": "Invalid discount code."}
+                ) from exc
+
+            if not discount_code.is_valid_now:
+                raise serializers.ValidationError(
+                    {"coupon_code": "This discount code is no longer valid."}
+                )
+
+            if subtotal < discount_code.minimum_order_amount:
+                raise serializers.ValidationError(
+                    {
+                        "coupon_code": (
+                            "The order does not meet the minimum amount "
+                            "for this discount code."
+                        )
+                    }
+                )
+
+            coupon_discount_amount = discount_code.calculate_discount(subtotal)
+
+        total_amount = (
+            subtotal - product_discount_amount - coupon_discount_amount
+        ).quantize(Decimal("0.01"))
 
         order = Order.objects.create(
             customer=self.context["request"].user,
@@ -351,7 +389,10 @@ class CheckoutSerializer(serializers.Serializer):
             ),
             subtotal=subtotal,
             product_discount_amount=product_discount_amount,
+            coupon_discount_amount=coupon_discount_amount,
             total_amount=total_amount,
+            discount_code=discount_code,
+            discount_code_text=discount_code.code if discount_code else "",
             shipping_title=address.title,
             shipping_province=address.province,
             shipping_city=address.city,
@@ -374,6 +415,10 @@ class CheckoutSerializer(serializers.Serializer):
             )
             product.stock_quantity -= item.quantity
             product.save(update_fields=["stock_quantity", "updated_at"])
+
+        if discount_code is not None:
+            discount_code.used_count += 1
+            discount_code.save(update_fields=["used_count", "updated_at"])
 
         CartItem.objects.filter(cart=cart).delete()
         return order

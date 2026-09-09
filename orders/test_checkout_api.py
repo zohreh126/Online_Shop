@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from customers.models import Address, Customer
-from products.models import Category, Product
+from products.models import Category, Discount, DiscountCode, Product
 
 from .models import Cart, CartItem, Order
 
@@ -81,6 +81,53 @@ class CheckoutAPITests(APITestCase):
         response = self.client.post(
             self.checkout_url,
             {"address_id": self.address.pk},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(Order.objects.exists())
+
+    def test_checkout_applies_coupon_and_increments_usage(self):
+        discount_code = DiscountCode.objects.create(
+            code="NEXORA10",
+            discount_type=Discount.DiscountType.PERCENTAGE,
+            value=Decimal("10.00"),
+            usage_limit=2,
+        )
+        self.add_to_cart(quantity=2)
+
+        response = self.client.post(
+            self.checkout_url,
+            {
+                "address_id": self.address.pk,
+                "coupon_code": "nexora10",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        order = Order.objects.get()
+        self.assertEqual(order.coupon_discount_amount, Decimal("50.00"))
+        self.assertEqual(order.total_amount, Decimal("450.00"))
+        self.assertEqual(order.discount_code_text, "NEXORA10")
+        discount_code.refresh_from_db()
+        self.assertEqual(discount_code.used_count, 1)
+
+    def test_checkout_rejects_coupon_below_minimum_amount(self):
+        DiscountCode.objects.create(
+            code="MIN1000",
+            discount_type=Discount.DiscountType.FIXED,
+            value=Decimal("100.00"),
+            minimum_order_amount=Decimal("1000.00"),
+        )
+        self.add_to_cart(quantity=1)
+
+        response = self.client.post(
+            self.checkout_url,
+            {
+                "address_id": self.address.pk,
+                "coupon_code": "MIN1000",
+            },
             format="json",
         )
 
