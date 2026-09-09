@@ -29,6 +29,7 @@ class ProductSerializer(serializers.ModelSerializer):
     is_in_stock = serializers.BooleanField(read_only=True)
     discount_amount = serializers.SerializerMethodField()
     final_price = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -47,6 +48,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "stock_quantity",
             "is_in_stock",
             "image",
+            "image_url",
         )
         read_only_fields = fields
 
@@ -75,3 +77,14 @@ class ProductSerializer(serializers.ModelSerializer):
         final_price = product.price - discount_amount
 
         return max(final_price, Decimal("0.00"))
+
+    def get_image_url(self, product):
+        if not product.image:
+            return None
+
+        image_url = product.image.url
+        request = self.context.get("request")
+        if request is not None:
+            return request.build_absolute_uri(image_url)
+
+        return image_url

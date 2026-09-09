@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -27,6 +28,8 @@ class ProductCatalogAPITests(APITestCase):
             category=self.electronics,
             price=Decimal("100.00"),
             stock_quantity=10,
+            brand="Nexora",
+            specifications={"layout": "US", "connection": "USB-C"},
         )
         self.headphones = self.create_product(
             name="Wireless Headphones",
@@ -34,6 +37,7 @@ class ProductCatalogAPITests(APITestCase):
             category=self.audio,
             price=Decimal("250.00"),
             stock_quantity=5,
+            brand="SoundPeak",
         )
         self.out_of_stock = self.create_product(
             name="USB Cable",
@@ -87,6 +91,27 @@ class ProductCatalogAPITests(APITestCase):
         )
         self.assertIn("final_price", response.data)
         self.assertIn("discount_amount", response.data)
+        self.assertEqual(response.data["brand"], "Nexora")
+        self.assertEqual(response.data["specifications"]["layout"], "US")
+        self.assertIsNone(response.data["image_url"])
+
+    def test_product_image_url_is_returned_as_absolute_url(self):
+        self.keyboard.image = SimpleUploadedFile(
+            "keyboard.jpg",
+            b"fake-image-content",
+            content_type="image/jpeg",
+        )
+        self.keyboard.save()
+
+        response = self.client.get(
+            reverse(
+                "product-detail",
+                kwargs={"slug": self.keyboard.slug},
+            )
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["image_url"].startswith("http"))
 
     def test_product_search_filter_works(self):
         response = self.client.get(
@@ -100,6 +125,18 @@ class ProductCatalogAPITests(APITestCase):
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["slug"], self.headphones.slug)
+
+    def test_product_brand_filter_supports_partial_match(self):
+        response = self.client.get(
+            reverse("product-list"),
+            {"brand": "sound"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            [item["slug"] for item in response.data["results"]],
+            [self.headphones.slug],
+        )
 
     def test_product_category_and_price_filters_work(self):
         response = self.client.get(

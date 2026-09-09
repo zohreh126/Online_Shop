@@ -56,7 +56,7 @@ class ProductFilter(django_filters.FilterSet):
     )
     brand = django_filters.CharFilter(
         field_name="brand",
-        lookup_expr="iexact",
+        lookup_expr="icontains",
     )
     min_price = django_filters.NumberFilter(
         field_name="price",
