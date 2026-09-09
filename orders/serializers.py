@@ -449,16 +449,6 @@ class CheckoutSerializer(serializers.Serializer):
                 unit_discount=unit_discount,
                 quantity=item.quantity,
             )
-            product.stock_quantity -= item.quantity
-            product.save(update_fields=["stock_quantity", "updated_at"])
-
-        if discount_code is not None:
-            discount_code.used_count += 1
-            discount_code.save(update_fields=["used_count", "updated_at"])
-
-        CartItem.objects.filter(cart=cart).delete()
-        cart.discount_code = None
-        cart.save(update_fields=["discount_code", "updated_at"])
         return order
 
 
@@ -467,3 +457,7 @@ class CouponSerializer(serializers.Serializer):
 
     def validate_code(self, value):
         return value.strip().upper()
+
+
+class MockPaymentSerializer(serializers.Serializer):
+    result = serializers.ChoiceField(choices=("success", "failed"))

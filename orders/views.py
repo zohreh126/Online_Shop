@@ -13,6 +13,7 @@ from .serializers import (
     CartSerializer,
     CheckoutSerializer,
     CouponSerializer,
+    MockPaymentSerializer,
     OrderSerializer,
 )
 
@@ -183,12 +184,9 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
             .order_by("-created_at")
         )
 
-    @action(detail=True, methods=["post"], url_path="pay")
     @transaction.atomic
-    def pay(self, request, *args, **kwargs):
-        order = self.get_queryset().select_for_update().get(
-            order_number=kwargs["order_number"],
-        )
+    def _process_mock_payment(self, order, result):
+        order = Order.objects.select_for_update().get(pk=order.pk)
 
         if order.payment_method != Order.PaymentMethod.MOCK:
             return Response(
@@ -208,6 +206,48 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if result == "failed":
+            order.payment_status = Order.PaymentStatus.FAILED
+            order.status = Order.Status.CANCELLED
+            order.cancelled_at = timezone.now()
+            order.save(
+                update_fields=["payment_status", "status", "cancelled_at", "updated_at"]
+            )
+            return Response(OrderSerializer(order).data)
+
+        if order.discount_code_id:
+            discount_code = order.discount_code
+            if not discount_code.is_valid_now:
+                return Response(
+                    {"detail": "The order coupon is no longer valid."},
+                    status=status.HTTP_409_CONFLICT,
+                )
+
+        order_items = list(
+            order.items.select_for_update().select_related("product")
+        )
+        for order_item in order_items:
+            if order_item.product_id is None:
+                continue
+
+            product = order_item.product
+            if not product.is_active or product.stock_quantity < order_item.quantity:
+                return Response(
+                    {"detail": "Stock is no longer available for this order."},
+                    status=status.HTTP_409_CONFLICT,
+                )
+
+        for order_item in order_items:
+            if order_item.product_id is None:
+                continue
+            product = order_item.product
+            product.stock_quantity -= order_item.quantity
+            product.save(update_fields=["stock_quantity", "updated_at"])
+
+        if order.discount_code_id:
+            discount_code.used_count += 1
+            discount_code.save(update_fields=["used_count", "updated_at"])
+
         order.payment_status = Order.PaymentStatus.PAID
         order.status = Order.Status.CONFIRMED
         order.payment_reference = f"MOCK-{order.order_number}"
@@ -222,8 +262,37 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
             ]
         )
 
+        CartItem.objects.filter(
+            cart__customer=order.customer,
+            cart__is_active=True,
+            product_id__in=[item.product_id for item in order_items if item.product_id],
+        ).delete()
+        Cart.objects.filter(
+            customer=order.customer,
+            is_active=True,
+        ).update(discount_code=None)
         return Response(OrderSerializer(order).data)
 
+    @action(detail=True, methods=["post"], url_path="pay")
+    @transaction.atomic
+    def pay(self, request, *args, **kwargs):
+        order = self.get_queryset().select_for_update().get(
+            order_number=kwargs["order_number"],
+        )
+        return self._process_mock_payment(order, "success")
+
+    @extend_schema(request=MockPaymentSerializer, responses=OrderSerializer)
+    @action(detail=True, methods=["post"], url_path="mock-payment")
+    def mock_payment(self, request, *args, **kwargs):
+        order = self.get_queryset().select_for_update().get(
+            order_number=kwargs["order_number"],
+        )
+        serializer = MockPaymentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return self._process_mock_payment(
+            order,
+            serializer.validated_data["result"],
+        )
 
     @action(detail=True, methods=["post"], url_path="cancel")
     @transaction.atomic

@@ -46,8 +46,9 @@ class CheckoutAPITests(APITestCase):
             product=self.product,
             quantity=quantity,
         )
+        return cart
 
-    def test_checkout_creates_order_snapshots_items_and_clears_cart(self):
+    def test_checkout_creates_pending_order_without_consuming_stock(self):
         self.add_to_cart()
 
         response = self.client.post(
@@ -62,8 +63,8 @@ class CheckoutAPITests(APITestCase):
         self.assertEqual(order.total_amount, Decimal("500.00"))
         self.assertEqual(order.items.get().product_name, self.product.name)
         self.product.refresh_from_db()
-        self.assertEqual(self.product.stock_quantity, 2)
-        self.assertFalse(CartItem.objects.exists())
+        self.assertEqual(self.product.stock_quantity, 4)
+        self.assertTrue(CartItem.objects.exists())
 
     def test_checkout_uses_default_address_when_address_is_omitted(self):
         self.add_to_cart()
@@ -115,7 +116,7 @@ class CheckoutAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(Order.objects.exists())
 
-    def test_checkout_applies_coupon_and_increments_usage(self):
+    def test_checkout_applies_coupon_without_consuming_usage(self):
         discount_code = DiscountCode.objects.create(
             code="NEXORA10",
             discount_type=Discount.DiscountType.PERCENTAGE,
@@ -139,7 +140,7 @@ class CheckoutAPITests(APITestCase):
         self.assertEqual(order.total_amount, Decimal("450.00"))
         self.assertEqual(order.discount_code_text, "NEXORA10")
         discount_code.refresh_from_db()
-        self.assertEqual(discount_code.used_count, 1)
+        self.assertEqual(discount_code.used_count, 0)
 
     def test_checkout_rejects_coupon_below_minimum_amount(self):
         DiscountCode.objects.create(
@@ -161,3 +162,61 @@ class CheckoutAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(Order.objects.exists())
+
+    def test_successful_mock_payment_consumes_stock_and_coupon(self):
+        discount_code = DiscountCode.objects.create(
+            code="PAY10",
+            discount_type=Discount.DiscountType.PERCENTAGE,
+            value=Decimal("10.00"),
+            usage_limit=1,
+        )
+        cart = self.add_to_cart()
+        checkout_response = self.client.post(
+            self.checkout_url,
+            {"address_id": self.address.pk, "coupon_code": "PAY10"},
+            format="json",
+        )
+        order = Order.objects.get()
+
+        payment_response = self.client.post(
+            reverse(
+                "order-mock-payment",
+                kwargs={"order_number": order.order_number},
+            ),
+            {"result": "success"},
+            format="json",
+        )
+
+        self.assertEqual(checkout_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(payment_response.status_code, status.HTTP_200_OK)
+        self.product.refresh_from_db()
+        discount_code.refresh_from_db()
+        self.assertEqual(self.product.stock_quantity, 2)
+        self.assertEqual(discount_code.used_count, 1)
+        self.assertFalse(CartItem.objects.filter(cart=cart).exists())
+
+    def test_failed_mock_payment_keeps_cart_and_stock_unchanged(self):
+        cart = self.add_to_cart()
+        checkout_response = self.client.post(
+            self.checkout_url,
+            {"address_id": self.address.pk},
+            format="json",
+        )
+        order = Order.objects.get()
+
+        payment_response = self.client.post(
+            reverse(
+                "order-mock-payment",
+                kwargs={"order_number": order.order_number},
+            ),
+            {"result": "failed"},
+            format="json",
+        )
+
+        self.assertEqual(checkout_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(payment_response.status_code, status.HTTP_200_OK)
+        self.product.refresh_from_db()
+        order.refresh_from_db()
+        self.assertEqual(self.product.stock_quantity, 4)
+        self.assertEqual(order.payment_status, Order.PaymentStatus.FAILED)
+        self.assertTrue(CartItem.objects.filter(cart=cart).exists())

@@ -11,6 +11,10 @@ class APIDocumentationTests(APITestCase):
         self.assertIn("paths", response.data)
         self.assertIn("/api/v1/products/", response.data["paths"])
         self.assertIn("/api/v1/orders/", response.data["paths"])
+        self.assertIn(
+            "/api/v1/orders/{order_number}/mock-payment/",
+            response.data["paths"],
+        )
         self.assertIn("/api/v1/cart/checkout/", response.data["paths"])
 
     def test_swagger_ui_is_available(self):

@@ -89,3 +89,17 @@ class OrderActionAPITests(APITestCase):
         response = self.client.post(url, {}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_mock_payment_failed_cancels_order_without_stock_change(self):
+        url = reverse("order-mock-payment", kwargs={"order_number": self.create_order().order_number})
+
+        response = self.client.post(
+            url,
+            {"result": "failed"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        order = Order.objects.get()
+        self.assertEqual(order.payment_status, Order.PaymentStatus.FAILED)
+        self.assertEqual(order.status, Order.Status.CANCELLED)
