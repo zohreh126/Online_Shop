@@ -32,22 +32,44 @@ def get_active_cart(customer):
         )
 
 
+def get_guest_cart(request):
+    if not request.session.session_key:
+        request.session.create()
+
+    cart, _ = Cart.objects.get_or_create(
+        session_key=request.session.session_key,
+        defaults={"is_active": True},
+    )
+    if not cart.is_active:
+        cart.is_active = True
+        cart.save(update_fields=["is_active", "updated_at"])
+    return cart
+
+
+def get_request_cart(request):
+    if request.user.is_authenticated:
+        return get_active_cart(request.user)
+    return get_guest_cart(request)
+
+
 class CartDetailView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
 
     @extend_schema(responses=CartSerializer)
     def get(self, request):
-        cart = get_active_cart(request.user)
-        return Response(CartSerializer(cart).data)
+        cart = get_request_cart(request)
+        return Response(
+            CartSerializer(cart, context={"request": request}).data
+        )
 
 
 class CartItemViewSet(viewsets.ModelViewSet):
     serializer_class = CartItemSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     http_method_names = ("get", "post", "patch", "delete", "head", "options")
 
     def get_cart(self):
-        return get_active_cart(self.request.user)
+        return get_request_cart(self.request)
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):

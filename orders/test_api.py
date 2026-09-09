@@ -35,10 +35,11 @@ class CartAPITests(APITestCase):
     def authenticate(self, customer=None):
         self.client.force_authenticate(customer or self.customer)
 
-    def test_cart_requires_authentication(self):
+    def test_cart_is_public_for_guest_users(self):
         response = self.client.get(self.cart_url)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["items"], [])
 
     def test_get_cart_creates_empty_active_cart(self):
         self.authenticate()

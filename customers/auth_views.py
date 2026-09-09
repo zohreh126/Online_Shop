@@ -15,6 +15,7 @@ from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 
 from .authentication import CookieJWTAuthentication
+from orders.cart_services import merge_guest_cart
 from .otp import request_otp, verify_otp
 from .serializers import (
     CustomerProfileSerializer,
@@ -107,6 +108,8 @@ class CookieLoginView(APIView):
                     "WWW-Authenticate": 'Bearer realm="api"',
                 },
             )
+
+        merge_guest_cart(request, serializer.user)
 
         tokens = serializer.validated_data
         response = Response(
