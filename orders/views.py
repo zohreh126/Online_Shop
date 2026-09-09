@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 
 from .models import Cart, CartItem, Order
 from .serializers import (
+    AdminOrderStatusSerializer,
     CartItemSerializer,
     CartSerializer,
     CheckoutSerializer,
@@ -136,6 +137,7 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(OrderSerializer(order).data)
 
+
     @action(detail=True, methods=["post"], url_path="cancel")
     @transaction.atomic
     def cancel(self, request, pk=None):
@@ -158,3 +160,21 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         order.save(update_fields=["status", "cancelled_at", "updated_at"])
 
         return Response(OrderSerializer(order).data)
+
+
+class AdminOrderViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAdminUser,)
+    http_method_names = ("get", "patch", "head", "options")
+
+    def get_queryset(self):
+        return (
+            Order.objects.all()
+            .select_related("customer")
+            .prefetch_related("items__product")
+            .order_by("-created_at")
+        )
+
+    def get_serializer_class(self):
+        if self.action == "partial_update":
+            return AdminOrderStatusSerializer
+        return OrderSerializer

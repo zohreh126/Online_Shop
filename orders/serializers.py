@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import serializers
 
 from customers.models import Address
@@ -224,6 +225,55 @@ class OrderSerializer(serializers.ModelSerializer):
             "created_at",
         )
         read_only_fields = fields
+
+
+class AdminOrderStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ("status",)
+
+    allowed_transitions = {
+        Order.Status.PENDING: {
+            Order.Status.CONFIRMED,
+            Order.Status.CANCELLED,
+        },
+        Order.Status.CONFIRMED: {Order.Status.PROCESSING},
+        Order.Status.PROCESSING: {Order.Status.SHIPPED},
+        Order.Status.SHIPPED: {Order.Status.DELIVERED},
+    }
+
+    def validate_status(self, value):
+        current_status = self.instance.status
+
+        if value == current_status:
+            return value
+
+        allowed = self.allowed_transitions.get(current_status, set())
+        if value not in allowed:
+            raise serializers.ValidationError(
+                f"Cannot change order status from {current_status} to {value}."
+            )
+
+        if value == Order.Status.CANCELLED:
+            if self.instance.payment_status != Order.PaymentStatus.UNPAID:
+                raise serializers.ValidationError(
+                    "Paid orders cannot be cancelled."
+                )
+
+        return value
+
+    def update(self, instance, validated_data):
+        new_status = validated_data["status"]
+        instance.status = new_status
+
+        if new_status == Order.Status.CANCELLED:
+            instance.cancelled_at = timezone.now()
+            update_fields = ["status", "cancelled_at", "updated_at"]
+        else:
+            update_fields = ["status", "updated_at"]
+
+        instance.save(update_fields=update_fields)
+        return instance
 
 
 class CheckoutSerializer(serializers.Serializer):
