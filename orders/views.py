@@ -3,7 +3,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Cart, CartItem
+from .models import Cart, CartItem, Order
 from .serializers import (
     CartItemSerializer,
     CartSerializer,
@@ -81,4 +81,16 @@ class CheckoutView(APIView):
         return Response(
             OrderSerializer(order).data,
             status=status.HTTP_201_CREATED,
+        )
+
+
+class OrderViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = OrderSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return (
+            Order.objects.filter(customer=self.request.user)
+            .prefetch_related("items__product")
+            .order_by("-created_at")
         )
