@@ -95,6 +95,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             "role",
             "is_staff",
             "is_superuser",
+            "email_verified",
             "date_joined",
         )
         read_only_fields = fields

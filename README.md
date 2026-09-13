@@ -15,7 +15,7 @@ python manage.py runserver
 
 ## اجرای PostgreSQL و Redis با Docker
 
-Docker فقط سرویس‌های زیرساختی PostgreSQL و Redis را اجرا می‌کند؛ خود Django همچنان با محیط مجازی محلی اجرا می‌شود.
+Docker سرویس‌های PostgreSQL، Redis، Celery Worker و Celery Beat را اجرا می‌کند.
 
 ```bash
 cp .env.example .env
@@ -31,6 +31,12 @@ python manage.py migrate
 python manage.py seed_roles
 python manage.py seed_nexora
 python manage.py runserver
+```
+
+برای اجرای کامل worker و beat:
+
+```bash
+docker compose up -d
 ```
 
 برای توقف سرویس‌ها:

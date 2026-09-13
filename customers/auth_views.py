@@ -173,6 +173,9 @@ class LoginOTPVerifyView(APIView):
         cache.delete(_login_otp_key(email))
         if user is None:
             return Response({"detail": "حساب کاربری فعال پیدا نشد."}, status=status.HTTP_401_UNAUTHORIZED)
+        if not user.email_verified:
+            user.email_verified = True
+            user.save(update_fields=("email_verified",))
         return _login_response(request, user)
 
 
@@ -324,6 +327,9 @@ class OTPVerifyView(APIView):
                 {"detail": str(exc)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        from .models import Customer
+        Customer.objects.filter(email=serializer.validated_data["email"]).update(email_verified=True)
 
         return Response(
             {"detail": "Email verified successfully.", "verified": True},

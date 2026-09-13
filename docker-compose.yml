@@ -29,6 +29,26 @@ services:
       timeout: 5s
       retries: 10
 
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A config worker -l INFO
+    env_file: .env
+    depends_on:
+      - redis
+      - db
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A config beat -l INFO
+    env_file: .env
+    depends_on:
+      - redis
+      - db
+
 volumes:
   nexora_postgres_data:
   nexora_redis_data:
