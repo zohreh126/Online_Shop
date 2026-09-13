@@ -11,6 +11,23 @@ async function getJSON(path) {
   return response.json();
 }
 
+async function loadAccountState() {
+  const account = document.querySelector("#account-area");
+  try {
+    const profile = await getJSON("auth/profile/");
+    account.innerHTML = `<span class="account-name">${profile.first_name || profile.username}</span><button class="account-link account-logout" id="account-logout" type="button">خروج</button>`;
+    document.querySelector("#account-logout").addEventListener("click", async () => {
+      try {
+        await sendJSON("auth/logout/", "POST");
+        account.innerHTML = '<a class="account-link" href="/account/">ورود</a>';
+        showToast("از حساب خارج شدی.");
+      } catch (error) { showToast(error.message); }
+    });
+  } catch (error) {
+    account.innerHTML = '<a class="account-link" href="/account/">ورود</a>';
+  }
+}
+
 function getCookie(name) {
   const cookies = document.cookie ? document.cookie.split("; ") : [];
   const cookie = cookies.find((value) => value.startsWith(`${name}=`));
@@ -169,4 +186,5 @@ if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.cl
 function updateThemeButton() { document.querySelector("#theme-toggle").textContent = document.documentElement.classList.contains("dark") ? "☼" : "☾"; }
 updateThemeButton();
 refreshCart();
+loadAccountState();
 loadCatalog();

@@ -2,6 +2,7 @@ const API_BASE = "/api/v1/";
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const money = (value) => `${faNumber(Math.round(Number(value)))} تومان`;
 const state = { cart: null, addresses: [], selectedAddress: null, order: null };
+const latinizeDigits = (value) => String(value).replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit)).replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
 
 function getCookie(name) {
   const cookie = (document.cookie ? document.cookie.split("; ") : []).find((value) => value.startsWith(`${name}=`));
@@ -24,7 +25,11 @@ async function request(path, options = {}) {
   if (method !== "GET") headers["X-CSRFToken"] = await csrf();
   const response = await fetch(`${API_BASE}${path}`, { ...options, method, headers, credentials: "same-origin" });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw Object.assign(new Error(data.detail || data.address_id?.[0] || "عملیات انجام نشد."), { status: response.status, data });
+  if (!response.ok) {
+    const messages = Object.entries(data)
+      .flatMap(([field, value]) => (Array.isArray(value) ? value : [value]).map((message) => `${field}: ${message}`));
+    throw Object.assign(new Error(messages.join(" | ") || data.detail || "عملیات انجام نشد."), { status: response.status, data });
+  }
   return data;
 }
 
@@ -73,8 +78,21 @@ document.querySelector("#add-address").addEventListener("click", () => { documen
 document.querySelector("#address-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const payload = Object.fromEntries(new FormData(event.currentTarget));
-  try { const address = await request("auth/addresses/", { method: "POST", body: JSON.stringify(payload) }); state.addresses.unshift(address); state.selectedAddress = address.id; event.currentTarget.reset(); event.currentTarget.hidden = true; renderAddresses(); }
-  catch (error) { showAlert(error.message); }
+  payload.is_default = true;
+  payload.postal_code = latinizeDigits(payload.postal_code).replace(/\s/g, "");
+  payload.recipient_phone = latinizeDigits(payload.recipient_phone).replace(/\s/g, "");
+  const submit = event.currentTarget.querySelector("button[type=submit]");
+  submit.disabled = true;
+  try {
+    const address = await request("auth/addresses/", { method: "POST", body: JSON.stringify(payload) });
+    state.addresses.unshift(address);
+    state.selectedAddress = address.id;
+    event.currentTarget.reset();
+    event.currentTarget.hidden = true;
+    renderAddresses();
+    showAlert("آدرس با موفقیت ذخیره شد.", "success");
+  } catch (error) { showAlert(error.message); }
+  finally { submit.disabled = false; }
 });
 document.querySelector("#checkout-submit").addEventListener("click", async () => {
   if (!state.selectedAddress) { showAlert("یک آدرس ارسال انتخاب کن."); return; }

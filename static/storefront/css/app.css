@@ -51,6 +51,9 @@
 .empty-inline { padding:22px; background:var(--soft); color:var(--muted); font-size:12px; text-align:center; }
 .account-link { color:var(--muted); font-size:12px; }
 .account-link:hover { color:var(--ink); }
+.account-area { display:flex; align-items:center; gap:10px; }
+.account-name { color:var(--ink); font-size:12px; }
+.account-logout { border:0; background:transparent; cursor:pointer; }
 .account-page { min-height:calc(100vh - 160px); display:grid; place-items:center; padding:60px 0; }
 .account-card { width:min(500px,100%); background:var(--card); border:1px solid var(--line); padding:35px; box-shadow:0 18px 45px rgba(75,55,100,.08); }
 .account-card h1 { font-size:38px; margin:12px 0; }
