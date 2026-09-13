@@ -80,7 +80,7 @@ function renderCart(cart) {
   const body = document.querySelector("#cart-body");
   const footer = document.querySelector("#cart-footer");
   document.querySelector("#cart-count").textContent = faNumber(cart.item_count || 0);
-  document.querySelector("#cart-subtotal").textContent = money(cart.subtotal || 0);
+  document.querySelector("#cart-subtotal").textContent = money(cart.total_amount ?? cart.subtotal ?? 0);
   if (!cart.items?.length) {
     footer.hidden = true;
     body.innerHTML = `<div class="cart-empty"><span class="state-icon">♡</span><h3>سبد خرید خالی است</h3><p>محصولی که دوست داری را به سبد اضافه کن.</p><button class="retry-button" id="empty-cart-shop">مشاهده محصولات</button></div>`;
@@ -88,7 +88,7 @@ function renderCart(cart) {
     return;
   }
   footer.hidden = false;
-  body.innerHTML = cart.items.map((item) => `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="تصویر ${item.product.name}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product?.name || "محصول"}</h3><strong>${money(item.line_total)}</strong><div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="کاهش تعداد">−</button><span>${faNumber(item.quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="افزایش تعداد">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="حذف محصول">حذف</button></div></div></article>`).join("");
+  body.innerHTML = cart.items.map((item) => `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="تصویر ${item.product.name}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product?.name || "محصول"}</h3><strong>${money(item.line_total)}</strong>${item.unit_discount > 0 ? `<small class="cart-item-discount">تخفیف هر واحد: ${money(item.unit_discount)}</small>` : ""}<div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="کاهش تعداد">−</button><span>${faNumber(item.quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="افزایش تعداد">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="حذف محصول">حذف</button></div></div></article>`).join("");
   body.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => updateCartItem(button.dataset.item, button.dataset.action)));
 }
 

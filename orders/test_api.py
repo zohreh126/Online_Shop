@@ -72,6 +72,30 @@ class CartAPITests(APITestCase):
         self.assertEqual(cart.data["item_count"], 3)
         self.assertEqual(cart.data["subtotal"], Decimal("300.00"))
 
+    def test_cart_totals_use_current_product_discount(self):
+        Discount.objects.create(
+            product=self.product,
+            discount_type=Discount.DiscountType.PERCENTAGE,
+            value=Decimal("10.00"),
+        )
+        self.authenticate()
+
+        response = self.client.post(
+            self.items_url,
+            {"product_id": self.product.pk, "quantity": 2},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["unit_price"], "90.00")
+        self.assertEqual(response.data["unit_discount"], "10.00")
+        self.assertEqual(response.data["line_total"], "180.00")
+
+        cart = self.client.get(self.cart_url)
+        self.assertEqual(cart.data["subtotal"], Decimal("200.00"))
+        self.assertEqual(cart.data["product_discount_amount"], Decimal("20.00"))
+        self.assertEqual(cart.data["total_amount"], Decimal("180.00"))
+
     def test_item_quantity_cannot_exceed_stock(self):
         self.authenticate()
 

@@ -63,11 +63,11 @@ class Cart(TimeStampedModel):
     def subtotal(self):
         return sum(
             (
-                item.line_total
+                item.product.price * item.quantity
                 for item in self.items.select_related("product").all()
             ),
             Decimal("0.00"),
-        )
+        ).quantize(Decimal("0.01"))
 
     def __str__(self):
         owner = self.customer or self.session_key
@@ -113,10 +113,19 @@ class CartItem(TimeStampedModel):
         return super().save(*args, **kwargs)
 
     @property
+    def unit_discount(self):
+        discount = getattr(self.product, "discount", None)
+        if discount is None:
+            return Decimal("0.00")
+        return discount.calculate_discount(self.product.price)
+
+    @property
+    def unit_price(self):
+        return (self.product.price - self.unit_discount).quantize(Decimal("0.01"))
+
+    @property
     def line_total(self):
-        return (
-            self.product.price * self.quantity
-        ).quantize(Decimal("0.01"))
+        return (self.unit_price * self.quantity).quantize(Decimal("0.01"))
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"

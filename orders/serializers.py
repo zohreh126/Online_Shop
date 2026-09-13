@@ -28,6 +28,16 @@ class CartItemSerializer(serializers.ModelSerializer):
         decimal_places=2,
         read_only=True,
     )
+    unit_price = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        read_only=True,
+    )
+    unit_discount = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        read_only=True,
+    )
 
     class Meta:
         model = CartItem
@@ -36,6 +46,8 @@ class CartItemSerializer(serializers.ModelSerializer):
             "product",
             "product_id",
             "quantity",
+            "unit_price",
+            "unit_discount",
             "line_total",
             "created_at",
             "updated_at",
@@ -164,6 +176,9 @@ class CartSerializer(serializers.ModelSerializer):
         read_only=True,
         allow_null=True,
     )
+    product_discount_amount = serializers.SerializerMethodField()
+    coupon_discount_amount = serializers.SerializerMethodField()
+    total_amount = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
@@ -172,6 +187,9 @@ class CartSerializer(serializers.ModelSerializer):
             "items",
             "item_count",
             "subtotal",
+            "product_discount_amount",
+            "coupon_discount_amount",
+            "total_amount",
             "coupon_code",
             "updated_at",
         )
@@ -187,6 +205,28 @@ class CartSerializer(serializers.ModelSerializer):
             item.quantity
             for item in cart.items.all()
         )
+
+    @extend_schema_field(OpenApiTypes.DECIMAL)
+    def get_product_discount_amount(self, cart):
+        return sum(
+            (item.unit_discount * item.quantity for item in cart.items.all()),
+            Decimal("0.00"),
+        ).quantize(Decimal("0.01"))
+
+    @extend_schema_field(OpenApiTypes.DECIMAL)
+    def get_coupon_discount_amount(self, cart):
+        if cart.discount_code is None:
+            return Decimal("0.00")
+        return cart.discount_code.calculate_discount(cart.subtotal - self.get_product_discount_amount(cart))
+
+    @extend_schema_field(OpenApiTypes.DECIMAL)
+    def get_total_amount(self, cart):
+        total = (
+            cart.subtotal
+            - self.get_product_discount_amount(cart)
+            - self.get_coupon_discount_amount(cart)
+        )
+        return max(total, Decimal("0.00")).quantize(Decimal("0.01"))
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
