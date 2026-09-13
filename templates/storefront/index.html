@@ -1,0 +1,77 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Nexora؛ فروشگاه لوازم دیجیتال برای انتخاب‌های هوشمندانه.">
+  <title>Nexora | لوازم دیجیتال برای زندگی مدرن</title>
+  <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
+</head>
+<body>
+  <div class="announcement">ارسال رایگان برای سفارش‌های بالای ۲ میلیون تومان <span>✦</span> پرداخت امن و پشتیبانی واقعی</div>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/" aria-label="صفحه اصلی Nexora">
+        <span class="brand-mark">N</span>
+        <span>NEXORA<small>SMART ESSENTIALS</small></span>
+      </a>
+      <nav class="desktop-nav" aria-label="ناوبری اصلی">
+        <a class="active" href="#catalog">فروشگاه</a>
+        <a href="#featured">پیشنهادهای ویژه</a>
+        <a href="#why-us">چرا نکستورا؟</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☼</button>
+        <button class="cart-button" id="cart-toggle" type="button" aria-label="باز کردن سبد خرید">سبد خرید <b id="cart-count">۰</b></button>
+        <button class="menu-button" id="menu-toggle" type="button" aria-label="باز کردن منو">☰</button>
+      </div>
+    </div>
+    <nav class="mobile-nav container" id="mobile-nav" aria-label="ناوبری موبایل">
+      <a href="#catalog">فروشگاه</a><a href="#featured">پیشنهادهای ویژه</a><a href="#why-us">چرا نکستورا؟</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero container">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> انتخاب‌های هوشمندانه، هر روز</p>
+        <h1>تکنولوژی که<br><em>با تو همراه</em> می‌شود.</h1>
+        <p class="hero-text">اکسسوری‌های دیجیتال با طراحی دقیق، کیفیت قابل اعتماد و تجربه‌ای که زندگی روزمره را ساده‌تر می‌کند.</p>
+        <a class="primary-button" href="#catalog">مشاهده محصولات <span>←</span></a>
+        <div class="hero-note"><span class="avatars">●●●</span> بیش از ۲٬۵۰۰ مشتری راضی</div>
+      </div>
+      <div class="hero-art" aria-label="تصویر تزئینی محصولات دیجیتال">
+        <div class="art-glow"></div><div class="art-ring"></div>
+        <div class="floating-card card-one">NEXORA<br><strong>FLUX</strong></div>
+        <div class="headphone-shape"><div class="headband"></div><div class="ear left"></div><div class="ear right"></div></div>
+        <div class="floating-card card-two">NEW<br><strong>ARRIVAL</strong></div>
+        <span class="spark spark-one">✦</span><span class="spark spark-two">✦</span>
+      </div>
+    </section>
+
+    <section class="trust-strip"><div class="container trust-items"><span>◈ کیفیت انتخاب‌شده</span><span>↗ ارسال سریع</span><span>◉ ضمانت اصالت</span><span>✦ پشتیبانی انسانی</span></div></section>
+
+    <section class="catalog container" id="catalog">
+      <div class="section-heading"><div><p class="eyebrow"><span></span> مجموعه منتخب</p><h2>برای میز کار بهتر</h2></div><a href="#catalog" class="text-link">همه محصولات <span>←</span></a></div>
+      <div class="catalog-tools"><div class="category-tabs" id="category-tabs"><button class="selected" data-category="">همه محصولات</button></div><label class="search-box"><span>⌕</span><input id="product-search" type="search" placeholder="جست‌وجوی محصول..." aria-label="جست‌وجوی محصول"></label></div>
+      <div class="product-grid" id="product-grid" aria-live="polite"><div class="state-card loading-state"><span class="loader"></span><p>در حال آماده‌سازی ویترین...</p></div></div>
+    </section>
+
+    <section class="feature-banner container" id="featured"><div><p class="eyebrow light"><span></span> انتخاب سردبیر</p><h2>کمتر، اما بهتر.</h2><p>محصولاتی که برای ماندن ساخته شده‌اند؛ ساده، کاربردی و بدون شلوغی اضافه.</p><a class="light-button" href="#catalog">کشف مجموعه <span>←</span></a></div><div class="banner-orbit"><div class="mini-device"></div><span>01</span></div></section>
+
+    <section class="why-us container" id="why-us"><div><p class="eyebrow"><span></span> تجربه نکستورا</p><h2>جزئیات کوچک،<br><em>تفاوت بزرگ.</em></h2></div><div class="benefit-grid"><article><b>01</b><h3>انتخاب دقیق</h3><p>هر محصول قبل از رسیدن به ویترین ما با وسواس بررسی می‌شود.</p></article><article><b>02</b><h3>شفاف و ساده</h3><p>قیمت واقعی، توضیحات روشن و خریدی بدون پیچیدگی.</p></article><article><b>03</b><h3>همراه همیشگی</h3><p>بعد از خرید هم کنارت هستیم؛ از راه‌اندازی تا پشتیبانی.</p></article></div></section>
+  </main>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-labelledby="cart-title" aria-hidden="true">
+    <div class="drawer-header"><div><p class="eyebrow"><span></span> خریدهای شما</p><h2 id="cart-title">سبد خرید</h2></div><button class="drawer-close" id="cart-close" type="button" aria-label="بستن سبد خرید">×</button></div>
+    <div class="drawer-body" id="cart-body"><div class="drawer-loading"><span class="loader"></span><p>در حال بارگذاری سبد...</p></div></div>
+    <div class="drawer-footer" id="cart-footer" hidden><div class="drawer-total"><span>جمع سبد</span><strong id="cart-subtotal">۰ تومان</strong></div><a class="drawer-checkout" href="/api/docs/">ادامه و تسویه <span>←</span></a></div>
+  </aside>
+
+  <footer class="site-footer"><div class="container footer-wrap"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p>برای زندگی دیجیتال، انتخاب‌های بهتر.</p><span>© ۲۰۲۶ Nexora</span></div></footer>
+  <script src="{% static 'storefront/js/app.js' %}" defer></script>
+</body>
+</html>

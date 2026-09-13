@@ -140,6 +140,13 @@ CATALOG = {
     },
 }
 
+PRODUCT_IMAGES = {
+    "NX-FLUX-KB-001": "products/2026/09/nexora-flux-keyboard.png",
+    "NX-ARC-MOUSE-001": "products/2026/09/nexora-arc-mouse.png",
+    "NX-PULSE-ANC-001": "products/2026/09/nexora-pulse-headphones.png",
+    "NX-ECHO-MIC-001": "products/2026/09/nexora-echo-microphone.png",
+}
+
 
 class Command(BaseCommand):
     help = "Seed the Nexora catalog with realistic demo categories and products."
@@ -165,6 +172,7 @@ class Command(BaseCommand):
                     defaults={
                         **product_data,
                         "category": category,
+                        "image": PRODUCT_IMAGES.get(product_data["sku"], ""),
                         "is_active": True,
                     },
                 )

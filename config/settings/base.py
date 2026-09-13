@@ -76,6 +76,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
+STATICFILES_DIRS = [PROJECT_ROOT / "static"]
 STATIC_ROOT = PROJECT_ROOT / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = PROJECT_ROOT / "media"
