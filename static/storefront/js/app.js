@@ -132,7 +132,6 @@ async function updateCartItem(itemId, action) {
     if (action === "remove" || (action === "decrease" && quantity <= 1)) await sendJSON(`cart/items/${itemId}/`, "DELETE");
     else await sendJSON(`cart/items/${itemId}/`, "PATCH", { quantity: action === "increase" ? quantity + 1 : quantity - 1 });
     await refreshCart();
-    await loadCatalog();
   } catch (error) { showToast(error.message); }
 }
 
