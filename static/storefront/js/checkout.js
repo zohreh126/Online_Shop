@@ -61,7 +61,10 @@ async function load() {
     document.querySelector("#checkout-content").hidden = false;
     renderAddresses(); renderCart();
   } catch (error) {
-    if (error.status === 401) showAlert("برای ادامه ابتدا وارد حساب کاربری شو.");
+    if (error.status === 401) {
+      showAlert("برای ادامه ابتدا وارد حساب کاربری شو.");
+      document.querySelector("#checkout-alert").insertAdjacentHTML("beforeend", '<a class="primary-button" href="/account/?next=/checkout/">ورود یا ثبت‌نام <span>←</span></a>');
+    }
     else showAlert(error.message);
   }
 }

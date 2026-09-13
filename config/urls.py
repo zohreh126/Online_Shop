@@ -31,6 +31,7 @@ import customers.schema  # noqa: F401
 urlpatterns = [
     path("", TemplateView.as_view(template_name="storefront/index.html"), name="storefront-home"),
     path("checkout/", TemplateView.as_view(template_name="storefront/checkout.html"), name="storefront-checkout"),
+    path("account/", TemplateView.as_view(template_name="storefront/account.html"), name="storefront-account"),
     path('admin/', admin.site.urls),
     path("health/", health_check, name="health-check"),
     path("api/v1/", include("products.urls")),
