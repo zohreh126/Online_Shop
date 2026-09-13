@@ -27,9 +27,9 @@ async function request(path, method, payload) {
   if (!response.ok) {
     const detail = data.detail || Object.values(data).flat()?.[0] || "عملیات انجام نشد.";
     if (String(detail).toLowerCase().includes("no active account")) {
-      throw new Error("نام کاربری/ایمیل یا رمز عبور صحیح نیست.");
+      throw Object.assign(new Error("نام کاربری/ایمیل یا رمز عبور صحیح نیست."), { data });
     }
-    throw new Error(Array.isArray(detail) ? detail[0] : detail);
+    throw Object.assign(new Error(Array.isArray(detail) ? detail[0] : detail), { data });
   }
   return data;
 }
@@ -39,6 +39,27 @@ function showMessage(message, success = false) {
   alert.hidden = false;
   alert.className = `account-alert ${success ? "success" : "error"}`;
   alert.textContent = message;
+}
+
+function clearFieldErrors(form) {
+  form.querySelectorAll(".field-error").forEach((element) => element.remove());
+  form.querySelectorAll("[aria-invalid=true]").forEach((element) => element.removeAttribute("aria-invalid"));
+}
+
+function showFieldErrors(form, data) {
+  clearFieldErrors(form);
+  let displayed = false;
+  Object.entries(data || {}).forEach(([field, messages]) => {
+    const input = form.querySelector(`[name="${field}"]`);
+    if (!input) return;
+    const error = document.createElement("small");
+    error.className = "field-error";
+    error.textContent = Array.isArray(messages) ? messages[0] : messages;
+    input.setAttribute("aria-invalid", "true");
+    input.insertAdjacentElement("afterend", error);
+    displayed = true;
+  });
+  return displayed;
 }
 
 function setMode(nextRegisterMode) {
@@ -54,19 +75,27 @@ function setMode(nextRegisterMode) {
 document.querySelector("#account-switch").addEventListener("click", () => setMode(!registerMode));
 document.querySelector("#login-form").addEventListener("submit", async (event) => {
   event.preventDefault();
+  const formElement = event.currentTarget;
+  clearFieldErrors(formElement);
   try {
-    const form = Object.fromEntries(new FormData(event.currentTarget));
+    const form = Object.fromEntries(new FormData(formElement));
     await request("auth/login/", "POST", form);
     window.location.href = "/checkout/";
-  } catch (error) { showMessage(error.message); }
+  } catch (error) {
+    if (!showFieldErrors(formElement, error.data)) showMessage(error.message);
+  }
 });
 document.querySelector("#register-form").addEventListener("submit", async (event) => {
   event.preventDefault();
+  const formElement = event.currentTarget;
+  clearFieldErrors(formElement);
   try {
-    const form = Object.fromEntries(new FormData(event.currentTarget));
+    const form = Object.fromEntries(new FormData(formElement));
     await request("auth/register/", "POST", form);
     setMode(false);
     document.querySelector("#login-form [name=identifier]").value = form.username;
     showMessage("حساب ساخته شد؛ حالا وارد شو.", true);
-  } catch (error) { showMessage(error.message); }
+  } catch (error) {
+    if (!showFieldErrors(formElement, error.data)) showMessage(error.message);
+  }
 });

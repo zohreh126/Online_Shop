@@ -41,6 +41,30 @@ function showAlert(message, kind = "error") {
   alert.innerHTML = `<span class="state-icon">${kind === "success" ? "✓" : "!"}</span><h3>${message}</h3><p>${kind === "error" ? "اطلاعات را بررسی کن و دوباره تلاش کن." : "سفارش شما با موفقیت ثبت شد."}</p>${kind === "error" && !state.cart?.items?.length ? "<a class=\"primary-button\" href=\"/\">بازگشت به فروشگاه</a>" : ""}`;
 }
 
+function clearFieldErrors(form) {
+  form.querySelectorAll(".field-error").forEach((element) => element.remove());
+  form.querySelectorAll("[aria-invalid=true]").forEach((element) => {
+    element.removeAttribute("aria-invalid");
+  });
+}
+
+function showFieldErrors(form, data) {
+  clearFieldErrors(form);
+  let displayed = false;
+  Object.entries(data || {}).forEach(([field, messages]) => {
+    const input = form.querySelector(`[name="${field}"]`);
+    if (!input) return;
+    const message = Array.isArray(messages) ? messages[0] : messages;
+    input.setAttribute("aria-invalid", "true");
+    const error = document.createElement("small");
+    error.className = "field-error";
+    error.textContent = message;
+    input.insertAdjacentElement("afterend", error);
+    displayed = true;
+  });
+  return displayed;
+}
+
 function renderAddresses() {
   const list = document.querySelector("#address-list");
   if (!state.addresses.length) {
@@ -79,6 +103,7 @@ document.querySelector("#add-address").addEventListener("click", () => { documen
 document.querySelector("#address-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
+  clearFieldErrors(form);
   const payload = Object.fromEntries(new FormData(form));
   payload.is_default = true;
   ["title", "province", "city", "address_line", "recipient_name", "recipient_phone"].forEach((field) => { payload[field] = normalizeText(payload[field]); });
@@ -87,7 +112,7 @@ document.querySelector("#address-form").addEventListener("submit", async (event)
   const submit = form.querySelector("button[type=submit]");
   submit.disabled = true;
   if (payload.postal_code.length !== 10 || !/^\d+$/.test(payload.postal_code)) {
-    showAlert("کدپستی باید دقیقاً ۱۰ رقم باشد.");
+    showFieldErrors(form, { postal_code: "کدپستی باید دقیقاً ۱۰ رقم باشد." });
     submit.disabled = false;
     return;
   }
@@ -99,7 +124,9 @@ document.querySelector("#address-form").addEventListener("submit", async (event)
     form.hidden = true;
     renderAddresses();
     showAlert("آدرس با موفقیت ذخیره شد.", "success");
-  } catch (error) { showAlert(error.message); }
+  } catch (error) {
+    if (!showFieldErrors(form, error.data)) showAlert(error.message);
+  }
   finally { submit.disabled = false; }
 });
 document.querySelector("#checkout-submit").addEventListener("click", async () => {
