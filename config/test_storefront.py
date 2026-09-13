@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 
@@ -46,3 +46,10 @@ class StorefrontPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "ویرایش پروفایل")
         self.assertContains(response, "/static/storefront/js/profile.js")
+
+    @override_settings(DEBUG=False)
+    def test_custom_error_pages_are_configured(self):
+        response = self.client.get("/definitely-missing-page/")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertContains(response, "این صفحه اینجا نیست.", status_code=404)

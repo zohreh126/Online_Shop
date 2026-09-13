@@ -1,0 +1,10 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}{{ title }} | Nexora Admin{% endblock %}
+{% block branding %}<h1 id="site-name"><a href="{% url 'admin:index' %}">NEXORA <span>مدیریت فروشگاه</span></a></h1>{% endblock %}
+{% block extrastyle %}<style>
+#header { background:#30283d; }
+#branding h1 a { color:#fff; font-weight:800; }
+#branding h1 span { color:#ef9c83; font-size:13px; margin-right:8px; }
+#user-tools a { color:#f2edf9; }
+</style>{% endblock %}
