@@ -36,4 +36,8 @@ class AddressViewSet(viewsets.ModelViewSet):
 
         return Address.objects.filter(
             customer=self.request.user,
+            is_active=True,
         ).order_by("-is_default", "-id")
+
+    def perform_destroy(self, instance):
+        instance.delete()

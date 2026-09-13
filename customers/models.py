@@ -115,6 +115,7 @@ class Address(models.Model):
     recipient_name = models.CharField(max_length=150)
     recipient_phone = models.CharField(max_length=20)
     is_default = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["-is_default", "-id"]
@@ -130,3 +131,8 @@ class Address(models.Model):
 
     def __str__(self):
         return f"{self.customer.username} - {self.title}"
+
+    def delete(self, using=None, keep_parents=False):
+        self.is_active = False
+        self.is_default = False
+        self.save(update_fields=("is_active", "is_default"))

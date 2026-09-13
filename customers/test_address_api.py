@@ -168,9 +168,8 @@ class AddressAPITests(APITestCase):
             delete_response.status_code,
             status.HTTP_204_NO_CONTENT,
         )
-        self.assertFalse(
-            Address.objects.filter(pk=address.pk).exists()
-        )
+        address.refresh_from_db()
+        self.assertFalse(address.is_active)
 
     def test_invalid_postal_code_is_rejected(self):
         response = self.client.post(

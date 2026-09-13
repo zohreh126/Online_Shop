@@ -170,6 +170,7 @@ class AddressAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
         "province",
         "city",
         "is_default",
+        "is_active",
     )
 
     list_filter = (
@@ -186,3 +187,9 @@ class AddressAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
     )
 
     autocomplete_fields = ("customer",)
+
+    def delete_model(self, request, obj):
+        obj.delete()
+
+    def delete_queryset(self, request, queryset):
+        queryset.update(is_active=False, is_default=False)
