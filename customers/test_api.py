@@ -122,3 +122,21 @@ class CustomerAuthAPITests(APITestCase):
             "profile@example.com",
         )
         self.assertNotIn("password", response.data)
+
+    def test_authenticated_customer_can_update_profile(self):
+        customer = Customer.objects.create_user(
+            username="editableuser",
+            email="editable@example.com",
+            password="SecurePass#2026",
+        )
+        self.client.force_authenticate(user=customer)
+
+        response = self.client.patch(
+            reverse("customer-profile"),
+            {"first_name": "زهره", "phone_number": "۰۹۱۲۳۴۵۶۷۸۹"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        customer.refresh_from_db()
+        self.assertEqual(customer.first_name, "زهره")

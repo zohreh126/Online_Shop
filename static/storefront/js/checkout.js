@@ -4,6 +4,7 @@ const money = (value) => `${faNumber(Math.round(Number(value)))} تومان`;
 const state = { cart: null, addresses: [], selectedAddress: null, order: null };
 const latinizeDigits = (value) => String(value).replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit)).replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
 const normalizeText = (value) => String(value).normalize("NFC").replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/\s+/g, " ").trim();
+function setupTheme() { const root = document.documentElement; const button = document.querySelector("#theme-toggle"); if (localStorage.getItem("nexora-theme") === "dark") root.classList.add("dark"); const update = () => { if (button) button.textContent = root.classList.contains("dark") ? "☼" : "☾"; }; button?.addEventListener("click", () => { root.classList.toggle("dark"); localStorage.setItem("nexora-theme", root.classList.contains("dark") ? "dark" : "light"); update(); }); update(); }
 
 function getCookie(name) {
   const cookie = (document.cookie ? document.cookie.split("; ") : []).find((value) => value.startsWith(`${name}=`));
@@ -73,8 +74,34 @@ function renderAddresses() {
     return;
   }
   if (!state.selectedAddress) state.selectedAddress = state.addresses.find((address) => address.is_default)?.id || state.addresses[0].id;
-  list.innerHTML = state.addresses.map((address) => `<label class="address-card"><input type="radio" name="address_id" value="${address.id}" ${address.id === state.selectedAddress ? "checked" : ""}><span><strong>${address.title}${address.is_default ? " · پیش‌فرض" : ""}</strong><small>${address.province}، ${address.city}، ${address.address_line}<br>${address.recipient_name} · ${address.recipient_phone}</small></span></label>`).join("");
+  list.innerHTML = state.addresses.map((address) => `<div class="address-card"><label><input type="radio" name="address_id" value="${address.id}" ${address.id === state.selectedAddress ? "checked" : ""}><span><strong>${address.title}${address.is_default ? " · پیش‌فرض" : ""}</strong><small>${address.province}، ${address.city}، ${address.address_line}<br>${address.recipient_name} · ${address.recipient_phone}</small></span></label><div class="address-actions"><button class="address-action" data-address-action="edit" data-address-id="${address.id}" type="button">ویرایش</button><button class="address-action delete" data-address-action="delete" data-address-id="${address.id}" type="button">حذف</button></div></div>`).join("");
   list.querySelectorAll("input").forEach((input) => input.addEventListener("change", () => { state.selectedAddress = Number(input.value); }));
+  list.querySelectorAll("[data-address-action]").forEach((button) => button.addEventListener("click", () => {
+    const address = state.addresses.find((item) => item.id === Number(button.dataset.addressId));
+    if (button.dataset.addressAction === "edit") beginAddressEdit(address);
+    else deleteAddress(address);
+  }));
+}
+
+function beginAddressEdit(address) {
+  const form = document.querySelector("#address-form");
+  form.hidden = false;
+  form.dataset.addressId = address.id;
+  document.querySelector("#address-form-title").textContent = "ویرایش آدرس";
+  Object.entries(address).forEach(([key, value]) => { const input = form.querySelector(`[name="${key}"]`); if (input) input.value = value || ""; });
+  form.classList.add("editing");
+  form.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function deleteAddress(address) {
+  if (!window.confirm(`آدرس «${address.title}» حذف شود؟`)) return;
+  try {
+    await request(`auth/addresses/${address.id}/`, { method: "DELETE" });
+    state.addresses = state.addresses.filter((item) => item.id !== address.id);
+    if (state.selectedAddress === address.id) state.selectedAddress = null;
+    renderAddresses();
+    showAlert("آدرس حذف شد.", "success");
+  } catch (error) { showAlert(error.message); }
 }
 
 function renderCart() {
@@ -99,7 +126,8 @@ async function load() {
   }
 }
 
-document.querySelector("#add-address").addEventListener("click", () => { document.querySelector("#address-form").hidden = false; });
+document.querySelector("#add-address").addEventListener("click", () => { const form = document.querySelector("#address-form"); form.hidden = false; form.dataset.addressId = ""; form.classList.remove("editing"); form.reset(); document.querySelector("#address-form-title").textContent = "افزودن آدرس جدید"; });
+document.querySelector("#cancel-address").addEventListener("click", () => { const form = document.querySelector("#address-form"); form.reset(); form.hidden = true; form.dataset.addressId = ""; form.classList.remove("editing"); });
 document.querySelector("#address-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
@@ -117,11 +145,16 @@ document.querySelector("#address-form").addEventListener("submit", async (event)
     return;
   }
   try {
-    const address = await request("auth/addresses/", { method: "POST", body: JSON.stringify(payload) });
-    state.addresses.unshift(address);
+    const addressId = form.dataset.addressId;
+    const address = await request(addressId ? `auth/addresses/${addressId}/` : "auth/addresses/", { method: addressId ? "PATCH" : "POST", body: JSON.stringify(payload) });
+    if (addressId) state.addresses = state.addresses.map((item) => item.id === Number(addressId) ? address : item);
+    else state.addresses.unshift(address);
     state.selectedAddress = address.id;
     form.reset();
     form.hidden = true;
+    form.dataset.addressId = "";
+    form.classList.remove("editing");
+    document.querySelector("#address-form-title").textContent = "افزودن آدرس جدید";
     renderAddresses();
     showAlert("آدرس با موفقیت ذخیره شد.", "success");
   } catch (error) {
@@ -140,3 +173,4 @@ document.querySelector("#checkout-submit").addEventListener("click", async () =>
   } catch (error) { showAlert(error.message); button.disabled = false; }
 });
 load();
+setupTheme();

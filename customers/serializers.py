@@ -98,6 +98,18 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class CustomerProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ("username", "email", "first_name", "last_name", "phone_number")
+
+    def validate_username(self, value):
+        return normalize("NFC", value).strip()
+
+    def validate_email(self, value):
+        return normalize("NFC", value).strip().lower()
+
+
 class PasswordChangeSerializer(serializers.Serializer):
     current_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(

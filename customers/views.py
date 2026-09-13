@@ -13,12 +13,17 @@ class CustomerRegistrationView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
 
 
-class CustomerProfileView(generics.RetrieveAPIView):
-    serializer_class = CustomerProfileSerializer
+class CustomerProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
         return self.request.user
+
+    def get_serializer_class(self):
+        if self.request.method in ("PUT", "PATCH"):
+            from .serializers import CustomerProfileUpdateSerializer
+            return CustomerProfileUpdateSerializer
+        return CustomerProfileSerializer
 
 
 class AddressViewSet(viewsets.ModelViewSet):

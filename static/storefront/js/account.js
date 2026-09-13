@@ -1,5 +1,6 @@
 const API_BASE = "/api/v1/";
 let registerMode = false;
+function setupTheme() { const root = document.documentElement; const button = document.querySelector("#theme-toggle"); if (localStorage.getItem("nexora-theme") === "dark") root.classList.add("dark"); const update = () => { if (button) button.textContent = root.classList.contains("dark") ? "☼" : "☾"; }; button?.addEventListener("click", () => { root.classList.toggle("dark"); localStorage.setItem("nexora-theme", root.classList.contains("dark") ? "dark" : "light"); update(); }); update(); }
 
 function getCookie(name) {
   const cookie = (document.cookie ? document.cookie.split("; ") : []).find((value) => value.startsWith(`${name}=`));
@@ -99,3 +100,4 @@ document.querySelector("#register-form").addEventListener("submit", async (event
     if (!showFieldErrors(formElement, error.data)) showMessage(error.message);
   }
 });
+setupTheme();

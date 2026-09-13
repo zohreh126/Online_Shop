@@ -39,3 +39,10 @@ class StorefrontPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "داشبورد مشتری")
         self.assertContains(response, "/static/storefront/js/dashboard.js")
+
+    def test_profile_page_is_available(self):
+        response = self.client.get(reverse("storefront-profile"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "ویرایش پروفایل")
+        self.assertContains(response, "/static/storefront/js/profile.js")

@@ -33,6 +33,7 @@ urlpatterns = [
     path("checkout/", TemplateView.as_view(template_name="storefront/checkout.html"), name="storefront-checkout"),
     path("account/", TemplateView.as_view(template_name="storefront/account.html"), name="storefront-account"),
     path("dashboard/", TemplateView.as_view(template_name="storefront/dashboard.html"), name="storefront-dashboard"),
+    path("profile/", TemplateView.as_view(template_name="storefront/profile.html"), name="storefront-profile"),
     path('admin/', admin.site.urls),
     path("health/", health_check, name="health-check"),
     path("api/v1/", include("products.urls")),
