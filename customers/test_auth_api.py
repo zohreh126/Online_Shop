@@ -148,6 +148,30 @@ class CookieJWTAuthAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["user"]["email"], "authuser@example.com")
 
+    def test_registration_and_login_support_persian_username(self):
+        registration_response = self.client.post(
+            reverse("customer-register"),
+            {
+                "username": "سعید",
+                "email": "saeed@example.com",
+                "password": self.password,
+                "password_confirm": self.password,
+            },
+            format="json",
+        )
+        self.assertEqual(registration_response.status_code, status.HTTP_201_CREATED)
+
+        csrf_token = self.get_csrf_token()
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+        login_response = self.client.post(
+            self.login_url,
+            {"identifier": "سعید", "password": self.password},
+            format="json",
+        )
+
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(login_response.data["user"]["username"], "سعید")
+
     def test_password_change_updates_password(self):
         self.login()
         csrf_token = self.client.cookies[settings.CSRF_COOKIE_NAME].value

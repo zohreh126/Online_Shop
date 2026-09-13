@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
 from django.db.models import Q
+from unicodedata import normalize
 from rest_framework import exceptions
 from rest_framework.authentication import CSRFCheck
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -14,6 +15,8 @@ class CustomerAuthenticationBackend(BaseBackend):
         identifier = username or kwargs.get("email") or kwargs.get("identifier")
         if not identifier or password is None:
             return None
+
+        identifier = normalize("NFC", str(identifier)).strip()
 
         customer_model = get_user_model()
         customer = (

@@ -26,6 +26,9 @@ async function request(path, method, payload) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const detail = data.detail || Object.values(data).flat()?.[0] || "عملیات انجام نشد.";
+    if (String(detail).toLowerCase().includes("no active account")) {
+      throw new Error("نام کاربری/ایمیل یا رمز عبور صحیح نیست.");
+    }
     throw new Error(Array.isArray(detail) ? detail[0] : detail);
   }
   return data;

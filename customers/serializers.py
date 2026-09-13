@@ -1,6 +1,7 @@
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from unicodedata import normalize
 from rest_framework import serializers
 
 from .models import Address, Customer
@@ -35,7 +36,7 @@ class CustomerRegistrationSerializer(serializers.ModelSerializer):
         }
 
     def validate_username(self, value):
-        value = value.strip()
+        value = normalize("NFC", value).strip()
 
         if not value:
             raise serializers.ValidationError(
@@ -45,7 +46,7 @@ class CustomerRegistrationSerializer(serializers.ModelSerializer):
         return value
 
     def validate_email(self, value):
-        return value.strip().lower()
+        return normalize("NFC", value).strip().lower()
 
     def validate(self, attrs):
         password = attrs.get("password")

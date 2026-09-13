@@ -24,6 +24,7 @@ from .serializers import (
     PasswordChangeSerializer,
 )
 from rest_framework.exceptions import AuthenticationFailed
+from unicodedata import normalize
 
 
 REFRESH_COOKIE_PATH = "/api/v1/auth/"
@@ -91,7 +92,7 @@ class CookieLoginView(APIView):
         login_data = request.data.copy()
         identifier = login_data.get("identifier") or login_data.get("email")
         if identifier and not login_data.get("username"):
-            login_data["username"] = identifier
+            login_data["username"] = normalize("NFC", str(identifier)).strip()
 
         serializer = TokenObtainPairSerializer(
             data=login_data,
