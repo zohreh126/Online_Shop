@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils.text import slugify
 
 from products.models import Category, Product
 
@@ -140,6 +141,51 @@ CATALOG = {
     },
 }
 
+EXTRA_CATEGORIES = {
+    "کیبورد و ماوس": {
+        "children": {
+            "کیبورد": [
+                ("Nexora Nova Low-Profile Keyboard", "NX-NOVA-KB-001", Decimal("3290000.00"), 24),
+                ("Nexora Type-C Compact Keyboard", "NX-TYPEC-KB-001", Decimal("2590000.00"), 31),
+            ],
+            "ماوس": [
+                ("Nexora Glide Ergonomic Mouse", "NX-GLIDE-MOUSE-001", Decimal("1790000.00"), 28),
+                ("Nexora Mini Travel Mouse", "NX-MINI-MOUSE-001", Decimal("990000.00"), 40),
+            ],
+        },
+    },
+    "صوتی": {
+        "children": {
+            "هدفون": [
+                ("Nexora Air Mini Earbuds", "NX-AIR-EARBUDS-001", Decimal("2490000.00"), 22),
+                ("Nexora Studio Pro Headset", "NX-STUDIO-HEADSET-001", Decimal("5490000.00"), 11),
+            ],
+            "میکروفون": [
+                ("Nexora Beam Streaming Mic", "NX-BEAM-MIC-001", Decimal("2890000.00"), 15),
+            ],
+        },
+    },
+    "گیمینگ": {
+        "children": {
+            "کنترلر": [
+                ("Nexora Edge Wireless Controller", "NX-EDGE-CONTROLLER-001", Decimal("3190000.00"), 18),
+                ("Nexora Pocket Gamepad", "NX-POCKET-GAMEPAD-001", Decimal("1890000.00"), 26),
+            ],
+            "نورپردازی": [
+                ("Nexora Glow Desk Light", "NX-GLOW-LIGHT-001", Decimal("1590000.00"), 20),
+            ],
+        },
+    },
+    "کابل و شارژ": {
+        "children": {
+            "شارژر": [
+                ("Nexora Volt GaN Charger 65W", "NX-VOLT-GAN-001", Decimal("2290000.00"), 35),
+                ("Nexora Quad USB Charger", "NX-QUAD-CHARGER-001", Decimal("1390000.00"), 42),
+            ],
+        },
+    },
+}
+
 PRODUCT_IMAGES = {
     "NX-FLUX-KB-001": "products/2026/09/nexora-flux-keyboard.png",
     "NX-ARC-MOUSE-001": "products/2026/09/nexora-arc-mouse.png",
@@ -177,6 +223,30 @@ class Command(BaseCommand):
                     },
                 )
                 product_count += 1
+
+            for child_name, child_products in EXTRA_CATEGORIES.get(category_name, {}).get("children", {}).items():
+                child_slug = f"{category_data['slug']}-{slugify(child_name, allow_unicode=True)}"
+                child, child_created = Category.objects.update_or_create(
+                    slug=child_slug,
+                    defaults={"name": child_name, "parent": category, "is_active": True},
+                )
+                category_count += int(child_created)
+                for name, sku, price, stock in child_products:
+                    Product.objects.update_or_create(
+                        sku=sku,
+                        defaults={
+                            "name": name,
+                            "category": child,
+                            "brand": "Nexora",
+                            "price": price,
+                            "stock_quantity": stock,
+                            "description": f"{name}؛ محصولی کاربردی برای تجربه بهتر زندگی دیجیتال.",
+                            "specifications": {"connection": "USB-C, Bluetooth", "warranty_months": 18},
+                            "image": "",
+                            "is_active": True,
+                        },
+                    )
+                    product_count += 1
 
         self.stdout.write(
             self.style.SUCCESS(

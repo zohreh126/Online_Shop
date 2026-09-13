@@ -211,6 +211,13 @@ class ProductCatalogAPITests(APITestCase):
         self.assertIn("Audio", names)
         self.assertNotIn("Hidden", names)
 
+    def test_category_list_returns_nested_children(self):
+        response = self.client.get(reverse("category-list"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        electronics = next(item for item in response.data["results"] if item["slug"] == self.electronics.slug)
+        self.assertEqual(electronics["children"][0]["slug"], self.audio.slug)
+
     def test_root_category_filter_works(self):
         response = self.client.get(
             reverse("category-list"),

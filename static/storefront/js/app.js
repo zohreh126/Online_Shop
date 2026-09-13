@@ -1,5 +1,5 @@
 const API_BASE = "/api/v1/";
-const state = { products: [], category: "", search: "" };
+const state = { products: [], categories: [], category: "", search: "" };
 
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const money = (value) => `${faNumber(Math.round(Number(value)))} تومان`;
@@ -83,8 +83,12 @@ function categoryLabel(categorySlug) {
 
 function renderProducts() {
   const grid = document.querySelector("#product-grid");
+  const categorySlugs = new Set();
+  const collectCategorySlugs = (category) => { categorySlugs.add(category.slug); (category.children || []).forEach(collectCategorySlugs); };
+  const selectedCategory = state.categories.find((category) => category.slug === state.category);
+  if (selectedCategory) collectCategorySlugs(selectedCategory);
   const filtered = state.products.filter((product) => {
-    const matchesCategory = !state.category || product.category?.slug === state.category;
+    const matchesCategory = !state.category || categorySlugs.has(product.category?.slug);
     const query = state.search.trim().toLowerCase();
     const matchesSearch = !query || `${product.name} ${product.brand || ""}`.toLowerCase().includes(query);
     return matchesCategory && matchesSearch;
@@ -157,19 +161,19 @@ function closeCart() { document.querySelector("#cart-drawer").classList.remove("
 function showToast(message) { const toast = document.createElement("div"); toast.className = "toast-message"; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2800); }
 
 function renderCategories(categories) {
-  document.querySelector("#category-tabs").innerHTML = [{ name: "همه", slug: "" }, ...categories].map((category) => `<button class="${category.slug === state.category ? "selected" : ""}" data-category="${category.slug}">${category.name}</button>`).join("");
-  document.querySelectorAll("[data-category]").forEach((button) => button.addEventListener("click", () => {
-    state.category = button.dataset.category;
-    renderCategories(categories);
-    renderProducts();
-  }));
+  const roots = categories.filter((category) => !category.parent);
+  const hasDescendant = (category, slug) => category.slug === slug || (category.children || []).some((child) => hasDescendant(child, slug));
+  const renderNode = (category, depth = 0) => `<li class="category-tree-item depth-${depth}"><button class="category-tree-button ${hasDescendant(category, state.category) ? "selected" : ""}" data-category="${category.slug}" type="button"><span class="category-tree-chevron">${category.children?.length ? "⌄" : ""}</span>${category.name}</button>${category.children?.length ? `<ul class="category-tree-children">${category.children.map((child) => renderNode(child, depth + 1)).join("")}</ul>` : ""}</li>`;
+  document.querySelector("#category-tabs").innerHTML = `<button class="category-tree-all ${!state.category ? "selected" : ""}" data-category="" type="button">همه محصولات</button><ul class="category-tree">${roots.map((category) => renderNode(category)).join("")}</ul>`;
+  document.querySelectorAll("[data-category]").forEach((button) => button.addEventListener("click", () => { state.category = button.dataset.category; renderCategories(categories); renderProducts(); }));
 }
 
 async function loadCatalog() {
   try {
     const [products, categories] = await Promise.all([getJSON("products/?page_size=100"), getJSON("categories/?page_size=100")]);
     state.products = products.results || products;
-    renderCategories(categories.results || categories);
+    state.categories = categories.results || categories;
+    renderCategories(state.categories);
     renderProducts();
   } catch (error) {
     document.querySelector("#product-grid").innerHTML = `<div class="state-card"><span class="state-icon">!</span><h3>اتصال به ویترین برقرار نشد</h3><p>مطمئن شو سرور Django روشن است و دوباره تلاش کن.</p><button class="retry-button" onclick="loadCatalog()">تلاش دوباره</button></div>`;

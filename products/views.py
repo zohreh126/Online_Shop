@@ -47,6 +47,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         return (
             Category.objects.filter(is_active=True)
             .select_related("parent")
+            .prefetch_related("children")
             .order_by("name")
         )
 

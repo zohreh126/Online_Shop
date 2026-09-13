@@ -13,6 +13,7 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only=True,
         allow_null=True,
     )
+    children = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
@@ -22,8 +23,17 @@ class CategorySerializer(serializers.ModelSerializer):
             "slug",
             "parent",
             "parent_slug",
+            "children",
         )
         read_only_fields = fields
+
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    def get_children(self, category):
+        return CategorySerializer(
+            category.children.filter(is_active=True).order_by("name"),
+            many=True,
+            context=self.context,
+        ).data
 
 
 class ProductSerializer(serializers.ModelSerializer):
