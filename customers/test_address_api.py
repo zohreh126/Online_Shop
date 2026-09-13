@@ -184,3 +184,18 @@ class AddressAPITests(APITestCase):
             status.HTTP_400_BAD_REQUEST,
         )
         self.assertIn("postal_code", response.data)
+
+    def test_persian_and_arabic_digits_are_normalized(self):
+        response = self.client.post(
+            self.list_url,
+            self.payload(
+                postal_code="۱۲۳۴۵۶۷۸۹۰",
+                recipient_phone="۰۹۱۲۳۴۵۶۷۸۹",
+            ),
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        address = Address.objects.get()
+        self.assertEqual(address.postal_code, "1234567890")
+        self.assertEqual(address.recipient_phone, "09123456789")

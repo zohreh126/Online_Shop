@@ -86,6 +86,11 @@ document.querySelector("#address-form").addEventListener("submit", async (event)
   payload.recipient_phone = latinizeDigits(payload.recipient_phone).replace(/\s/g, "");
   const submit = form.querySelector("button[type=submit]");
   submit.disabled = true;
+  if (payload.postal_code.length !== 10 || !/^\d+$/.test(payload.postal_code)) {
+    showAlert("کدپستی باید دقیقاً ۱۰ رقم باشد.");
+    submit.disabled = false;
+    return;
+  }
   try {
     const address = await request("auth/addresses/", { method: "POST", body: JSON.stringify(payload) });
     state.addresses.unshift(address);

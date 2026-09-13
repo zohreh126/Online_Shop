@@ -178,7 +178,12 @@ class AddressSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
     def validate_postal_code(self, value):
-        value = value.strip().replace(" ", "")
+        value = (
+            value.strip()
+            .replace(" ", "")
+            .replace("-", "")
+            .translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
+        )
 
         if len(value) != 10 or not value.isdigit():
             raise serializers.ValidationError(
@@ -186,6 +191,14 @@ class AddressSerializer(serializers.ModelSerializer):
             )
 
         return value
+
+    def validate_recipient_phone(self, value):
+        return (
+            value.strip()
+            .replace(" ", "")
+            .replace("-", "")
+            .translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
+        )
 
     @staticmethod
     def clear_other_defaults(customer, exclude_pk=None):
