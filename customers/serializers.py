@@ -93,6 +93,8 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             "last_name",
             "phone_number",
             "role",
+            "is_staff",
+            "is_superuser",
             "date_joined",
         )
         read_only_fields = fields

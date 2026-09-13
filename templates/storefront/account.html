@@ -21,7 +21,13 @@
       <form id="login-form">
         <label>نام کاربری یا ایمیل<input name="identifier" required autocomplete="username"></label>
         <label>رمز عبور<input name="password" type="password" required autocomplete="current-password"></label>
-        <button class="primary-button account-submit" type="submit">ورود <span>←</span></button>
+        <button class="primary-button account-submit" type="submit">دریافت کد ورود <span>←</span></button>
+      </form>
+      <form id="login-otp-form" hidden>
+        <p class="account-subtitle">کد شش‌رقمی ارسال‌شده به <strong id="login-otp-email"></strong> را وارد کن.</p>
+        <label>کد ورود<input name="code" required inputmode="numeric" pattern="[0-9۰-۹]{6}" maxlength="6" autocomplete="one-time-code"></label>
+        <button class="primary-button account-submit" type="submit">تأیید و ورود <span>←</span></button>
+        <button class="account-switch" id="login-otp-back" type="button">بازگشت به مرحله قبل</button>
       </form>
       <form id="register-form" hidden>
         <div class="form-grid"><label>نام کاربری<input name="username" required autocomplete="username"></label><label>ایمیل<input name="email" type="email" required autocomplete="email"></label><label>نام<input name="first_name"></label><label>نام خانوادگی<input name="last_name"></label><label>رمز عبور<input name="password" type="password" minlength="8" required autocomplete="new-password"></label><label>تکرار رمز عبور<input name="password_confirm" type="password" minlength="8" required autocomplete="new-password"></label></div>

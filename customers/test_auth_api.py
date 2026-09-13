@@ -1,7 +1,11 @@
 from django.conf import settings
+from django.core import mail
+from django.core.cache import cache
 from django.urls import reverse
+from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
+import re
 
 from .models import Customer
 
@@ -10,6 +14,7 @@ class CookieJWTAuthAPITests(APITestCase):
     password = "SecurePass#2026"
 
     def setUp(self):
+        cache.clear()
         self.client = APIClient(enforce_csrf_checks=True)
 
         self.customer = Customer.objects.create_user(
@@ -147,6 +152,49 @@ class CookieJWTAuthAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["user"]["email"], "authuser@example.com")
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_two_step_login_sends_otp_and_sets_cookies_after_verification(self):
+        csrf_token = self.get_csrf_token()
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+
+        request_response = self.client.post(
+            reverse("auth-login-otp-request"),
+            {"identifier": "authuser", "password": self.password},
+            format="json",
+        )
+
+        self.assertEqual(request_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+        code = re.search(r"(\d{6})", mail.outbox[0].body).group(1)
+
+        verify_response = self.client.post(
+            reverse("auth-login-otp-verify"),
+            {"email": self.customer.email, "code": code},
+            format="json",
+        )
+
+        self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(verify_response.data["user"]["role"], "")
+        self.assertIsNotNone(verify_response.cookies.get(settings.AUTH_COOKIE_ACCESS))
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_two_step_login_rejects_invalid_code(self):
+        csrf_token = self.get_csrf_token()
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+        self.client.post(
+            reverse("auth-login-otp-request"),
+            {"identifier": self.customer.email, "password": self.password},
+            format="json",
+        )
+
+        response = self.client.post(
+            reverse("auth-login-otp-verify"),
+            {"email": self.customer.email, "code": "000000"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_registration_and_login_support_persian_username(self):
         registration_response = self.client.post(

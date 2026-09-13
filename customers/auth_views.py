@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.middleware.csrf import get_token
+from django.core.cache import cache
+from django.contrib.auth import authenticate
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -28,6 +30,11 @@ from unicodedata import normalize
 
 
 REFRESH_COOKIE_PATH = "/api/v1/auth/"
+LOGIN_OTP_TTL = 5 * 60
+
+
+def _login_otp_key(email):
+    return f"nexora:login-otp:{email}"
 
 
 def _set_auth_cookie(response, name, value, max_age, path):
@@ -55,6 +62,22 @@ def _set_csrf_cookie(response, token):
 
 def _enforce_csrf(request):
     CookieJWTAuthentication.enforce_csrf(request)
+
+
+def _login_response(request, user):
+    merge_guest_cart(request, user)
+    refresh = RefreshToken.for_user(user)
+    response = Response(
+        {
+            "detail": "Login successful.",
+            "user": CustomerProfileSerializer(user).data,
+        },
+        status=status.HTTP_200_OK,
+    )
+    _set_auth_cookie(response, settings.AUTH_COOKIE_ACCESS, str(refresh.access_token), int(api_settings.ACCESS_TOKEN_LIFETIME.total_seconds()), "/")
+    _set_auth_cookie(response, settings.AUTH_COOKIE_REFRESH, str(refresh), int(api_settings.REFRESH_TOKEN_LIFETIME.total_seconds()), REFRESH_COOKIE_PATH)
+    _set_csrf_cookie(response, get_token(request))
+    return response
 
 
 class CSRFTokenView(APIView):
@@ -110,36 +133,47 @@ class CookieLoginView(APIView):
                 },
             )
 
-        merge_guest_cart(request, serializer.user)
+        return _login_response(request, serializer.user)
 
-        tokens = serializer.validated_data
-        response = Response(
-            {
-                "detail": "Login successful.",
-                "user": CustomerProfileSerializer(
-                    serializer.user
-                ).data,
-            },
-            status=status.HTTP_200_OK,
-        )
 
-        _set_auth_cookie(
-            response,
-            settings.AUTH_COOKIE_ACCESS,
-            tokens["access"],
-            int(api_settings.ACCESS_TOKEN_LIFETIME.total_seconds()),
-            "/",
-        )
-        _set_auth_cookie(
-            response,
-            settings.AUTH_COOKIE_REFRESH,
-            tokens["refresh"],
-            int(api_settings.REFRESH_TOKEN_LIFETIME.total_seconds()),
-            REFRESH_COOKIE_PATH,
-        )
-        _set_csrf_cookie(response, get_token(request))
+class LoginOTPRequestView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
 
-        return response
+    @extend_schema(request=inline_serializer(name="LoginOTPRequest", fields={"identifier": serializers.CharField(), "password": serializers.CharField()}), responses={200: OpenApiTypes.OBJECT, 401: OpenApiTypes.OBJECT})
+    def post(self, request):
+        _enforce_csrf(request)
+        identifier = normalize("NFC", str(request.data.get("identifier", ""))).strip()
+        password = request.data.get("password")
+        user = authenticate(request, username=identifier, password=password)
+        if user is None:
+            return Response({"detail": "نام کاربری/ایمیل یا رمز عبور صحیح نیست."}, status=status.HTTP_401_UNAUTHORIZED)
+        request_otp(user.email)
+        cache.set(_login_otp_key(user.email), user.pk, timeout=LOGIN_OTP_TTL)
+        return Response({"detail": "Verification code sent.", "email": user.email}, status=status.HTTP_200_OK)
+
+
+class LoginOTPVerifyView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    @extend_schema(request=inline_serializer(name="LoginOTPVerifyRequest", fields={"email": serializers.EmailField(), "code": serializers.RegexField(regex=r"^\d{6}$")}), responses={200: OpenApiTypes.OBJECT, 400: OpenApiTypes.OBJECT})
+    def post(self, request):
+        _enforce_csrf(request)
+        email = normalize("NFC", str(request.data.get("email", ""))).strip().lower()
+        code = str(request.data.get("code", "")).strip()
+        user_id = cache.get(_login_otp_key(email))
+        if not user_id:
+            return Response({"detail": "کد ورود منقضی شده است؛ دوباره درخواست کد بده."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            verify_otp(email, code)
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        user = CustomerProfileSerializer.Meta.model.objects.filter(pk=user_id, is_active=True).first()
+        cache.delete(_login_otp_key(email))
+        if user is None:
+            return Response({"detail": "حساب کاربری فعال پیدا نشد."}, status=status.HTTP_401_UNAUTHORIZED)
+        return _login_response(request, user)
 
 
 class CookieRefreshView(APIView):

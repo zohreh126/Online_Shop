@@ -6,6 +6,8 @@ from .auth_views import (
     CookieLoginView,
     CookieLogoutView,
     CookieRefreshView,
+    LoginOTPRequestView,
+    LoginOTPVerifyView,
     PasswordChangeView,
     OTPRequestView,
     OTPVerifyView,
@@ -41,6 +43,8 @@ urlpatterns = router.urls + [
         CookieLoginView.as_view(),
         name="auth-login",
     ),
+    path("login/otp/request/", LoginOTPRequestView.as_view(), name="auth-login-otp-request"),
+    path("login/otp/verify/", LoginOTPVerifyView.as_view(), name="auth-login-otp-verify"),
     path(
         "refresh/",
         CookieRefreshView.as_view(),
