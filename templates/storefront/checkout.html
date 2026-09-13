@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>تسویه حساب | Nexora</title>
+  <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
+</head>
+<body>
+  <header class="site-header"><div class="container nav-wrap">
+    <a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
+    <a class="text-link" href="/">بازگشت به فروشگاه <span>←</span></a>
+  </div></header>
+  <main class="checkout-page container">
+    <div class="section-heading"><div><p class="eyebrow"><span></span> خرید امن</p><h1 class="checkout-title">تکمیل سفارش</h1></div><span class="checkout-step">۱. آدرس　 ۲. پرداخت</span></div>
+    <div id="checkout-alert" class="state-card" hidden></div>
+    <div class="checkout-grid" id="checkout-content" hidden>
+      <section class="checkout-panel"><h2>آدرس ارسال</h2><div id="address-list" class="address-list"></div>
+        <form id="address-form" class="address-form" hidden><h3>افزودن آدرس جدید</h3><div class="form-grid"><label>عنوان<input name="title" required placeholder="خانه"></label><label>استان<input name="province" required></label><label>شهر<input name="city" required></label><label>کدپستی<input name="postal_code" inputmode="numeric" required maxlength="10"></label><label class="full">آدرس کامل<textarea name="address_line" required></textarea></label><label>نام گیرنده<input name="recipient_name" required></label><label>شماره تماس<input name="recipient_phone" required></label></div><button class="primary-button" type="submit">ذخیره آدرس <span>←</span></button></form>
+        <button class="secondary-button" id="add-address" type="button">+ افزودن آدرس جدید</button>
+      </section>
+      <aside class="checkout-panel summary-panel"><h2>خلاصه سفارش</h2><div id="checkout-items"></div><div class="drawer-total"><span>جمع نهایی</span><strong id="checkout-total">۰ تومان</strong></div><button class="primary-button checkout-submit" id="checkout-submit" type="button">ثبت سفارش <span>←</span></button></aside>
+    </div>
+  </main>
+  <script src="{% static 'storefront/js/checkout.js' %}" defer></script>
+</body>
+</html>

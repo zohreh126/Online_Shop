@@ -88,7 +88,7 @@ function renderProducts() {
       await sendJSON("cart/items/", "POST", { product_id: button.dataset.product, quantity: 1 });
       await refreshCart();
       button.textContent = "✓";
-      openCart();
+      showToast("محصول به سبد خرید اضافه شد.");
       setTimeout(() => { button.textContent = "+"; }, 900);
     } catch (error) {
       showToast(error.message);

@@ -18,3 +18,10 @@ class StorefrontPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("csrftoken", response.cookies)
+
+    def test_checkout_page_is_available(self):
+        response = self.client.get(reverse("storefront-checkout"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "تکمیل سفارش")
+        self.assertContains(response, "/static/storefront/js/checkout.js")
