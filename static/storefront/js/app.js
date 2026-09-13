@@ -15,7 +15,7 @@ async function loadAccountState() {
   const account = document.querySelector("#account-area");
   try {
     const profile = await getJSON("auth/profile/");
-    account.innerHTML = `<span class="account-name">${profile.first_name || profile.username}</span><button class="account-link account-logout" id="account-logout" type="button">خروج</button>`;
+    account.innerHTML = `<a class="account-name" href="/dashboard/">${profile.first_name || profile.username}</a><button class="account-link account-logout" id="account-logout" type="button">خروج</button>`;
     document.querySelector("#account-logout").addEventListener("click", async () => {
       try {
         await sendJSON("auth/logout/", "POST");

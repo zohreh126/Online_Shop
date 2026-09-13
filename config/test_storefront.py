@@ -32,3 +32,10 @@ class StorefrontPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "ورود به حساب")
         self.assertContains(response, "/static/storefront/js/account.js")
+
+    def test_dashboard_page_is_available(self):
+        response = self.client.get(reverse("storefront-dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "داشبورد مشتری")
+        self.assertContains(response, "/static/storefront/js/dashboard.js")
