@@ -3,6 +3,7 @@ const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const money = (value) => `${faNumber(Math.round(Number(value)))} تومان`;
 const statusLabels = { pending: "در انتظار پرداخت", confirmed: "تأیید شده", processing: "در حال پردازش", shipped: "ارسال شده", delivered: "تحویل شده", cancelled: "لغو شده", refunded: "مرجوع شده" };
 const paymentLabels = { unpaid: "پرداخت نشده", pending: "در انتظار پرداخت", paid: "پرداخت موفق", failed: "پرداخت ناموفق", refunded: "مرجوع شده" };
+const roleLabels = { product_manager: "مدیر محصولات", supervisor: "ناظر", operator: "اپراتور" };
 function setupTheme() { const root = document.documentElement; const button = document.querySelector("#theme-toggle"); if (localStorage.getItem("nexora-theme") === "dark") root.classList.add("dark"); const update = () => { if (button) button.textContent = root.classList.contains("dark") ? "☼" : "☾"; }; button?.addEventListener("click", () => { root.classList.toggle("dark"); localStorage.setItem("nexora-theme", root.classList.contains("dark") ? "dark" : "light"); update(); }); update(); }
 
 async function request(path) {
@@ -39,6 +40,7 @@ async function loadDashboard() {
   try {
     const [profile, orders] = await Promise.all([request("auth/profile/"), request("orders/?page_size=100")]);
     document.querySelector("#dashboard-profile").textContent = `${profile.first_name || profile.username} · ${profile.email}`;
+    document.querySelector("#dashboard-role").textContent = roleLabels[profile.role] || "مشتری عادی";
     document.querySelector("#dashboard-content").hidden = false;
     renderOrders(orders.results || orders);
   } catch (error) {
