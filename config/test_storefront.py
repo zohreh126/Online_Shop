@@ -12,3 +12,9 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "cart-drawer")
         self.assertContains(response, "/static/storefront/css/app.css")
         self.assertContains(response, "/static/storefront/js/app.js")
+
+    def test_csrf_token_endpoint_is_available_to_storefront(self):
+        response = self.client.get(reverse("auth-csrf"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("csrftoken", response.cookies)

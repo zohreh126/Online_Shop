@@ -11,11 +11,34 @@ async function getJSON(path) {
   return response.json();
 }
 
+function getCookie(name) {
+  const cookies = document.cookie ? document.cookie.split("; ") : [];
+  const cookie = cookies.find((value) => value.startsWith(`${name}=`));
+  return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : null;
+}
+
+async function ensureCSRFToken() {
+  const existingToken = getCookie("csrftoken");
+  if (existingToken) return existingToken;
+
+  const response = await fetch(`${API_BASE}auth/csrf/`, {
+    credentials: "same-origin",
+  });
+  if (!response.ok) throw new Error("توکن امنیتی درخواست دریافت نشد.");
+
+  const token = getCookie("csrftoken");
+  if (!token) throw new Error("توکن امنیتی درخواست دریافت نشد.");
+  return token;
+}
+
 async function sendJSON(path, method, body) {
   const response = await fetch(`${API_BASE}${path}`, {
     method,
     credentials: "same-origin",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": await ensureCSRFToken(),
+    },
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await response.json().catch(() => ({}));
