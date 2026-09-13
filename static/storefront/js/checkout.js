@@ -3,6 +3,7 @@ const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const money = (value) => `${faNumber(Math.round(Number(value)))} تومان`;
 const state = { cart: null, addresses: [], selectedAddress: null, order: null };
 const latinizeDigits = (value) => String(value).replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit)).replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
+const normalizeText = (value) => String(value).normalize("NFC").replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/\s+/g, " ").trim();
 
 function getCookie(name) {
   const cookie = (document.cookie ? document.cookie.split("; ") : []).find((value) => value.startsWith(`${name}=`));
@@ -77,18 +78,20 @@ async function load() {
 document.querySelector("#add-address").addEventListener("click", () => { document.querySelector("#address-form").hidden = false; });
 document.querySelector("#address-form").addEventListener("submit", async (event) => {
   event.preventDefault();
-  const payload = Object.fromEntries(new FormData(event.currentTarget));
+  const form = event.currentTarget;
+  const payload = Object.fromEntries(new FormData(form));
   payload.is_default = true;
+  ["title", "province", "city", "address_line", "recipient_name", "recipient_phone"].forEach((field) => { payload[field] = normalizeText(payload[field]); });
   payload.postal_code = latinizeDigits(payload.postal_code).replace(/\s/g, "");
   payload.recipient_phone = latinizeDigits(payload.recipient_phone).replace(/\s/g, "");
-  const submit = event.currentTarget.querySelector("button[type=submit]");
+  const submit = form.querySelector("button[type=submit]");
   submit.disabled = true;
   try {
     const address = await request("auth/addresses/", { method: "POST", body: JSON.stringify(payload) });
     state.addresses.unshift(address);
     state.selectedAddress = address.id;
-    event.currentTarget.reset();
-    event.currentTarget.hidden = true;
+    form.reset();
+    form.hidden = true;
     renderAddresses();
     showAlert("آدرس با موفقیت ذخیره شد.", "success");
   } catch (error) { showAlert(error.message); }
