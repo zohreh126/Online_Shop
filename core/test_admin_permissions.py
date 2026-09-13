@@ -1,6 +1,7 @@
 from io import StringIO
 
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -86,3 +87,21 @@ class AdminPermissionTests(TestCase):
 
         self.assertTrue(product_admin.has_delete_permission(request))
         self.assertTrue(order_admin.has_change_permission(request))
+
+    def test_customer_admin_syncs_role_group_when_saved(self):
+        customer_admin = self.admin_for(Customer)
+        request = self.request_for(self.superuser)
+
+        self.product_manager.role = Customer.Role.OPERATOR
+        customer_admin.save_model(request, self.product_manager, form=None, change=True)
+
+        self.assertTrue(
+            self.product_manager.groups.filter(
+                name=Customer.Role.OPERATOR,
+            ).exists()
+        )
+        self.assertFalse(
+            self.product_manager.groups.filter(
+                name=Customer.Role.PRODUCT_MANAGER,
+            ).exists()
+        )

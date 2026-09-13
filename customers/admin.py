@@ -1,8 +1,11 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
+from django.utils.html import format_html
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from core.admin_permissions import RolePermissionAdminMixin
 
+from .management.commands.seed_roles import ROLE_PERMISSIONS
 from .models import Address, Customer
 
 
@@ -29,7 +32,7 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
         "last_name",
         "is_staff",
         "is_active",
-        "role",
+        "role_badge",
     )
 
     list_filter = (
@@ -110,6 +113,28 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
                 ("role", "is_staff", "is_superuser", "groups", "user_permissions")
             )
         return tuple(dict.fromkeys(readonly_fields))
+
+    @admin.display(description="Role", ordering="role")
+    def role_badge(self, obj):
+        labels = {
+            Customer.Role.PRODUCT_MANAGER: ("Product manager", "#7150b4"),
+            Customer.Role.SUPERVISOR: ("Supervisor", "#39739d"),
+            Customer.Role.OPERATOR: ("Operator", "#4d8a5c"),
+        }
+        label, color = labels.get(obj.role, ("Customer", "#77727f"))
+        return format_html(
+            '<span style="color:{};font-weight:700">● {}</span>',
+            color,
+            label,
+        )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        role_groups = Group.objects.filter(name__in=ROLE_PERMISSIONS)
+        obj.groups.remove(*role_groups)
+        if obj.role in ROLE_PERMISSIONS:
+            group, _ = Group.objects.get_or_create(name=obj.role)
+            obj.groups.add(group)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
