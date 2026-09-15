@@ -1,5 +1,5 @@
 const API_BASE = "/api/v1/";
-const state = { products: [], categories: [], category: "", search: "" };
+const state = { products: [], categories: [], category: "", search: "", sort: "newest" };
 
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const localizedNumber = (value) => new Intl.NumberFormat(window.NexoraI18n?.current() === "en" ? "en-US" : "fa-IR").format(value);
@@ -103,11 +103,17 @@ function renderProducts() {
     const matchesSearch = !query || `${product.name} ${product.brand || ""}`.toLowerCase().includes(query);
     return matchesCategory && matchesSearch;
   });
-  if (!filtered.length) {
+  const sorted = [...filtered].sort((a, b) => {
+    if (state.sort === "price-low") return Number(a.final_price) - Number(b.final_price);
+    if (state.sort === "price-high") return Number(b.final_price) - Number(a.final_price);
+    if (state.sort === "name") return productName(a).localeCompare(productName(b), window.NexoraI18n?.current() === "en" ? "en" : "fa");
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  });
+  if (!sorted.length) {
     grid.innerHTML = `<div class="state-card"><span class="state-icon">⌕</span><h3>${t("noProducts")}</h3><p>${t("changeFilter")}</p></div>`;
     return;
   }
-  grid.innerHTML = filtered.map((product, index) => `
+  grid.innerHTML = sorted.map((product, index) => `
     <article class="product-card" style="--delay:${index * 60}ms">
       <div class="product-visual">${productImage(product)}${product.discount_amount > 0 ? `<span class="discount-badge">${t("specialOffer")}</span>` : ''}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${product.is_in_stock ? t("available") : t("unavailable")}</span><button class="heart-button" aria-label="${t("addToFavorites")}">♡</button></div>
       <div class="product-info"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><h3><a class="product-title-link" href="/products/${product.slug}/">${productName(product)}</a></h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
@@ -232,6 +238,7 @@ async function loadCatalog() {
 }
 
 document.querySelector("#product-search").addEventListener("input", (event) => { state.search = event.target.value; renderProducts(); });
+document.querySelector("#product-sort").addEventListener("change", (event) => { state.sort = event.target.value; renderProducts(); });
 document.querySelector("#menu-toggle").addEventListener("click", () => document.querySelector("#mobile-nav").classList.toggle("open"));
 document.querySelector("#cart-toggle").addEventListener("click", openCart);
 document.querySelector("#cart-close").addEventListener("click", closeCart);

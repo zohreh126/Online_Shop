@@ -126,6 +126,16 @@ translations.en.cartSubtotal = "Items subtotal";
 translations.en.couponDiscount = "Code discount";
 translations.en.couponApplied = "Discount code applied.";
 translations.en.couponRemoved = "Discount code removed.";
+translations.fa.sortBy = "مرتب‌سازی";
+translations.fa.sortNewest = "جدیدترین";
+translations.fa.sortPriceLow = "ارزان‌ترین";
+translations.fa.sortPriceHigh = "گران‌ترین";
+translations.fa.sortName = "نام محصول";
+translations.en.sortBy = "Sort by";
+translations.en.sortNewest = "Newest";
+translations.en.sortPriceLow = "Price: low to high";
+translations.en.sortPriceHigh = "Price: high to low";
+translations.en.sortName = "Product name";
 
 function applyLanguage(language) {
   const selected = language === "en" ? "en" : "fa";
@@ -143,6 +153,10 @@ function applyLanguage(language) {
   document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
     const value = translations[selected][element.dataset.i18nPlaceholder];
     if (value) element.placeholder = value;
+  });
+  document.querySelectorAll("#product-sort option[data-i18n]").forEach((element) => {
+    const value = translations[selected][element.dataset.i18n];
+    if (value) element.textContent = value;
   });
   document.querySelectorAll("[data-language-toggle]").forEach((button) => { button.textContent = translations[selected].language; });
   localStorage.setItem("nexora-language", selected);

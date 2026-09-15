@@ -168,6 +168,9 @@ html[dir="ltr"] .checkout-step { text-align:right; }
 
 /* Catalog controls: compact, expandable category navigation. */
 .catalog-tools { position:relative; z-index:4; }
+.sort-box { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11px; white-space:nowrap; }
+.sort-box select { padding:10px 12px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--ink); font-size:11px; outline:0; }
+.sort-box select:focus { border-color:var(--accent-strong); }
 .category-filter { position:relative; width:min(330px,100%); }
 .category-filter-toggle { display:flex; align-items:center; gap:10px; width:100%; padding:13px 16px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); text-align:start; font-size:12px; box-shadow:0 8px 20px rgba(75,55,100,.05); }
 .category-filter-toggle:hover,.category-filter.open .category-filter-toggle { border-color:var(--accent-strong); color:var(--accent-strong); }
@@ -192,6 +195,8 @@ html[dir="ltr"] .category-filter-toggle,html[dir="ltr"] .category-tree-button { 
   .category-tabs { position:relative; top:auto; margin-top:8px; max-height:300px; }
   .search-box { margin-top:0; width:100%; }
   .search-box input { width:100%; }
+  .sort-box { justify-content:space-between; }
+  .sort-box select { flex:1; }
 }
 
 /* Final storefront polish: keep decorative spans from constraining real text. */
