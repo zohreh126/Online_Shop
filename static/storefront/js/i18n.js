@@ -29,6 +29,12 @@ const categoryTranslations = {
   }
 };
 
+// Shared labels used by page-specific scripts and forms.
+translations.fa.username = "نام کاربری";
+translations.fa.logout = "خروج";
+translations.en.username = "Username";
+translations.en.logout = "Log out";
+
 function applyLanguage(language) {
   const selected = language === "en" ? "en" : "fa";
   document.documentElement.lang = selected;

@@ -77,6 +77,11 @@ class Category(TimeStampedModel):
     def __str__(self):
         return self.name
 
+    def delete(self, using=None, keep_parents=False):
+        """Keep category history while removing it from catalog navigation."""
+        self.is_active = False
+        self.save(update_fields=("is_active", "updated_at"))
+
 
 
 class ProductQuerySet(models.QuerySet):
@@ -173,6 +178,11 @@ class Product(TimeStampedModel):
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
+
+    def delete(self, using=None, keep_parents=False):
+        """Keep catalog history while removing the product from the storefront."""
+        self.is_active = False
+        self.save(update_fields=("is_active", "updated_at"))
 
 class Discount(TimeStampedModel):
     class DiscountType(models.TextChoices):
@@ -300,6 +310,10 @@ class Discount(TimeStampedModel):
 
     def __str__(self):
         return f"{self.product.name} - {self.value}"
+
+    def delete(self, using=None, keep_parents=False):
+        self.is_active = False
+        self.save(update_fields=("is_active", "updated_at"))
 
 class DiscountCode(TimeStampedModel):
     code = models.CharField(
@@ -462,3 +476,7 @@ class DiscountCode(TimeStampedModel):
 
     def __str__(self):
         return self.code
+
+    def delete(self, using=None, keep_parents=False):
+        self.is_active = False
+        self.save(update_fields=("is_active", "updated_at"))

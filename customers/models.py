@@ -102,6 +102,11 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+    def delete(self, using=None, keep_parents=False):
+        """Deactivate the customer instead of physically deleting the account."""
+        self.is_active = False
+        self.save(update_fields=("is_active",))
+
 class Address(models.Model):
     customer = models.ForeignKey(
         Customer,

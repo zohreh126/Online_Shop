@@ -26,6 +26,14 @@ class CategoryModelTests(TestCase):
         with self.assertRaises(ValidationError):
             category.full_clean()
 
+    def test_delete_deactivates_category(self):
+        category = Category.objects.create(name="To archive")
+
+        category.delete()
+        category.refresh_from_db()
+
+        self.assertFalse(category.is_active)
+
 
 class ProductModelTests(TestCase):
     def setUp(self):
@@ -99,6 +107,14 @@ class ProductModelTests(TestCase):
         product.stock_quantity = 0
 
         self.assertFalse(product.is_in_stock)
+
+    def test_delete_deactivates_product(self):
+        product = self.create_product()
+
+        product.delete()
+        product.refresh_from_db()
+
+        self.assertFalse(product.is_active)
 
 
 class DiscountModelTests(TestCase):
@@ -188,6 +204,18 @@ class DiscountModelTests(TestCase):
             Decimal("0.00"),
         )
 
+    def test_delete_deactivates_discount(self):
+        discount = Discount.objects.create(
+            product=self.product,
+            discount_type=Discount.DiscountType.FIXED,
+            value=Decimal("10.00"),
+        )
+
+        discount.delete()
+        discount.refresh_from_db()
+
+        self.assertFalse(discount.is_active)
+
 
 class DiscountCodeModelTests(TestCase):
     def test_code_is_normalized_to_uppercase(self):
@@ -240,3 +268,15 @@ class DiscountCodeModelTests(TestCase):
             discount_code.calculate_discount(Decimal("500.00")),
             Decimal("30.00"),
         )
+
+    def test_delete_deactivates_discount_code(self):
+        discount_code = DiscountCode.objects.create(
+            code="ARCHIVE10",
+            discount_type=Discount.DiscountType.FIXED,
+            value=Decimal("10.00"),
+        )
+
+        discount_code.delete()
+        discount_code.refresh_from_db()
+
+        self.assertFalse(discount_code.is_active)

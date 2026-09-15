@@ -1,29 +1,23 @@
 # Nexora Online Store
 
-فروشگاه آنلاین Nexora با Django، Django REST Framework و احراز هویت JWT در کوکی HttpOnly.
+فروشگاه آنلاین لوازم دیجیتال با Django، Django REST Framework، JWT در کوکی‌های `HttpOnly` و فرانت‌اند JavaScript مبتنی بر همان APIها.
+
+## قابلیت‌های پیاده‌سازی‌شده
+
+- کاربر اختصاصی، ثبت‌نام، ورود با username یا email، خروج و تغییر رمز عبور
+- ورود دومرحله‌ای با OTP ایمیلی، ذخیره‌ی hash کد در cache و محدودیت درخواست
+- نقش‌های مدیر محصولات، ناظر و اپراتور با Group و مجوزهای Django Admin
+- پروفایل، آدرس‌های چندگانه، آدرس پیش‌فرض و حذف منطقی
+- دسته‌بندی درختی، جست‌وجو، فیلتر، موجودی و تخفیف درصدی/مبلغی
+- سبد خرید مهمان و کاربر، ادغام سبد بعد از ورود، کوپن و تسویه‌حساب
+- سفارش با snapshot اطلاعات محصول و کنترل موجودی هنگام پرداخت
+- داشبورد مشتری، تاریخچه سفارش و پنل Admin سفارشی
+- فارسی/انگلیسی واقعی، RTL/LTR، Dark Mode و صفحات 404/500 اختصاصی
+- OpenAPI/Swagger/ReDoc، health check و Celery Beat برای cleanup کاربران تأییدنشده
+
+نقشه‌ی مدل‌ها در [docs/ERD.md](docs/ERD.md) و مسیرهای تجربه‌ی کاربر در [docs/storefront-storyboard.md](docs/storefront-storyboard.md) قرار دارد.
 
 ## اجرای محلی با SQLite
-
-محیط محلی به‌صورت پیش‌فرض از SQLite و cache داخل حافظه استفاده می‌کند:
-
-```bash
-source .venv/bin/activate
-python manage.py migrate
-python manage.py seed_nexora
-python manage.py runserver
-```
-
-## اجرای PostgreSQL و Redis با Docker
-
-Docker سرویس‌های PostgreSQL، Redis، Celery Worker و Celery Beat را اجرا می‌کند.
-
-```bash
-cp .env.example .env
-docker compose up -d db redis
-docker compose ps
-```
-
-پس از آماده‌شدن سرویس‌ها، در `.env` مقدارهای اتصال را بررسی کن و سپس:
 
 ```bash
 source .venv/bin/activate
@@ -33,30 +27,62 @@ python manage.py seed_nexora
 python manage.py runserver
 ```
 
-برای اجرای کامل worker و beat:
+آدرس‌های مهم:
+
+- فروشگاه: `http://127.0.0.1:8000/`
+- Swagger: `http://127.0.0.1:8000/api/docs/`
+- ReDoc: `http://127.0.0.1:8000/api/redoc/`
+- وضعیت سرویس: `http://127.0.0.1:8000/health/`
+
+## API نسخه‌دار
+
+تمام APIها زیر `/api/v1/` هستند:
+
+| بخش | مسیر |
+|---|---|
+| محصولات و دسته‌بندی‌ها | `/api/v1/products/` و `/api/v1/categories/` |
+| احراز هویت و پروفایل | `/api/v1/auth/` |
+| سبد خرید | `/api/v1/cart/` |
+| سفارش‌های مشتری | `/api/v1/orders/` |
+| سفارش‌های پنل | `/api/v1/admin/orders/` |
+
+Access و refresh token در کوکی‌های `HttpOnly` ذخیره می‌شوند و درخواست‌های تغییردهنده از CSRF cookie استفاده می‌کنند.
+
+## PostgreSQL، Redis و Celery با Docker
 
 ```bash
+cp .env.example .env
 docker compose up -d
+docker compose ps
 ```
 
-برای توقف سرویس‌ها:
+سپس:
 
 ```bash
-docker compose down
+python manage.py migrate
+python manage.py seed_roles
+python manage.py seed_nexora
 ```
 
-برای حذف volumeهای داده‌ی محلی PostgreSQL و Redis، فقط در صورت نیاز اجرا کن:
-
-```bash
-docker compose down -v
-```
+برای ایمیل واقعی در production باید `EMAIL_HOST`، `EMAIL_PORT`، `EMAIL_HOST_USER`، `EMAIL_HOST_PASSWORD`، `DEFAULT_FROM_EMAIL` و `CSRF_TRUSTED_ORIGINS` واقعی تنظیم شوند. در local ایمیل‌ها به console backend می‌روند.
 
 ## بررسی کیفیت
 
 ```bash
 python manage.py check
 python manage.py check --deploy
+python manage.py makemigrations --check --dry-run
 python manage.py test
+coverage run manage.py test
+coverage report -m
 ```
 
-برای بررسی تولید، از `config.settings.production` همراه با `SECRET_KEY` طولانی، `ALLOWED_HOSTS` و `CSRF_TRUSTED_ORIGINS` واقعی استفاده کن.
+## فازبندی Git
+
+توسعه روی `develop` انجام می‌شود و نسخه‌ی نهایی هر فاز باید در `master` merge شود. commitهای هر فاز باید قبل از جلسه‌ی تحویل روی remote push شوند.
+
+## موارد محیطی تحویل
+
+- production واقعی به Redis، PostgreSQL، worker/beat و SMTP معتبر نیاز دارد.
+- Selenium در PDF به‌عنوان تست امتیازی معرفی شده و هنوز در این مخزن اضافه نشده است؛ تست‌های API و مدل با Django Test و APIClient وجود دارند.
+- Docker Compose باید روی سیستم مقصد نصب و فعال باشد.

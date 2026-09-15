@@ -43,7 +43,7 @@ async function loadDashboard() {
   try {
     const [profile, orders] = await Promise.all([request("auth/profile/"), request("orders/?page_size=100")]);
     document.querySelector("#dashboard-profile").textContent = `${profile.first_name || profile.username} · ${profile.email}`;
-    document.querySelector("#dashboard-role").textContent = roleLabels[profile.role] || "مشتری عادی";
+    document.querySelector("#dashboard-role").textContent = roleLabels[profile.role] ? tr(roleLabels[profile.role]) : tr("normalCustomer");
     document.querySelector("#dashboard-content").hidden = false;
     dashboardOrders = orders.results || orders;
     renderOrders(dashboardOrders);
