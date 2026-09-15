@@ -52,7 +52,7 @@
 
 - `manage.py check`: موفق
 - `makemigrations --check --dry-run`: بدون migration جاافتاده
-- `manage.py test`: ۱۳۵ تست، همگی موفق
+- `manage.py test`: ۱۳۶ تست؛ تست‌های عادی موفق و Selenium در حالت `RUN_SELENIUM=1` موفق
 - Coverage: ۹۴٪
 - syntax تمام فایل‌های JavaScript: موفق
 - `git diff --check`: موفق

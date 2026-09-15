@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -43,8 +44,7 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
             cls.driver.quit()
         super().tearDownClass()
 
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         category = Category.objects.create(name="Selenium audio", slug="selenium-audio")
         Product.objects.create(
             name="Selenium Headphones",
@@ -65,7 +65,7 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
         add_button = self.wait_for(
             EC.element_to_be_clickable((By.CSS_SELECTOR, ".add-button:not([disabled])")),
         )
-        add_button.click()
+        ActionChains(self.driver).move_to_element(add_button).click().perform()
 
         cart_toggle = self.wait_for(
             EC.element_to_be_clickable((By.ID, "cart-toggle")),
@@ -85,7 +85,12 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
             ),
         )
 
-        self.driver.find_element(By.CSS_SELECTOR, ".drawer-checkout").click()
+        self.wait_for(
+            EC.invisibility_of_element_located((By.CSS_SELECTOR, ".toast-message")),
+        )
+        self.wait_for(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, ".drawer-checkout")),
+        ).click()
         self.wait_for(EC.url_contains("/checkout/"))
         self.wait_for(EC.visibility_of_element_located((By.ID, "checkout-alert")))
         self.assertTrue(
