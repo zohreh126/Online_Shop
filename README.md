@@ -56,6 +56,14 @@ docker compose up -d
 docker compose ps
 ```
 
+سرویس `web` روی پورت `8000` اجرا می‌شود. بعد از بالا آمدن سرویس‌ها، migration و seed را اجرا کن:
+
+```bash
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py seed_roles
+docker compose exec web python manage.py seed_nexora
+```
+
 سپس:
 
 ```bash
