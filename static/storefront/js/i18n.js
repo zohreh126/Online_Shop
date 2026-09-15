@@ -16,17 +16,35 @@ const translations = {
 
 const categoryTranslations = {
   fa: {
-    "keyboards-mice": "کیبورد و ماوس", "keyboards-mice-کیبورد": "کیبورد", "keyboards-mice-ماوس": "ماوس",
+    "keyboards-mice": "کیبورد و ماوس", "کیبورد و ماوس": "کیبورد و ماوس", "کیبورد": "کیبورد", "ماوس": "ماوس", "keyboards-mice-کیبورد": "کیبورد", "keyboards-mice-ماوس": "ماوس",
     audio: "صوتی", "audio-هدفون": "هدفون", "audio-میکروفون": "میکروفون", "audio-اسپیکر": "اسپیکر",
-    "cables-charging": "کابل و شارژ", "cables-charging-شارژر": "شارژر", "cables-charging-پاوربانک": "پاوربانک",
-    gaming: "گیمینگ", "gaming-کنترلر": "کنترلر", "gaming-نورپردازی": "نورپردازی"
+    "cables-charging": "کابل و شارژ", "شارژر": "شارژر", "پاوربانک": "پاوربانک", "cables-charging-شارژر": "شارژر", "cables-charging-پاوربانک": "پاوربانک",
+    gaming: "گیمینگ", "کنترلر": "کنترلر", "نورپردازی": "نورپردازی", "gaming-کنترلر": "کنترلر", "gaming-نورپردازی": "نورپردازی"
   },
   en: {
-    "keyboards-mice": "Keyboards & mice", "keyboards-mice-کیبورد": "Keyboards", "keyboards-mice-ماوس": "Mice",
-    audio: "Audio", "audio-هدفون": "Headphones", "audio-میکروفون": "Microphones", "audio-اسپیکر": "Speakers",
-    "cables-charging": "Cables & charging", "cables-charging-شارژر": "Chargers", "cables-charging-پاوربانک": "Power banks",
-    gaming: "Gaming", "gaming-کنترلر": "Controllers", "gaming-نورپردازی": "Lighting"
+    "keyboards-mice": "Keyboards & mice", "کیبورد و ماوس": "Keyboards & mice", "کیبورد": "Keyboards", "ماوس": "Mice", "keyboards-mice-کیبورد": "Keyboards", "keyboards-mice-ماوس": "Mice",
+    audio: "Audio", "هدفون": "Headphones", "میکروفون": "Microphones", "اسپیکر": "Speakers", "audio-هدفون": "Headphones", "audio-میکروفون": "Microphones", "audio-اسپیکر": "Speakers",
+    "cables-charging": "Cables & charging", "شارژر": "Chargers", "پاوربانک": "Power banks", "cables-charging-شارژر": "Chargers", "cables-charging-پاوربانک": "Power banks",
+    gaming: "Gaming", "کنترلر": "Controllers", "نورپردازی": "Lighting", "gaming-کنترلر": "Controllers", "gaming-نورپردازی": "Lighting"
   }
+};
+
+const productTranslations = {
+  en: {
+    "NX-FLUX-KB-001": "A minimalist mechanical keyboard with adjustable lighting for work and play.",
+    "NX-ARC-MOUSE-001": "A lightweight wireless mouse with a precise sensor and ergonomic design.",
+    "NX-PULSE-ANC-001": "Over-ear wireless headphones with active noise cancellation and balanced sound.",
+    "NX-ECHO-MIC-001": "A desktop USB microphone for streaming, meetings, and content creation.",
+    "NX-LINK-C100-001": "A durable USB-C cable with fast charging and high-speed data transfer.",
+    "NX-DOCK-7IN1-001": "A versatile laptop hub with display output and built-in card readers.",
+    "NX-CORE-MAT-001": "A large gaming mat with a controlled surface and stitched edges.",
+    "NX-SHIFT-RGB-001": "A multi-platform wireless controller with lighting and low-latency connectivity.",
+    "NX-RESERVE-PB-001": "A high-capacity power bank designed for reliable everyday charging."
+  }
+};
+
+const specificationTranslations = {
+  en: { switch: "Switches", layout: "Layout", connection: "Connection", backlight: "Backlight", sensor: "Sensor", dpi: "DPI", weight_g: "Weight (g)", anc: "Noise cancellation", battery_hours: "Battery (hours)", charging: "Charging", pickup: "Pickup pattern", sample_rate: "Sample rate", monitoring: "Monitoring", power_delivery: "Power delivery", data_speed: "Data speed", length_m: "Length (m)", braided: "Braided", ports: "Ports", video: "Video", size_cm: "Size (cm)", surface: "Surface", base: "Base", edge: "Edge", platforms: "Platforms", lighting: "Lighting", warranty_months: "Warranty (months)" }
 };
 
 // Shared labels used by page-specific scripts and forms.
@@ -75,7 +93,9 @@ window.NexoraI18n = {
   translations,
   current: () => document.documentElement.lang === "en" ? "en" : "fa",
   t: (key) => translations[document.documentElement.lang === "en" ? "en" : "fa"][key] || key,
-  category: (slug, fallback) => categoryTranslations[document.documentElement.lang === "en" ? "en" : "fa"][slug] || fallback
+  category: (slug, fallback) => categoryTranslations[document.documentElement.lang === "en" ? "en" : "fa"][slug] || fallback,
+  productDescription: (product) => productTranslations[document.documentElement.lang === "en" ? "en" : "fa"]?.[product.sku] || (document.documentElement.lang === "en" && /[\u0600-\u06ff]/.test(product.description || "") ? "A carefully selected Nexora essential for everyday digital life." : product.description),
+  specificationLabel: (key) => specificationTranslations[document.documentElement.lang === "en" ? "en" : "fa"]?.[key] || key
 };
 
 document.addEventListener("DOMContentLoaded", () => {

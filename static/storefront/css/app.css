@@ -205,6 +205,8 @@ html[dir="ltr"] .category-filter-toggle,html[dir="ltr"] .category-tree-button { 
 .section-heading h2 { text-wrap:balance; }
 .catalog-tools { align-items:center; }
 .product-grid { align-content:start; }
+.product-card { cursor:pointer; }
+.product-card button,.product-card a { cursor:pointer; }
 .product-title-link { color:inherit; transition:color .2s ease; }
 .product-title-link:hover { color:var(--accent-strong); }
 .product-detail-page { padding:54px 0 110px; }

@@ -124,6 +124,10 @@ function renderProducts() {
       button.classList.remove("is-loading");
     }
   }));
+  grid.querySelectorAll(".product-card").forEach((card) => card.addEventListener("click", (event) => {
+    if (event.target.closest("button, a")) return;
+    window.location.href = `/products/${card.querySelector(".product-title-link")?.getAttribute("href")?.split("/").filter(Boolean).pop()}/`;
+  }));
 }
 
 function renderCart(cart) {
