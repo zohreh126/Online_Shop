@@ -75,6 +75,11 @@ python manage.py makemigrations --check --dry-run
 python manage.py test
 coverage run manage.py test
 coverage report -m
+
+# تست مرورگر واقعی مسیر خرید (نیازمند Chrome و ChromeDriver)
+RUN_SELENIUM=1 python manage.py test config.test_selenium
+
+اگر Selenium Manager روی سیستم driver هماهنگ را پیدا نکرد، مقدار `CHROMEDRIVER_PATH` را به مسیر ChromeDriver هم‌نسخه با Chrome تنظیم کن.
 ```
 
 ## فازبندی Git
@@ -84,5 +89,5 @@ coverage report -m
 ## موارد محیطی تحویل
 
 - production واقعی به Redis، PostgreSQL، worker/beat و SMTP معتبر نیاز دارد.
-- Selenium در PDF به‌عنوان تست امتیازی معرفی شده و هنوز در این مخزن اضافه نشده است؛ تست‌های API و مدل با Django Test و APIClient وجود دارند.
+- تست Selenium مسیر خرید در `config/test_selenium.py` قرار دارد و با `RUN_SELENIUM=1` اجرا می‌شود.
 - Docker Compose باید روی سیستم مقصد نصب و فعال باشد.
