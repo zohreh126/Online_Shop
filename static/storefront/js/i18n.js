@@ -30,6 +30,34 @@ const categoryTranslations = {
 };
 
 const productTranslations = {
+  fa: {
+    "NX-FLUX-KB-001": "کیبورد مکانیکال Nexora Flux",
+    "NX-ARC-MOUSE-001": "ماوس بی‌سیم Nexora Arc",
+    "NX-PULSE-ANC-001": "هدفون حذف نویز Nexora Pulse ANC",
+    "NX-ECHO-MIC-001": "میکروفون USB Nexora Echo",
+    "NX-LINK-C100-001": "کابل USB-C Nexora Link 100W",
+    "NX-DOCK-7IN1-001": "هاب USB-C Nexora Dock 7-in-1",
+    "NX-CORE-MAT-001": "پد گیمینگ Nexora Core",
+    "NX-SHIFT-RGB-001": "کنترلر Nexora Shift RGB",
+    "NX-NOVA-KB-001": "کیبورد کم‌ارتفاع Nexora Nova",
+    "NX-TYPEC-KB-001": "کیبورد کامپکت Nexora Type-C",
+    "NX-GLIDE-MOUSE-001": "ماوس ارگونومیک Nexora Glide",
+    "NX-MINI-MOUSE-001": "ماوس مسافرتی Nexora Mini",
+    "NX-VECTOR-MOUSE-001": "ماوس بی‌صدای Nexora Vector",
+    "NX-AIR-EARBUDS-001": "ایربادز Nexora Air Mini",
+    "NX-STUDIO-HEADSET-001": "هدست حرفه‌ای Nexora Studio Pro",
+    "NX-BEAM-MIC-001": "میکروفون استریم Nexora Beam",
+    "NX-WAVE-MIC-001": "میکروفون پادکست Nexora Wave",
+    "NX-ROOM-SPEAKER-001": "اسپیکر کوچک Nexora Room",
+    "NX-EDGE-CONTROLLER-001": "کنترلر بی‌سیم Nexora Edge",
+    "NX-POCKET-GAMEPAD-001": "گیم‌پد Nexora Pocket",
+    "NX-GLOW-LIGHT-001": "چراغ رومیزی Nexora Glow",
+    "NX-HALO-LIGHT-001": "چراغ مانیتور Nexora Halo",
+    "NX-VOLT-GAN-001": "شارژر GaN Nexora Volt 65W",
+    "NX-QUAD-CHARGER-001": "شارژر چهارپورته Nexora Quad USB",
+    "NX-VOLT-GAN-100-001": "شارژر GaN Nexora Volt 100W",
+    "NX-RESERVE-PB-001": "پاوربانک Nexora Reserve 20000"
+  },
   en: {
     "NX-FLUX-KB-001": "A minimalist mechanical keyboard with adjustable lighting for work and play.",
     "NX-ARC-MOUSE-001": "A lightweight wireless mouse with a precise sensor and ergonomic design.",
@@ -110,7 +138,8 @@ window.NexoraI18n = {
   current: () => document.documentElement.lang === "en" ? "en" : "fa",
   t: (key) => translations[document.documentElement.lang === "en" ? "en" : "fa"][key] || key,
   category: (slug, fallback) => categoryTranslations[document.documentElement.lang === "en" ? "en" : "fa"][slug] || fallback,
-  productDescription: (product) => productTranslations[document.documentElement.lang === "en" ? "en" : "fa"]?.[product.sku] || (document.documentElement.lang === "en" && /[\u0600-\u06ff]/.test(product.description || "") ? "A carefully selected Nexora essential for everyday digital life." : product.description),
+  productName: (product) => productTranslations[document.documentElement.lang === "en" ? "en" : "fa"]?.[product.sku] || product.name || product.product_name,
+  productDescription: (product) => document.documentElement.lang === "en" ? (productTranslations.en?.[product.sku] || (/[\u0600-\u06ff]/.test(product.description || "") ? "A carefully selected Nexora essential for everyday digital life." : product.description)) : product.description,
   specificationLabel: (key) => specificationTranslations[document.documentElement.lang === "en" ? "en" : "fa"]?.[key] || key
 };
 

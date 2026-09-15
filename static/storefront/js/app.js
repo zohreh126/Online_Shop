@@ -87,6 +87,10 @@ function categoryName(category) {
   return window.NexoraI18n?.category(category.slug, category.name) || category.name;
 }
 
+function productName(product) {
+  return window.NexoraI18n?.productName(product) || product.name;
+}
+
 function renderProducts() {
   const grid = document.querySelector("#product-grid");
   const categorySlugs = new Set();
@@ -106,7 +110,7 @@ function renderProducts() {
   grid.innerHTML = filtered.map((product, index) => `
     <article class="product-card" style="--delay:${index * 60}ms">
       <div class="product-visual">${productImage(product)}${product.discount_amount > 0 ? `<span class="discount-badge">${t("specialOffer")}</span>` : ''}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${product.is_in_stock ? t("available") : t("unavailable")}</span><button class="heart-button" aria-label="${t("addToFavorites")}">♡</button></div>
-      <div class="product-info"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><h3><a class="product-title-link" href="/products/${product.slug}/">${product.name}</a></h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
+      <div class="product-info"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><h3><a class="product-title-link" href="/products/${product.slug}/">${productName(product)}</a></h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
     </article>`).join("");
   grid.querySelectorAll(".add-button").forEach((button) => button.addEventListener("click", async () => {
     button.disabled = true;
@@ -142,7 +146,7 @@ function renderCart(cart) {
     return;
   }
   footer.hidden = false;
-  body.innerHTML = cart.items.map((item) => `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="${item.product.name}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product?.name || t("product")}</h3><strong>${money(item.line_total)}</strong>${item.unit_discount > 0 ? `<small class="cart-item-discount">${t("discountPerUnit")}: ${money(item.unit_discount)}</small>` : ""}<div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="−">−</button><span>${localizedNumber(item.quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="+">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="${t("remove")}">${t("remove")}</button></div></div></article>`).join("");
+  body.innerHTML = cart.items.map((item) => `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="${productName(item.product)}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product ? productName(item.product) : t("product")}</h3><strong>${money(item.line_total)}</strong>${item.unit_discount > 0 ? `<small class="cart-item-discount">${t("discountPerUnit")}: ${money(item.unit_discount)}</small>` : ""}<div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="−">−</button><span>${localizedNumber(item.quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="+">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="${t("remove")}">${t("remove")}</button></div></div></article>`).join("");
   body.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => updateCartItem(button.dataset.item, button.dataset.action)));
 }
 

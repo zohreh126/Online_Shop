@@ -1,5 +1,6 @@
 const API_BASE = "/api/v1/";
 const tr = (key) => window.NexoraI18n?.t(key) || key;
+const productName = (product) => window.NexoraI18n?.productName(product) || product.name;
 const formatMessage = (key, values = {}) => Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, value), tr(key));
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const localizedNumber = (value) => new Intl.NumberFormat(document.documentElement.lang === "en" ? "en-US" : "fa-IR").format(value);
@@ -108,7 +109,7 @@ async function deleteAddress(address) {
 }
 
 function renderCart() {
-  document.querySelector("#checkout-items").innerHTML = state.cart.items.map((item) => `<div class="checkout-item"><span>${item.product.name} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("");
+  document.querySelector("#checkout-items").innerHTML = state.cart.items.map((item) => `<div class="checkout-item"><span>${productName(item.product)} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("");
   document.querySelector("#checkout-total").textContent = money(state.cart.total_amount ?? state.cart.subtotal);
 }
 

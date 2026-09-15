@@ -1,5 +1,6 @@
 const API_BASE = "/api/v1/";
 const tr = (key) => window.NexoraI18n?.t(key) || key;
+const productName = (item) => window.NexoraI18n?.productName({ sku: item.product_sku, product_name: item.product_name }) || item.product_name;
 const formatMessage = (key, values = {}) => Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, value), tr(key));
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const localizedNumber = (value) => new Intl.NumberFormat(document.documentElement.lang === "en" ? "en-US" : "fa-IR").format(value);
@@ -24,7 +25,7 @@ function showAlert(message) {
 }
 
 function renderOrderDetail(container, order) {
-  container.innerHTML = `<div class="order-detail"><div class="order-address"><strong>${tr("shippingAddressLabel")}</strong><p>${order.shipping_province}، ${order.shipping_city}، ${order.shipping_address_line}</p><small>${order.shipping_recipient_name} · ${order.shipping_recipient_phone}</small></div><div class="order-items">${order.items.map((item) => `<div class="checkout-item"><span>${item.product_name} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("")}</div></div>`;
+  container.innerHTML = `<div class="order-detail"><div class="order-address"><strong>${tr("shippingAddressLabel")}</strong><p>${order.shipping_province}، ${order.shipping_city}، ${order.shipping_address_line}</p><small>${order.shipping_recipient_name} · ${order.shipping_recipient_phone}</small></div><div class="order-items">${order.items.map((item) => `<div class="checkout-item"><span>${productName(item)} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("")}</div></div>`;
 }
 
 function renderOrders(orders) {
