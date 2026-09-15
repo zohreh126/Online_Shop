@@ -105,3 +105,9 @@ class AdminPermissionTests(TestCase):
                 name=Customer.Role.PRODUCT_MANAGER,
             ).exists()
         )
+        self.assertTrue(self.product_manager.is_staff)
+
+        self.product_manager.role = ""
+        customer_admin.save_model(request, self.product_manager, form=None, change=True)
+        self.product_manager.refresh_from_db()
+        self.assertFalse(self.product_manager.is_staff)

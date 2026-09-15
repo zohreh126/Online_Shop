@@ -55,3 +55,23 @@ class NexoraRolesTests(TestCase):
         )
 
         self.assertEqual(customer.role, "")
+
+    def test_seed_roles_promotes_and_demotes_non_superusers(self):
+        customer = Customer.objects.create_user(
+            username="staff-sync-user",
+            email="staff-sync@example.com",
+            password="SecurePass#2026",
+            role=Customer.Role.OPERATOR,
+        )
+
+        call_command("seed_roles", stdout=StringIO())
+        customer.refresh_from_db()
+        self.assertTrue(customer.is_staff)
+
+        customer.role = ""
+        customer.save(update_fields=("role",))
+        call_command("seed_roles", stdout=StringIO())
+        customer.refresh_from_db()
+
+        self.assertFalse(customer.is_staff)
+        self.assertFalse(customer.groups.exists())

@@ -60,13 +60,20 @@ class Command(BaseCommand):
             group.permissions.set(permissions)
             role_groups[role] = group
 
-        for customer in Customer.objects.exclude(role=""):
+        for customer in Customer.objects.all():
             customer.groups.remove(*role_groups.values())
-            customer.groups.add(role_groups[customer.role])
+            if customer.role in role_groups:
+                customer.groups.add(role_groups[customer.role])
+                if not customer.is_staff:
+                    customer.is_staff = True
+                    customer.save(update_fields=("is_staff",))
+            elif customer.is_staff and not customer.is_superuser:
+                customer.is_staff = False
+                customer.save(update_fields=("is_staff",))
 
         self.stdout.write(
             self.style.SUCCESS(
                 f"Synchronized {len(role_groups)} Nexora roles and "
-                f"{Customer.objects.exclude(role='').count()} staff users."
+                f"{Customer.objects.filter(role__in=role_groups).count()} staff users."
             )
         )

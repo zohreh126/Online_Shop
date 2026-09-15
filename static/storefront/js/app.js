@@ -2,8 +2,9 @@ const API_BASE = "/api/v1/";
 const state = { products: [], categories: [], category: "", search: "" };
 
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
-const money = (value) => `${faNumber(Math.round(Number(value)))} تومان`;
+const money = (value) => window.NexoraI18n?.current() === "en" ? `${new Intl.NumberFormat("en-US").format(Math.round(Number(value)))} toman` : `${faNumber(Math.round(Number(value)))} تومان`;
 const latinNumber = (value) => String(value).replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit));
+const t = (key) => window.NexoraI18n?.t(key) || key;
 
 async function getJSON(path) {
   const response = await fetch(`${API_BASE}${path}`, { credentials: "same-origin" });
@@ -20,11 +21,11 @@ async function loadAccountState() {
       try {
         await sendJSON("auth/logout/", "POST");
         account.innerHTML = '<a class="account-link" href="/account/">ورود</a>';
-        showToast("از حساب خارج شدی.");
+        showToast(t("loggedOut"));
       } catch (error) { showToast(error.message); }
     });
   } catch (error) {
-    account.innerHTML = '<a class="account-link" href="/account/">ورود</a>';
+    account.innerHTML = `<a class="account-link" href="/account/">${t("login")}</a>`;
   }
 }
 
@@ -81,6 +82,10 @@ function categoryLabel(categorySlug) {
   return labels[categorySlug] || "NEXORA";
 }
 
+function categoryName(category) {
+  return window.NexoraI18n?.category(category.slug, category.name) || category.name;
+}
+
 function renderProducts() {
   const grid = document.querySelector("#product-grid");
   const categorySlugs = new Set();
@@ -94,13 +99,13 @@ function renderProducts() {
     return matchesCategory && matchesSearch;
   });
   if (!filtered.length) {
-    grid.innerHTML = `<div class="state-card"><span class="state-icon">⌕</span><h3>محصولی پیدا نشد</h3><p>فیلتر یا عبارت جست‌وجو را تغییر بده.</p></div>`;
+    grid.innerHTML = `<div class="state-card"><span class="state-icon">⌕</span><h3>${t("noProducts")}</h3><p>${t("changeFilter")}</p></div>`;
     return;
   }
   grid.innerHTML = filtered.map((product, index) => `
     <article class="product-card" style="--delay:${index * 60}ms">
-      <div class="product-visual">${productImage(product)}${product.discount_amount > 0 ? '<span class="discount-badge">پیشنهاد ویژه</span>' : ''}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${product.is_in_stock ? "موجود" : "ناموجود"}</span><button class="heart-button" aria-label="افزودن به علاقه‌مندی‌ها">♡</button></div>
-      <div class="product-info"><p class="product-category">${product.category?.name || "اکسسوری دیجیتال"}</p><h3>${product.name}</h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="افزودن ${product.name} به سبد" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
+      <div class="product-visual">${productImage(product)}${product.discount_amount > 0 ? `<span class="discount-badge">${t("specialOffer")}</span>` : ''}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${product.is_in_stock ? t("available") : t("unavailable")}</span><button class="heart-button" aria-label="${t("addToFavorites")}">♡</button></div>
+      <div class="product-info"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><h3>${product.name}</h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
     </article>`).join("");
   grid.querySelectorAll(".add-button").forEach((button) => button.addEventListener("click", async () => {
     button.disabled = true;
@@ -109,7 +114,7 @@ function renderProducts() {
       await sendJSON("cart/items/", "POST", { product_id: button.dataset.product, quantity: 1 });
       await refreshCart();
       button.textContent = "✓";
-      showToast("محصول به سبد خرید اضافه شد.");
+      showToast(t("addedToCart"));
       setTimeout(() => { button.textContent = "+"; }, 900);
     } catch (error) {
       showToast(error.message);
@@ -127,12 +132,12 @@ function renderCart(cart) {
   document.querySelector("#cart-subtotal").textContent = money(cart.total_amount ?? cart.subtotal ?? 0);
   if (!cart.items?.length) {
     footer.hidden = true;
-    body.innerHTML = `<div class="cart-empty"><span class="state-icon">♡</span><h3>سبد خرید خالی است</h3><p>محصولی که دوست داری را به سبد اضافه کن.</p><button class="retry-button" id="empty-cart-shop">مشاهده محصولات</button></div>`;
+    body.innerHTML = `<div class="cart-empty"><span class="state-icon">♡</span><h3>${t("emptyCart")}</h3><p>${t("emptyCartText")}</p><button class="retry-button" id="empty-cart-shop">${t("browseProducts")}</button></div>`;
     document.querySelector("#empty-cart-shop").addEventListener("click", () => closeCart());
     return;
   }
   footer.hidden = false;
-  body.innerHTML = cart.items.map((item) => `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="تصویر ${item.product.name}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product?.name || "محصول"}</h3><strong>${money(item.line_total)}</strong>${item.unit_discount > 0 ? `<small class="cart-item-discount">تخفیف هر واحد: ${money(item.unit_discount)}</small>` : ""}<div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="کاهش تعداد">−</button><span>${faNumber(item.quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="افزایش تعداد">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="حذف محصول">حذف</button></div></div></article>`).join("");
+  body.innerHTML = cart.items.map((item) => `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="${item.product.name}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product?.name || t("product")}</h3><strong>${money(item.line_total)}</strong>${item.unit_discount > 0 ? `<small class="cart-item-discount">${t("discountPerUnit")}: ${money(item.unit_discount)}</small>` : ""}<div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="−">−</button><span>${faNumber(item.quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="+">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="${t("remove")}">${t("remove")}</button></div></div></article>`).join("");
   body.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => updateCartItem(button.dataset.item, button.dataset.action)));
 }
 
@@ -142,7 +147,7 @@ async function refreshCart() {
     renderCart(cart);
     return cart;
   } catch (error) {
-    document.querySelector("#cart-body").innerHTML = `<div class="cart-empty"><span class="state-icon">!</span><h3>سبد خرید در دسترس نیست</h3><p>دوباره تلاش کن.</p></div>`;
+    document.querySelector("#cart-body").innerHTML = `<div class="cart-empty"><span class="state-icon">!</span><h3>${t("cartUnavailable")}</h3><p>${t("retry")}</p></div>`;
   }
 }
 
@@ -163,8 +168,8 @@ function showToast(message) { const toast = document.createElement("div"); toast
 function renderCategories(categories) {
   const roots = categories.filter((category) => !category.parent);
   const hasDescendant = (category, slug) => category.slug === slug || (category.children || []).some((child) => hasDescendant(child, slug));
-  const renderNode = (category, depth = 0) => `<li class="category-tree-item depth-${depth}"><button class="category-tree-button ${hasDescendant(category, state.category) ? "selected" : ""}" data-category="${category.slug}" type="button"><span class="category-tree-chevron">${category.children?.length ? "⌄" : ""}</span>${category.name}</button>${category.children?.length ? `<ul class="category-tree-children">${category.children.map((child) => renderNode(child, depth + 1)).join("")}</ul>` : ""}</li>`;
-  document.querySelector("#category-tabs").innerHTML = `<button class="category-tree-all ${!state.category ? "selected" : ""}" data-category="" type="button">همه محصولات</button><ul class="category-tree">${roots.map((category) => renderNode(category)).join("")}</ul>`;
+  const renderNode = (category, depth = 0) => `<li class="category-tree-item depth-${depth}"><button class="category-tree-button ${hasDescendant(category, state.category) ? "selected" : ""}" data-category="${category.slug}" type="button"><span class="category-tree-chevron">${category.children?.length ? "⌄" : ""}</span>${categoryName(category)}</button>${category.children?.length ? `<ul class="category-tree-children">${category.children.map((child) => renderNode(child, depth + 1)).join("")}</ul>` : ""}</li>`;
+  document.querySelector("#category-tabs").innerHTML = `<button class="category-tree-all ${!state.category ? "selected" : ""}" data-category="" type="button">${t("categoriesAll")}</button><ul class="category-tree">${roots.map((category) => renderNode(category)).join("")}</ul>`;
   document.querySelectorAll("[data-category]").forEach((button) => button.addEventListener("click", () => { state.category = button.dataset.category; renderCategories(categories); renderProducts(); }));
 }
 
@@ -176,7 +181,7 @@ async function loadCatalog() {
     renderCategories(state.categories);
     renderProducts();
   } catch (error) {
-    document.querySelector("#product-grid").innerHTML = `<div class="state-card"><span class="state-icon">!</span><h3>اتصال به ویترین برقرار نشد</h3><p>مطمئن شو سرور Django روشن است و دوباره تلاش کن.</p><button class="retry-button" onclick="loadCatalog()">تلاش دوباره</button></div>`;
+    document.querySelector("#product-grid").innerHTML = `<div class="state-card"><span class="state-icon">!</span><h3>${t("storefrontConnectionFailed")}</h3><p>${t("serverCheck")}</p><button class="retry-button" onclick="loadCatalog()">${t("tryAgain")}</button></div>`;
   }
 }
 
@@ -185,6 +190,14 @@ document.querySelector("#menu-toggle").addEventListener("click", () => document.
 document.querySelector("#cart-toggle").addEventListener("click", openCart);
 document.querySelector("#cart-close").addEventListener("click", closeCart);
 document.querySelector("#drawer-backdrop").addEventListener("click", closeCart);
+document.querySelector("#category-toggle").addEventListener("click", () => {
+  const button = document.querySelector("#category-toggle");
+  const panel = document.querySelector("#category-tabs");
+  const isOpen = !panel.hidden;
+  panel.hidden = isOpen;
+  button.setAttribute("aria-expanded", String(!isOpen));
+  document.querySelector("#category-filter").classList.toggle("open", !isOpen);
+});
 document.querySelector("#theme-toggle").addEventListener("click", () => { document.documentElement.classList.toggle("dark"); localStorage.setItem("nexora-theme", document.documentElement.classList.contains("dark") ? "dark" : "light"); updateThemeButton(); });
 if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.classList.add("dark");
 function updateThemeButton() { document.querySelector("#theme-toggle").textContent = document.documentElement.classList.contains("dark") ? "☼" : "☾"; }
@@ -192,3 +205,9 @@ updateThemeButton();
 refreshCart();
 loadAccountState();
 loadCatalog();
+window.addEventListener("nexora-language-changed", () => {
+  renderCategories(state.categories);
+  renderProducts();
+  refreshCart();
+  loadAccountState();
+});

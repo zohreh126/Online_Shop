@@ -151,6 +151,7 @@ EXTRA_CATEGORIES = {
             "ماوس": [
                 ("Nexora Glide Ergonomic Mouse", "NX-GLIDE-MOUSE-001", Decimal("1790000.00"), 28),
                 ("Nexora Mini Travel Mouse", "NX-MINI-MOUSE-001", Decimal("990000.00"), 40),
+                ("Nexora Vector Silent Mouse", "NX-VECTOR-MOUSE-001", Decimal("1490000.00"), 34),
             ],
         },
     },
@@ -162,6 +163,10 @@ EXTRA_CATEGORIES = {
             ],
             "میکروفون": [
                 ("Nexora Beam Streaming Mic", "NX-BEAM-MIC-001", Decimal("2890000.00"), 15),
+                ("Nexora Wave Podcast Mic", "NX-WAVE-MIC-001", Decimal("4190000.00"), 12),
+            ],
+            "اسپیکر": [
+                ("Nexora Room Mini Speaker", "NX-ROOM-SPEAKER-001", Decimal("3190000.00"), 19),
             ],
         },
     },
@@ -173,6 +178,7 @@ EXTRA_CATEGORIES = {
             ],
             "نورپردازی": [
                 ("Nexora Glow Desk Light", "NX-GLOW-LIGHT-001", Decimal("1590000.00"), 20),
+                ("Nexora Halo Monitor Light", "NX-HALO-LIGHT-001", Decimal("2390000.00"), 17),
             ],
         },
     },
@@ -181,6 +187,10 @@ EXTRA_CATEGORIES = {
             "شارژر": [
                 ("Nexora Volt GaN Charger 65W", "NX-VOLT-GAN-001", Decimal("2290000.00"), 35),
                 ("Nexora Quad USB Charger", "NX-QUAD-CHARGER-001", Decimal("1390000.00"), 42),
+                ("Nexora Volt GaN Charger 100W", "NX-VOLT-GAN-100-001", Decimal("3690000.00"), 26),
+            ],
+            "پاوربانک": [
+                ("Nexora Reserve Power Bank 20000", "NX-RESERVE-PB-001", Decimal("2790000.00"), 29),
             ],
         },
     },

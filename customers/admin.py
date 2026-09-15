@@ -129,6 +129,8 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
         )
 
     def save_model(self, request, obj, form, change):
+        if not obj.is_superuser:
+            obj.is_staff = obj.role in ROLE_PERMISSIONS
         super().save_model(request, obj, form, change)
         role_groups = Group.objects.filter(name__in=ROLE_PERMISSIONS)
         obj.groups.remove(*role_groups)

@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
 </head>
 <body>
-  <div class="announcement">ارسال رایگان برای سفارش‌های بالای ۲ میلیون تومان <span>✦</span> پرداخت امن و پشتیبانی واقعی</div>
+  <div class="announcement"><span data-i18n="freeShipping">ارسال رایگان برای سفارش‌های بالای ۲ میلیون تومان</span> <b>✦</b> <span data-i18n="securePayment">پرداخت امن و پشتیبانی واقعی</span></div>
 
   <header class="site-header">
     <div class="container nav-wrap">
@@ -18,30 +18,30 @@
         <span>NEXORA<small>SMART ESSENTIALS</small></span>
       </a>
       <nav class="desktop-nav" aria-label="ناوبری اصلی">
-        <a class="active" href="#catalog">فروشگاه</a>
-        <a href="#featured">پیشنهادهای ویژه</a>
-        <a href="#why-us">چرا نکستورا؟</a>
+        <a class="active" href="#catalog" data-i18n="shop">فروشگاه</a>
+        <a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a>
+        <a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a>
       </nav>
       <div class="nav-actions">
-        <button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☼</button>
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☼</button><button class="language-button" data-language-toggle type="button">English</button>
         <span id="account-area"><a class="account-link" href="/account/">ورود</a></span>
-        <button class="cart-button" id="cart-toggle" type="button" aria-label="باز کردن سبد خرید">سبد خرید <b id="cart-count">۰</b></button>
+        <button class="cart-button" id="cart-toggle" type="button" aria-label="باز کردن سبد خرید"><span data-i18n="cart">سبد خرید</span> <b id="cart-count">۰</b></button>
         <button class="menu-button" id="menu-toggle" type="button" aria-label="باز کردن منو">☰</button>
       </div>
     </div>
     <nav class="mobile-nav container" id="mobile-nav" aria-label="ناوبری موبایل">
-      <a href="#catalog">فروشگاه</a><a href="#featured">پیشنهادهای ویژه</a><a href="#why-us">چرا نکستورا؟</a>
+      <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a>
     </nav>
   </header>
 
   <main>
     <section class="hero container">
       <div class="hero-copy">
-        <p class="eyebrow"><span></span> انتخاب‌های هوشمندانه، هر روز</p>
-        <h1>تکنولوژی که<br><em>با تو همراه</em> می‌شود.</h1>
-        <p class="hero-text">اکسسوری‌های دیجیتال با طراحی دقیق، کیفیت قابل اعتماد و تجربه‌ای که زندگی روزمره را ساده‌تر می‌کند.</p>
-        <a class="primary-button" href="#catalog">مشاهده محصولات <span>←</span></a>
-        <div class="hero-note"><span class="avatars">●●●</span> بیش از ۲٬۵۰۰ مشتری راضی</div>
+        <p class="eyebrow"><span></span> <span data-i18n="heroEyebrow">انتخاب‌های هوشمندانه، هر روز</span></p>
+        <h1 data-i18n-html="heroTitle">تکنولوژی که<br><em>با تو همراه</em> می‌شود.</h1>
+        <p class="hero-text" data-i18n="heroText">اکسسوری‌های دیجیتال با طراحی دقیق، کیفیت قابل اعتماد و تجربه‌ای که زندگی روزمره را ساده‌تر می‌کند.</p>
+        <a class="primary-button" href="#catalog"><span data-i18n="viewProducts">مشاهده محصولات</span> <span>←</span></a>
+        <div class="hero-note"><span class="avatars">●●●</span> <span data-i18n="happyCustomers">بیش از ۲٬۵۰۰ مشتری راضی</span></div>
       </div>
       <div class="hero-art" aria-label="تصویر تزئینی محصولات دیجیتال">
         <div class="art-glow"></div><div class="art-ring"></div>
@@ -52,27 +52,27 @@
       </div>
     </section>
 
-    <section class="trust-strip"><div class="container trust-items"><span>◈ کیفیت انتخاب‌شده</span><span>↗ ارسال سریع</span><span>◉ ضمانت اصالت</span><span>✦ پشتیبانی انسانی</span></div></section>
+    <section class="trust-strip"><div class="container trust-items"><span data-i18n="quality">◈ کیفیت انتخاب‌شده</span><span data-i18n="fastShipping">↗ ارسال سریع</span><span data-i18n="authenticity">◉ ضمانت اصالت</span><span data-i18n="support">✦ پشتیبانی انسانی</span></div></section>
 
     <section class="catalog container" id="catalog">
-      <div class="section-heading"><div><p class="eyebrow"><span></span> مجموعه منتخب</p><h2>برای میز کار بهتر</h2></div><a href="#catalog" class="text-link">همه محصولات <span>←</span></a></div>
-      <div class="catalog-tools"><div class="category-tabs" id="category-tabs"><button class="selected" data-category="">همه محصولات</button></div><label class="search-box"><span>⌕</span><input id="product-search" type="search" placeholder="جست‌وجوی محصول..." aria-label="جست‌وجوی محصول"></label></div>
-      <div class="product-grid" id="product-grid" aria-live="polite"><div class="state-card loading-state"><span class="loader"></span><p>در حال آماده‌سازی ویترین...</p></div></div>
+      <div class="section-heading"><div><p class="eyebrow"><span></span> <span data-i18n="featuredCollection">مجموعه منتخب</span></p><h2 data-i18n="betterDesk">برای میز کار بهتر</h2></div><a href="#catalog" class="text-link"><span data-i18n="allProducts">همه محصولات</span> <span>←</span></a></div>
+      <div class="catalog-tools"><div class="category-filter" id="category-filter"><button class="category-filter-toggle" id="category-toggle" type="button" aria-expanded="false"><span class="filter-icon">☷</span><span data-i18n="categories">دسته‌بندی‌ها</span><span class="filter-chevron">⌄</span></button><div class="category-tabs" id="category-tabs" hidden></div></div><label class="search-box"><span>⌕</span><input id="product-search" type="search" data-i18n-placeholder="searchProducts" placeholder="جست‌وجوی محصول..." aria-label="جست‌وجوی محصول"></label></div>
+      <div class="product-grid" id="product-grid" aria-live="polite"><div class="state-card loading-state"><span class="loader"></span><p data-i18n="loadingShowcase">در حال آماده‌سازی ویترین...</p></div></div>
     </section>
 
-    <section class="feature-banner container" id="featured"><div><p class="eyebrow light"><span></span> انتخاب سردبیر</p><h2>کمتر، اما بهتر.</h2><p>محصولاتی که برای ماندن ساخته شده‌اند؛ ساده، کاربردی و بدون شلوغی اضافه.</p><a class="light-button" href="#catalog">کشف مجموعه <span>←</span></a></div><div class="banner-orbit"><div class="mini-device"></div><span>01</span></div></section>
+    <section class="feature-banner container" id="featured"><div><p class="eyebrow light"><span></span> <span data-i18n="editorsPick">انتخاب سردبیر</span></p><h2 data-i18n="lessBetter">کمتر، اما بهتر.</h2><p data-i18n="editorText">محصولاتی که برای ماندن ساخته شده‌اند؛ ساده، کاربردی و بدون شلوغی اضافه.</p><a class="light-button" href="#catalog"><span data-i18n="discoverCollection">کشف مجموعه</span> <span>←</span></a></div><div class="banner-orbit"><div class="mini-device"></div><span>01</span></div></section>
 
-    <section class="why-us container" id="why-us"><div><p class="eyebrow"><span></span> تجربه نکستورا</p><h2>جزئیات کوچک،<br><em>تفاوت بزرگ.</em></h2></div><div class="benefit-grid"><article><b>01</b><h3>انتخاب دقیق</h3><p>هر محصول قبل از رسیدن به ویترین ما با وسواس بررسی می‌شود.</p></article><article><b>02</b><h3>شفاف و ساده</h3><p>قیمت واقعی، توضیحات روشن و خریدی بدون پیچیدگی.</p></article><article><b>03</b><h3>همراه همیشگی</h3><p>بعد از خرید هم کنارت هستیم؛ از راه‌اندازی تا پشتیبانی.</p></article></div></section>
+    <section class="why-us container" id="why-us"><div><p class="eyebrow"><span></span> <span data-i18n="nexoraExperience">تجربه نکستورا</span></p><h2 data-i18n-html="bigDifference">جزئیات کوچک،<br><em>تفاوت بزرگ.</em></h2></div><div class="benefit-grid"><article><b>01</b><h3 data-i18n="carefulChoice">انتخاب دقیق</h3><p data-i18n="carefulChoiceText">هر محصول قبل از رسیدن به ویترین ما با وسواس بررسی می‌شود.</p></article><article><b>02</b><h3 data-i18n="simpleClear">شفاف و ساده</h3><p data-i18n="simpleClearText">قیمت واقعی، توضیحات روشن و خریدی بدون پیچیدگی.</p></article><article><b>03</b><h3 data-i18n="alwaysWithYou">همراه همیشگی</h3><p data-i18n="alwaysWithYouText">بعد از خرید هم کنارت هستیم؛ از راه‌اندازی تا پشتیبانی.</p></article></div></section>
   </main>
 
   <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
   <aside class="cart-drawer" id="cart-drawer" aria-labelledby="cart-title" aria-hidden="true">
-    <div class="drawer-header"><div><p class="eyebrow"><span></span> خریدهای شما</p><h2 id="cart-title">سبد خرید</h2></div><button class="drawer-close" id="cart-close" type="button" aria-label="بستن سبد خرید">×</button></div>
-    <div class="drawer-body" id="cart-body"><div class="drawer-loading"><span class="loader"></span><p>در حال بارگذاری سبد...</p></div></div>
-    <div class="drawer-footer" id="cart-footer" hidden><div class="drawer-total"><span>جمع سبد</span><strong id="cart-subtotal">۰ تومان</strong></div><a class="drawer-checkout" href="/checkout/">ادامه و تسویه <span>←</span></a></div>
+    <div class="drawer-header"><div><p class="eyebrow"><span></span> <span data-i18n="yourCart">خریدهای شما</span></p><h2 id="cart-title" data-i18n="cart">سبد خرید</h2></div><button class="drawer-close" id="cart-close" type="button" aria-label="بستن سبد خرید">×</button></div>
+    <div class="drawer-body" id="cart-body"><div class="drawer-loading"><span class="loader"></span><p data-i18n="loadingCart">در حال بارگذاری سبد...</p></div></div>
+    <div class="drawer-footer" id="cart-footer" hidden><div class="drawer-total"><span data-i18n="cartTotal">جمع سبد</span><strong id="cart-subtotal">۰ تومان</strong></div><a class="drawer-checkout" href="/checkout/"><span data-i18n="continueCheckout">ادامه و تسویه</span> <span>←</span></a></div>
   </aside>
 
-  <footer class="site-footer"><div class="container footer-wrap"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p>برای زندگی دیجیتال، انتخاب‌های بهتر.</p><span>© ۲۰۲۶ Nexora</span></div></footer>
-  <script src="{% static 'storefront/js/app.js' %}" defer></script>
+  <footer class="site-footer"><div class="container footer-wrap"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p><span>© ۲۰۲۶ Nexora</span></div></footer>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/app.js' %}" defer></script>
 </body>
 </html>
