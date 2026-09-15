@@ -33,6 +33,8 @@
 .checkout-grid { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr); gap:24px; align-items:start; }
 .checkout-panel { background:var(--card); border:1px solid var(--line); padding:28px; box-shadow:0 12px 30px rgba(75,55,100,.06); }
 .checkout-panel h2 { font-size:24px; margin:0 0 22px; }
+.checkout-subtotal { margin-top:20px; padding-top:18px; border-top:1px solid var(--line); }
+.checkout-discount strong { color:#5f9a6d; }
 .address-list { display:grid; gap:12px; }
 .address-card { display:flex; gap:12px; padding:16px; border:1px solid var(--line); border-radius:5px; cursor:pointer; }
 .address-card:has(input:checked) { border-color:var(--accent-strong); background:var(--soft); }
