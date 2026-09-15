@@ -138,7 +138,44 @@ function renderCart(cart) {
   const body = document.querySelector("#cart-body");
   const footer = document.querySelector("#cart-footer");
   document.querySelector("#cart-count").textContent = localizedNumber(cart.item_count || 0);
-  document.querySelector("#cart-subtotal").textContent = money(cart.total_amount ?? cart.subtotal ?? 0);
+  document.querySelector("#cart-subtotal").textContent = money(cart.subtotal ?? 0);
+  document.querySelector("#cart-total").textContent = money(cart.total_amount ?? cart.subtotal ?? 0);
+  const couponTotal = document.querySelector("#coupon-total");
+  const couponMessage = document.querySelector("#coupon-message");
+  const couponInput = document.querySelector("#coupon-code");
+  const couponForm = document.querySelector("#coupon-form");
+  const couponRemove = document.querySelector("#coupon-remove");
+  if (couponTotal) couponTotal.hidden = !(Number(cart.coupon_discount_amount) > 0);
+  if (couponTotal && Number(cart.coupon_discount_amount) > 0) document.querySelector("#cart-coupon-discount").textContent = `-${money(cart.coupon_discount_amount)}`;
+  if (couponInput) couponInput.value = cart.coupon_code || "";
+  if (couponRemove) couponRemove.hidden = !cart.coupon_code;
+  if (couponForm && !couponForm.dataset.bound) {
+    couponForm.dataset.bound = "true";
+    couponForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const code = couponInput.value.trim();
+      if (!code) return;
+      const button = couponForm.querySelector("button");
+      button.disabled = true;
+      couponMessage.textContent = "";
+      try {
+        await sendJSON("cart/coupon/", "POST", { code });
+        await refreshCart();
+        document.querySelector("#coupon-message").textContent = t("couponApplied");
+      } catch (error) {
+        couponMessage.textContent = error.message;
+      } finally { button.disabled = false; }
+    });
+  }
+  if (couponRemove && !couponRemove.dataset.bound) {
+    couponRemove.dataset.bound = "true";
+    couponRemove.addEventListener("click", async () => {
+      couponRemove.disabled = true;
+      try { await sendJSON("cart/coupon/", "DELETE"); await refreshCart(); document.querySelector("#coupon-message").textContent = t("couponRemoved"); }
+      catch (error) { couponMessage.textContent = error.message; }
+      finally { couponRemove.disabled = false; }
+    });
+  }
   if (!cart.items?.length) {
     footer.hidden = true;
     body.innerHTML = `<div class="cart-empty"><span class="state-icon">♡</span><h3>${t("emptyCart")}</h3><p>${t("emptyCartText")}</p><button class="retry-button" id="empty-cart-shop">${t("browseProducts")}</button></div>`;

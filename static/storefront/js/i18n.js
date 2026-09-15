@@ -110,6 +110,22 @@ translations.en.orderResultFailedText = "The payment was not completed. You can 
 translations.en.orderNumber = "Order number";
 translations.en.viewOrders = "View orders";
 translations.en.continueShopping = "Continue shopping";
+translations.fa.couponCode = "کد تخفیف";
+translations.fa.couponPlaceholder = "کد تخفیف را وارد کن";
+translations.fa.applyCoupon = "اعمال";
+translations.fa.removeCoupon = "حذف کد";
+translations.fa.cartSubtotal = "جمع کالاها";
+translations.fa.couponDiscount = "تخفیف کد";
+translations.fa.couponApplied = "کد تخفیف اعمال شد.";
+translations.fa.couponRemoved = "کد تخفیف حذف شد.";
+translations.en.couponCode = "Discount code";
+translations.en.couponPlaceholder = "Enter discount code";
+translations.en.applyCoupon = "Apply";
+translations.en.removeCoupon = "Remove code";
+translations.en.cartSubtotal = "Items subtotal";
+translations.en.couponDiscount = "Code discount";
+translations.en.couponApplied = "Discount code applied.";
+translations.en.couponRemoved = "Discount code removed.";
 
 function applyLanguage(language) {
   const selected = language === "en" ? "en" : "fa";
