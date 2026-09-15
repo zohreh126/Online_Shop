@@ -184,3 +184,50 @@ html[dir="ltr"] .category-filter-toggle,html[dir="ltr"] .category-tree-button { 
   .search-box { margin-top:0; width:100%; }
   .search-box input { width:100%; }
 }
+
+/* Final storefront polish: keep decorative spans from constraining real text. */
+.hero-copy { min-width:0; max-width:570px; }
+.hero-copy .eyebrow,
+.section-heading .eyebrow,
+.feature-banner .eyebrow,
+.why-us .eyebrow,
+.drawer-header .eyebrow { display:flex; align-items:center; gap:8px; min-height:20px; margin-bottom:0; }
+.eyebrow > span:first-child { flex:0 0 22px; width:22px; height:2px; margin:0; }
+.eyebrow > span:last-child { display:inline; width:auto; white-space:nowrap; }
+.hero h1 { max-width:570px; margin:24px 0 26px; line-height:1.18; text-wrap:balance; }
+.hero-text { max-width:500px; margin-bottom:0; }
+.primary-button > span:first-child,
+.light-button > span:first-child { color:inherit; font-size:inherit; }
+.primary-button > span:last-child,
+.light-button > span:last-child { color:var(--coral); font-size:20px; line-height:1; }
+.section-heading { gap:30px; }
+.section-heading > div { min-width:0; }
+.section-heading h2 { text-wrap:balance; }
+.catalog-tools { align-items:center; }
+.product-grid { align-content:start; }
+
+html[dir="rtl"] .hero-copy,
+html[dir="rtl"] .section-heading,
+html[dir="rtl"] .feature-banner,
+html[dir="rtl"] .why-us { text-align:right; }
+html[dir="ltr"] .hero-copy,
+html[dir="ltr"] .section-heading,
+html[dir="ltr"] .feature-banner,
+html[dir="ltr"] .why-us { text-align:left; }
+html[dir="ltr"] .hero-copy .eyebrow,
+html[dir="ltr"] .section-heading .eyebrow,
+html[dir="ltr"] .feature-banner .eyebrow,
+html[dir="ltr"] .why-us .eyebrow,
+html[dir="ltr"] .drawer-header .eyebrow { flex-direction:row; }
+
+@media (max-width:800px) {
+  .hero { padding-top:42px; gap:18px; }
+  .hero-copy { max-width:none; }
+  .hero-copy .eyebrow,
+  .section-heading .eyebrow,
+  .feature-banner .eyebrow,
+  .why-us .eyebrow { margin-bottom:4px; }
+  .eyebrow > span:last-child { white-space:normal; }
+  .hero h1 { margin-top:16px; line-height:1.2; }
+  .section-heading { gap:14px; }
+}
