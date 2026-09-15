@@ -78,9 +78,9 @@ coverage report -m
 
 # تست مرورگر واقعی مسیر خرید (نیازمند Chrome و ChromeDriver)
 RUN_SELENIUM=1 python manage.py test config.test_selenium
+```
 
 اگر Selenium Manager روی سیستم driver هماهنگ را پیدا نکرد، مقدار `CHROMEDRIVER_PATH` را به مسیر ChromeDriver هم‌نسخه با Chrome تنظیم کن.
-```
 
 ## فازبندی Git
 
