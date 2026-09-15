@@ -1,0 +1,22 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="orderResult">نتیجه سفارش | Nexora</title>
+  <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
+</head>
+<body>
+  <header class="site-header"><div class="container nav-wrap">
+    <a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
+    <div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="Theme">☾</button><button class="language-button" data-language-toggle type="button">English</button><a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a></div>
+  </div></header>
+  <main class="order-result-page container" id="order-result">
+    <section id="order-result-card" class="order-result-card" hidden></section>
+    <div id="order-result-loading" class="state-card"><span class="loader"></span><p>در حال بررسی نتیجه سفارش...</p></div>
+  </main>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script>
+  <script src="{% static 'storefront/js/order-result.js' %}" defer></script>
+</body>
+</html>

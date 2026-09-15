@@ -237,6 +237,20 @@ html[dir="ltr"] .category-filter-toggle,html[dir="ltr"] .category-tree-button { 
 .specification-panel dl > div { display:flex; justify-content:space-between; gap:20px; padding:12px 0; border-bottom:1px solid var(--line); font-size:12px; }
 .specification-panel dt { color:var(--muted); }
 .specification-panel dd { margin:0; font-weight:700; text-align:end; }
+.order-result-page { min-height:calc(100vh - 190px); display:grid; place-items:center; padding:70px 0 110px; }
+.order-result-card { width:min(640px,100%); padding:55px 60px; text-align:center; background:var(--card); border:1px solid var(--line); box-shadow:0 22px 60px rgba(75,55,100,.1); }
+.order-result-card .eyebrow { justify-content:center; margin-bottom:22px; }
+.order-result-card .eyebrow > span:first-child { flex:0 0 22px; }
+.result-icon { width:72px; height:72px; margin:0 auto 25px; display:grid; place-items:center; border-radius:50%; color:#fff; background:#5f9a6d; font-size:36px; }
+.order-result-card.failed .result-icon { background:#b35b64; }
+.order-result-card h1 { margin:0 auto 18px; font-size:clamp(30px,5vw,48px); line-height:1.25; text-wrap:balance; }
+.result-description { max-width:470px; margin:0 auto; color:var(--muted); font-size:13px; line-height:2; }
+.result-order-number { display:grid; gap:8px; margin:30px 0; padding:18px; background:var(--soft); }
+.result-order-number span { color:var(--muted); font-size:11px; }
+.result-order-number strong { color:var(--accent-strong); font-size:18px; letter-spacing:1px; }
+.result-actions { display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; }
+.result-actions .primary-button,.result-actions .secondary-button { margin-top:0; }
+.result-actions .secondary-button { padding:15px 18px; }
 .hero-note { display:flex; align-items:center; gap:12px; margin-top:30px; }
 .avatars { display:inline-flex; flex:0 0 auto; margin:0; letter-spacing:-5px; line-height:1; }
 .feature-banner > div:first-child { max-width:520px; }
@@ -282,4 +296,6 @@ html[dir="ltr"] .drawer-header .eyebrow { flex-direction:row; }
   .product-detail-copy { padding-top:0; }
   .product-detail-copy h1 { font-size:42px; }
   .specification-panel { margin-top:38px; }
+  .order-result-page { padding:45px 0 75px; }
+  .order-result-card { padding:38px 22px; }
 }

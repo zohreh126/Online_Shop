@@ -172,7 +172,7 @@ document.querySelector("#checkout-submit").addEventListener("click", async () =>
     state.order = await request("cart/checkout/", { method: "POST", body: JSON.stringify({ address_id: state.selectedAddress }) });
     const paid = await request(`orders/${state.order.order_number}/mock-payment/`, { method: "POST", body: JSON.stringify({ result: "success" }) });
     document.querySelector("#checkout-content").hidden = true;
-    showAlert(formatMessage("orderSuccess", { order: paid.order_number }), "success");
+    window.location.href = `/order-result/?order=${encodeURIComponent(paid.order_number)}&status=${encodeURIComponent(paid.payment_status || "paid")}`;
   } catch (error) { showAlert(error.message); button.disabled = false; }
 });
 window.addEventListener("nexora-language-changed", () => { if (state.addresses.length) renderAddresses(); if (state.cart?.items?.length) renderCart(); });

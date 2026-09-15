@@ -66,6 +66,22 @@ translations.en.specifications = "Specifications";
 translations.en.stockCount = "In stock: {count}";
 translations.en.productAdded = "Product added to your cart.";
 translations.en.productUnavailable = "This product is currently out of stock.";
+translations.fa.orderResult = "نتیجه سفارش";
+translations.fa.orderConfirmed = "سفارش با موفقیت ثبت شد";
+translations.fa.orderFailed = "پرداخت سفارش ناموفق بود";
+translations.fa.orderResultSuccessText = "سفارش شما ثبت و پرداخت شد. برای پیگیری، شماره سفارش را نگه دار.";
+translations.fa.orderResultFailedText = "پرداخت کامل نشد. می‌توانی وضعیت سفارش را بررسی کنی یا دوباره تلاش کنی.";
+translations.fa.orderNumber = "شماره سفارش";
+translations.fa.viewOrders = "مشاهده سفارش‌ها";
+translations.fa.continueShopping = "ادامه خرید";
+translations.en.orderResult = "Order result";
+translations.en.orderConfirmed = "Your order was placed successfully";
+translations.en.orderFailed = "Payment for this order failed";
+translations.en.orderResultSuccessText = "Your order has been placed and paid. Keep the order number for tracking.";
+translations.en.orderResultFailedText = "The payment was not completed. You can review the order or try again.";
+translations.en.orderNumber = "Order number";
+translations.en.viewOrders = "View orders";
+translations.en.continueShopping = "Continue shopping";
 
 function applyLanguage(language) {
   const selected = language === "en" ? "en" : "fa";

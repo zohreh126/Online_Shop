@@ -33,6 +33,13 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "تکمیل سفارش")
         self.assertContains(response, "/static/storefront/js/checkout.js")
 
+    def test_order_result_page_is_available(self):
+        response = self.client.get(reverse("storefront-order-result"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "order-result")
+        self.assertContains(response, "/static/storefront/js/order-result.js")
+
     def test_account_page_is_available(self):
         response = self.client.get(reverse("storefront-account"))
 

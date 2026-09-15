@@ -32,6 +32,7 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="storefront/index.html"), name="storefront-home"),
     path("products/<slug:slug>/", TemplateView.as_view(template_name="storefront/product-detail.html"), name="storefront-product-detail"),
     path("checkout/", TemplateView.as_view(template_name="storefront/checkout.html"), name="storefront-checkout"),
+    path("order-result/", TemplateView.as_view(template_name="storefront/order-result.html"), name="storefront-order-result"),
     path("account/", TemplateView.as_view(template_name="storefront/account.html"), name="storefront-account"),
     path("dashboard/", TemplateView.as_view(template_name="storefront/dashboard.html"), name="storefront-dashboard"),
     path("profile/", TemplateView.as_view(template_name="storefront/profile.html"), name="storefront-profile"),
