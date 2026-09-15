@@ -106,7 +106,7 @@ function renderProducts() {
   grid.innerHTML = filtered.map((product, index) => `
     <article class="product-card" style="--delay:${index * 60}ms">
       <div class="product-visual">${productImage(product)}${product.discount_amount > 0 ? `<span class="discount-badge">${t("specialOffer")}</span>` : ''}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${product.is_in_stock ? t("available") : t("unavailable")}</span><button class="heart-button" aria-label="${t("addToFavorites")}">♡</button></div>
-      <div class="product-info"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><h3>${product.name}</h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
+      <div class="product-info"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><h3><a class="product-title-link" href="/products/${product.slug}/">${product.name}</a></h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
     </article>`).join("");
   grid.querySelectorAll(".add-button").forEach((button) => button.addEventListener("click", async () => {
     button.disabled = true;

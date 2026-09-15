@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nexora | جزئیات محصول</title>
+  <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
+</head>
+<body>
+  <div class="announcement"><span data-i18n="freeShipping">ارسال رایگان برای سفارش‌های بالای ۲ میلیون تومان</span> <b>✦</b> <span data-i18n="securePayment">پرداخت امن و پشتیبانی واقعی</span></div>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/" aria-label="Nexora"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
+      <nav class="desktop-nav"><a href="/" data-i18n="shop">فروشگاه</a><a class="active" href="#product-detail" data-i18n="productDetails">جزئیات محصول</a></nav>
+      <div class="nav-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="Theme">☼</button><button class="language-button" data-language-toggle type="button">English</button><a class="account-link" href="/account/" data-i18n="login">ورود</a><a class="cart-button" href="/" data-i18n="cart">سبد خرید</a></div>
+    </div>
+  </header>
+  <main class="product-detail-page container" id="product-detail">
+    <a class="back-link" href="/">← <span data-i18n="backToStore">بازگشت به فروشگاه</span></a>
+    <div id="product-detail-state" class="state-card"><span class="loader"></span><p>در حال بارگذاری محصول...</p></div>
+    <section id="product-detail-content" class="product-detail-layout" hidden></section>
+  </main>
+  <footer class="site-footer"><div class="container footer-wrap"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div></footer>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script>
+  <script src="{% static 'storefront/js/product-detail.js' %}" defer></script>
+</body>
+</html>

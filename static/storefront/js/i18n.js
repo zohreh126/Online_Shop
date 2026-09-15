@@ -32,8 +32,22 @@ const categoryTranslations = {
 // Shared labels used by page-specific scripts and forms.
 translations.fa.username = "نام کاربری";
 translations.fa.logout = "خروج";
+translations.fa.productDetails = "جزئیات محصول";
+translations.fa.backToStore = "بازگشت به فروشگاه";
+translations.fa.sku = "کد محصول";
+translations.fa.specifications = "مشخصات فنی";
+translations.fa.stockCount = "موجودی: {count}";
+translations.fa.productAdded = "محصول به سبد خرید اضافه شد.";
+translations.fa.productUnavailable = "این محصول فعلاً ناموجود است.";
 translations.en.username = "Username";
 translations.en.logout = "Log out";
+translations.en.productDetails = "Product details";
+translations.en.backToStore = "Back to store";
+translations.en.sku = "Product code";
+translations.en.specifications = "Specifications";
+translations.en.stockCount = "In stock: {count}";
+translations.en.productAdded = "Product added to your cart.";
+translations.en.productUnavailable = "This product is currently out of stock.";
 
 function applyLanguage(language) {
   const selected = language === "en" ? "en" : "fa";
