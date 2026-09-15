@@ -2,7 +2,8 @@ const API_BASE = "/api/v1/";
 const tr = (key) => window.NexoraI18n?.t(key) || key;
 const formatMessage = (key, values = {}) => Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, value), tr(key));
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
-const money = (value) => `${faNumber(Math.round(Number(value)))} ${tr("toman")}`;
+const localizedNumber = (value) => new Intl.NumberFormat(document.documentElement.lang === "en" ? "en-US" : "fa-IR").format(value);
+const money = (value) => `${localizedNumber(Math.round(Number(value)))} ${tr("toman")}`;
 const statusLabels = { pending: "pending", confirmed: "confirmed", processing: "processing", shipped: "shipped", delivered: "delivered", cancelled: "cancelled", refunded: "refunded" };
 const paymentLabels = { unpaid: "unpaid", pending: "pending", paid: "paid", failed: "failed", refunded: "refunded" };
 const roleLabels = { product_manager: "roleProductManager", supervisor: "roleSupervisor", operator: "roleOperator" };
@@ -23,12 +24,12 @@ function showAlert(message) {
 }
 
 function renderOrderDetail(container, order) {
-  container.innerHTML = `<div class="order-detail"><div class="order-address"><strong>${tr("shippingAddressLabel")}</strong><p>${order.shipping_province}، ${order.shipping_city}، ${order.shipping_address_line}</p><small>${order.shipping_recipient_name} · ${order.shipping_recipient_phone}</small></div><div class="order-items">${order.items.map((item) => `<div class="checkout-item"><span>${item.product_name} × ${faNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("")}</div></div>`;
+  container.innerHTML = `<div class="order-detail"><div class="order-address"><strong>${tr("shippingAddressLabel")}</strong><p>${order.shipping_province}، ${order.shipping_city}، ${order.shipping_address_line}</p><small>${order.shipping_recipient_name} · ${order.shipping_recipient_phone}</small></div><div class="order-items">${order.items.map((item) => `<div class="checkout-item"><span>${item.product_name} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("")}</div></div>`;
 }
 
 function renderOrders(orders) {
   const list = document.querySelector("#orders-list");
-  document.querySelector("#order-count").textContent = formatMessage("orderCount", { count: faNumber(orders.length) });
+  document.querySelector("#order-count").textContent = formatMessage("orderCount", { count: localizedNumber(orders.length) });
   if (!orders.length) { list.innerHTML = `<div class="empty-inline">${tr("noOrders")}</div>`; return; }
   list.innerHTML = orders.map((order) => `<article class="order-card"><button class="order-summary" data-order="${order.order_number}" type="button"><span><strong>${formatMessage("orderLabel", { number: String(order.order_number).slice(0, 8).toUpperCase() })}</strong><small>${new Date(order.created_at).toLocaleDateString(document.documentElement.lang === "en" ? "en-US" : "fa-IR")}</small></span><span><b>${money(order.total_amount)}</b><small class="status-${order.status}">${tr(statusLabels[order.status] || order.status)} · ${tr(paymentLabels[order.payment_status] || order.payment_status)}</small></span><i>⌄</i></button><div class="order-detail-slot" hidden></div></article>`).join("");
   list.querySelectorAll(".order-summary").forEach((button) => button.addEventListener("click", async () => {

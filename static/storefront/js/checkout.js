@@ -2,7 +2,8 @@ const API_BASE = "/api/v1/";
 const tr = (key) => window.NexoraI18n?.t(key) || key;
 const formatMessage = (key, values = {}) => Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, value), tr(key));
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
-const money = (value) => `${faNumber(Math.round(Number(value)))} ${tr("toman")}`;
+const localizedNumber = (value) => new Intl.NumberFormat(document.documentElement.lang === "en" ? "en-US" : "fa-IR").format(value);
+const money = (value) => `${localizedNumber(Math.round(Number(value)))} ${tr("toman")}`;
 const state = { cart: null, addresses: [], selectedAddress: null, order: null };
 const latinizeDigits = (value) => String(value).replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit)).replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
 const normalizeText = (value) => String(value).normalize("NFC").replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/\s+/g, " ").trim();
@@ -107,7 +108,7 @@ async function deleteAddress(address) {
 }
 
 function renderCart() {
-  document.querySelector("#checkout-items").innerHTML = state.cart.items.map((item) => `<div class="checkout-item"><span>${item.product.name} × ${faNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("");
+  document.querySelector("#checkout-items").innerHTML = state.cart.items.map((item) => `<div class="checkout-item"><span>${item.product.name} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("");
   document.querySelector("#checkout-total").textContent = money(state.cart.total_amount ?? state.cart.subtotal);
 }
 

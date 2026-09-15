@@ -2,6 +2,7 @@ const API_BASE = "/api/v1/";
 const state = { products: [], categories: [], category: "", search: "" };
 
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
+const localizedNumber = (value) => new Intl.NumberFormat(window.NexoraI18n?.current() === "en" ? "en-US" : "fa-IR").format(value);
 const money = (value) => window.NexoraI18n?.current() === "en" ? `${new Intl.NumberFormat("en-US").format(Math.round(Number(value)))} toman` : `${faNumber(Math.round(Number(value)))} تومان`;
 const latinNumber = (value) => String(value).replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit));
 const t = (key) => window.NexoraI18n?.t(key) || key;
@@ -128,7 +129,7 @@ function renderProducts() {
 function renderCart(cart) {
   const body = document.querySelector("#cart-body");
   const footer = document.querySelector("#cart-footer");
-  document.querySelector("#cart-count").textContent = faNumber(cart.item_count || 0);
+  document.querySelector("#cart-count").textContent = localizedNumber(cart.item_count || 0);
   document.querySelector("#cart-subtotal").textContent = money(cart.total_amount ?? cart.subtotal ?? 0);
   if (!cart.items?.length) {
     footer.hidden = true;
@@ -137,7 +138,7 @@ function renderCart(cart) {
     return;
   }
   footer.hidden = false;
-  body.innerHTML = cart.items.map((item) => `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="${item.product.name}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product?.name || t("product")}</h3><strong>${money(item.line_total)}</strong>${item.unit_discount > 0 ? `<small class="cart-item-discount">${t("discountPerUnit")}: ${money(item.unit_discount)}</small>` : ""}<div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="−">−</button><span>${faNumber(item.quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="+">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="${t("remove")}">${t("remove")}</button></div></div></article>`).join("");
+  body.innerHTML = cart.items.map((item) => `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="${item.product.name}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product?.name || t("product")}</h3><strong>${money(item.line_total)}</strong>${item.unit_discount > 0 ? `<small class="cart-item-discount">${t("discountPerUnit")}: ${money(item.unit_discount)}</small>` : ""}<div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="−">−</button><span>${localizedNumber(item.quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="+">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="${t("remove")}">${t("remove")}</button></div></div></article>`).join("");
   body.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => updateCartItem(button.dataset.item, button.dataset.action)));
 }
 

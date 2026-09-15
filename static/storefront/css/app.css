@@ -191,9 +191,9 @@ html[dir="ltr"] .category-filter-toggle,html[dir="ltr"] .category-tree-button { 
 .section-heading .eyebrow,
 .feature-banner .eyebrow,
 .why-us .eyebrow,
-.drawer-header .eyebrow { display:flex; align-items:center; gap:8px; min-height:20px; margin-bottom:0; }
+.drawer-header .eyebrow { display:flex; align-items:center; gap:14px; min-height:20px; margin-bottom:0; }
 .eyebrow > span:first-child { flex:0 0 22px; width:22px; height:2px; margin:0; }
-.eyebrow > span:last-child { display:inline; width:auto; white-space:nowrap; }
+.eyebrow > span:last-child { display:inline; flex:0 1 auto; width:auto; height:auto; min-width:0; background:transparent; margin:0; white-space:nowrap; }
 .hero h1 { max-width:570px; margin:24px 0 26px; line-height:1.18; text-wrap:balance; }
 .hero-text { max-width:500px; margin:0; line-height:1.95; }
 .primary-button > span:first-child,
