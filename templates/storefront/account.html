@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>حساب کاربری | Nexora</title>
+  <title data-i18n="account">حساب کاربری | Nexora</title>
   <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
 </head>
 <body>
@@ -14,28 +14,28 @@
   </div></header>
   <main class="account-page container">
     <section class="account-card">
-      <p class="eyebrow"><span></span> حساب نکستورا</p>
-      <h1 id="account-title">ورود به حساب</h1>
-      <p id="account-subtitle" class="account-subtitle">برای ادامه‌ی خرید وارد حساب کاربری‌ات شو.</p>
+      <p class="eyebrow"><span></span> <span data-i18n="account">حساب نکستورا</span></p>
+      <h1 id="account-title" data-i18n="loginTitle">ورود به حساب</h1>
+      <p id="account-subtitle" class="account-subtitle" data-i18n="loginSubtitle">برای ادامه‌ی خرید وارد حساب کاربری‌ات شو.</p>
       <div id="account-alert" class="account-alert" hidden></div>
       <form id="login-form">
-        <label>نام کاربری یا ایمیل<input name="identifier" required autocomplete="username"></label>
-        <label>رمز عبور<input name="password" type="password" required autocomplete="current-password"></label>
-        <button class="primary-button account-submit" type="submit">دریافت کد ورود <span>←</span></button>
+        <label><span data-i18n="usernameOrEmail">نام کاربری یا ایمیل</span><input name="identifier" required autocomplete="username"></label>
+        <label><span data-i18n="password">رمز عبور</span><input name="password" type="password" required autocomplete="current-password"></label>
+        <button class="primary-button account-submit" type="submit"><span data-i18n="requestLoginCode">دریافت کد ورود</span> <span>←</span></button>
       </form>
       <form id="login-otp-form" hidden>
-        <p class="account-subtitle">کد شش‌رقمی ارسال‌شده به <strong id="login-otp-email"></strong> را وارد کن.</p>
-        <label>کد ورود<input name="code" required inputmode="numeric" pattern="[0-9۰-۹]{6}" maxlength="6" autocomplete="one-time-code"></label>
-        <button class="primary-button account-submit" type="submit">تأیید و ورود <span>←</span></button>
-        <button class="account-switch" id="login-otp-back" type="button">بازگشت به مرحله قبل</button>
+        <p class="account-subtitle"><span data-i18n="otpSubtitle">کد شش‌رقمی ارسال‌شده به</span> <strong id="login-otp-email"></strong></p>
+        <label><span data-i18n="otpCode">کد ورود</span><input name="code" required inputmode="numeric" pattern="[0-9۰-۹]{6}" maxlength="6" autocomplete="one-time-code"></label>
+        <button class="primary-button account-submit" type="submit"><span data-i18n="confirmLogin">تأیید و ورود</span> <span>←</span></button>
+        <button class="account-switch" id="login-otp-back" type="button" data-i18n="backStep">بازگشت به مرحله قبل</button>
       </form>
       <form id="register-form" hidden>
-        <div class="form-grid"><label>نام کاربری<input name="username" required autocomplete="username"></label><label>ایمیل<input name="email" type="email" required autocomplete="email"></label><label>نام<input name="first_name"></label><label>نام خانوادگی<input name="last_name"></label><label>رمز عبور<input name="password" type="password" minlength="8" required autocomplete="new-password"></label><label>تکرار رمز عبور<input name="password_confirm" type="password" minlength="8" required autocomplete="new-password"></label></div>
-        <button class="primary-button account-submit" type="submit">ساخت حساب <span>←</span></button>
+        <div class="form-grid"><label><span data-i18n="usernameOrEmail">نام کاربری</span><input name="username" required autocomplete="username"></label><label><span data-i18n="email">ایمیل</span><input name="email" type="email" required autocomplete="email"></label><label><span data-i18n="firstName">نام</span><input name="first_name"></label><label><span data-i18n="lastName">نام خانوادگی</span><input name="last_name"></label><label><span data-i18n="password">رمز عبور</span><input name="password" type="password" minlength="8" required autocomplete="new-password"></label><label><span data-i18n="confirmPassword">تکرار رمز عبور</span><input name="password_confirm" type="password" minlength="8" required autocomplete="new-password"></label></div>
+        <button class="primary-button account-submit" type="submit"><span data-i18n="createAccount">ساخت حساب</span> <span>←</span></button>
       </form>
-      <button class="account-switch" id="account-switch" type="button">حساب ندارم؛ ثبت‌نام می‌کنم</button>
+      <button class="account-switch" id="account-switch" type="button" data-i18n="noAccount">حساب ندارم؛ ثبت‌نام می‌کنم</button>
     </section>
   </main>
-  <script src="{% static 'storefront/js/account.js' %}" defer></script><script src="{% static 'storefront/js/i18n.js' %}" defer></script>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/account.js' %}" defer></script>
 </body>
 </html>

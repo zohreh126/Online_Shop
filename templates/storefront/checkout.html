@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>تسویه حساب | Nexora</title>
+  <title data-i18n="checkoutTitle">تسویه حساب | Nexora</title>
   <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
 </head>
 <body>
@@ -13,16 +13,16 @@
     <div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button><a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a></div>
   </div></header>
   <main class="checkout-page container">
-    <div class="section-heading"><div><p class="eyebrow"><span></span> خرید امن</p><h1 class="checkout-title">تکمیل سفارش</h1></div><span class="checkout-step">۱. آدرس　 ۲. پرداخت</span></div>
+    <div class="section-heading"><div><p class="eyebrow"><span></span> <span data-i18n="secureCheckout">خرید امن</span></p><h1 class="checkout-title" data-i18n="checkoutTitle">تکمیل سفارش</h1></div><span class="checkout-step" data-i18n="checkoutSteps">۱. آدرس　 ۲. پرداخت</span></div>
     <div id="checkout-alert" class="state-card" hidden></div>
     <div class="checkout-grid" id="checkout-content" hidden>
-      <section class="checkout-panel"><h2>آدرس ارسال</h2><div id="address-list" class="address-list"></div>
-        <form id="address-form" class="address-form" hidden><h3 id="address-form-title">افزودن آدرس جدید</h3><div class="form-grid"><label>عنوان<input name="title" required placeholder="خانه"></label><label>استان<input name="province" required></label><label>شهر<input name="city" required></label><label>کدپستی<input name="postal_code" inputmode="numeric" required maxlength="10"></label><label class="full">آدرس کامل<textarea name="address_line" required></textarea></label><label>نام گیرنده<input name="recipient_name" required></label><label>شماره تماس<input name="recipient_phone" required></label></div><button class="primary-button" type="submit">ذخیره آدرس <span>←</span></button><button class="secondary-button" id="cancel-address" type="button">انصراف</button></form>
-        <button class="secondary-button" id="add-address" type="button">+ افزودن آدرس جدید</button>
+      <section class="checkout-panel"><h2 data-i18n="shippingAddress">آدرس ارسال</h2><div id="address-list" class="address-list"></div>
+        <form id="address-form" class="address-form" hidden><h3 id="address-form-title" data-i18n="addNewAddress">افزودن آدرس جدید</h3><div class="form-grid"><label><span data-i18n="addressTitle">عنوان</span><input name="title" required data-i18n-placeholder="home" placeholder="خانه"></label><label><span data-i18n="province">استان</span><input name="province" required></label><label><span data-i18n="city">شهر</span><input name="city" required></label><label><span data-i18n="postalCode">کدپستی</span><input name="postal_code" inputmode="numeric" required maxlength="10"></label><label class="full"><span data-i18n="fullAddress">آدرس کامل</span><textarea name="address_line" required></textarea></label><label><span data-i18n="recipientName">نام گیرنده</span><input name="recipient_name" required></label><label><span data-i18n="phone">شماره تماس</span><input name="recipient_phone" required></label></div><button class="primary-button" type="submit"><span data-i18n="saveAddress">ذخیره آدرس</span> <span>←</span></button><button class="secondary-button" id="cancel-address" type="button" data-i18n="cancel">انصراف</button></form>
+        <button class="secondary-button" id="add-address" type="button" data-i18n="addNewAddress">+ افزودن آدرس جدید</button>
       </section>
-      <aside class="checkout-panel summary-panel"><h2>خلاصه سفارش</h2><div id="checkout-items"></div><div class="drawer-total"><span>جمع نهایی</span><strong id="checkout-total">۰ تومان</strong></div><button class="primary-button checkout-submit" id="checkout-submit" type="button">ثبت سفارش <span>←</span></button></aside>
+      <aside class="checkout-panel summary-panel"><h2 data-i18n="orderSummary">خلاصه سفارش</h2><div id="checkout-items"></div><div class="drawer-total"><span data-i18n="finalTotal">جمع نهایی</span><strong id="checkout-total">۰ تومان</strong></div><button class="primary-button checkout-submit" id="checkout-submit" type="button"><span data-i18n="submitOrder">ثبت سفارش</span> <span>←</span></button></aside>
     </div>
   </main>
-  <script src="{% static 'storefront/js/checkout.js' %}" defer></script><script src="{% static 'storefront/js/i18n.js' %}" defer></script>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/checkout.js' %}" defer></script>
 </body>
 </html>
