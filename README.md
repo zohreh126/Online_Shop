@@ -50,6 +50,14 @@ Access و refresh token در کوکی‌های `HttpOnly` ذخیره می‌شو
 
 ## PostgreSQL، Redis و Celery با Docker
 
+ابتدا باید Docker Compose Plugin نسخه ۲ فعال باشد و این دستور بدون خطا اجرا شود:
+
+```bash
+docker compose version
+```
+
+اگر خروجی `unknown command: docker compose` بود، Compose Plugin روی سیستم نصب نیست و باید از راهنمای توزیع Linux نصب شود.
+
 ```bash
 cp .env.example .env
 docker compose up -d
@@ -62,14 +70,6 @@ docker compose ps
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py seed_roles
 docker compose exec web python manage.py seed_nexora
-```
-
-سپس:
-
-```bash
-python manage.py migrate
-python manage.py seed_roles
-python manage.py seed_nexora
 ```
 
 برای ایمیل واقعی در production باید `EMAIL_HOST`، `EMAIL_PORT`، `EMAIL_HOST_USER`، `EMAIL_HOST_PASSWORD`، `DEFAULT_FROM_EMAIL` و `CSRF_TRUSTED_ORIGINS` واقعی تنظیم شوند. در local ایمیل‌ها به console backend می‌روند.
