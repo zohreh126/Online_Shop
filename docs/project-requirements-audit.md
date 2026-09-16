@@ -24,6 +24,7 @@
 | سبد خرید Single Page با DRF | انجام شده | تغییر تعداد و حذف بدون reload |
 | ثبت سفارش فقط برای کاربر واردشده | انجام شده | checkout با `IsAuthenticated` |
 | snapshot آیتم سفارش و کنترل موجودی | انجام شده | قیمت/نام/SKU و قفل تراکنشی پرداخت |
+| خرید مجدد سریع از تاریخچه سفارش | انجام شده | افزودن دوباره‌ی اقلام موجود به سبد با گزارش کمبود موجودی و جلوگیری از دسترسی به سفارش دیگران |
 | حذف منطقی | انجام شده | customer، address، category، product، discount و discount code |
 | Celery cleanup کاربران تأییدنشده | انجام شده | task و schedule ساعتی؛ اجرای واقعی نیازمند worker/beat است |
 | Redis و PostgreSQL | آماده‌ی اجرا | تنظیمات و Docker Compose موجود است؛ محیط فعلی local با SQLite/LocMem است |
@@ -42,7 +43,7 @@
 | پیشنهادهای مرتبط محصول | انجام شده | دریافت محصولات هم‌دسته از API و رتبه‌بندی سبک بر اساس امتیاز/تخفیف |
 | اعلان کاهش قیمت و برگشت موجودی | انجام شده | اشتراک کاربر، آستانه‌ی قیمت، ایمیل و اجرای دوره‌ای با Celery |
 | باشگاه امتیازی مشتری | انجام شده | ثبت خودکار امتیاز برای سفارش پرداخت‌شده، API موجودی/تاریخچه و نمایش در پروفایل |
-| تست مدل، API، نقش و Admin | انجام شده | suite فعلی ۱۸۰ تست موفق دارد |
+| تست مدل، API، نقش و Admin | انجام شده | suite فعلی ۱۸۲ تست موفق دارد |
 | پوشش تست بالای ۸۰٪ | انجام شده | پوشش فعلی ۹۳٪ |
 | Selenium مسیر خرید | پیاده‌سازی شده؛ اجرای محیطی نیازمند driver هماهنگ است | `config/test_selenium.py`؛ با Chrome/ChromeDriver و `RUN_SELENIUM=1` اجرا می‌شود |
 | ERD داخل مخزن | انجام شده | `docs/ERD.md` با Mermaid |
@@ -63,7 +64,7 @@
 
 - `manage.py check`: موفق
 - `makemigrations --check --dry-run`: بدون migration جاافتاده
-- `manage.py test`: ۱۸۰ تست؛ تست‌های عادی موفق و ۸ تست Selenium در حالت `RUN_SELENIUM=1` موفق
+- `manage.py test`: ۱۸۲ تست؛ تست‌های عادی موفق و ۸ تست Selenium در حالت `RUN_SELENIUM=1` موفق
 - Coverage: ۹۳٪ (`coverage report -m --fail-under=80`)
 - syntax تمام فایل‌های JavaScript: موفق
 - `git diff --check`: موفق
