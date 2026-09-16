@@ -3,7 +3,7 @@
 <html lang="fa" dir="rtl">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-i18n="profileEdit">ویرایش پروفایل | Nexora</title><link rel="stylesheet" href="{% static 'storefront/css/app.css' %}"></head>
 <body>
-  <header class="site-header"><div class="container nav-wrap"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><div class="page-actions"><button class="icon-button" id="theme-toggle" type="button">☾</button><button class="language-button" data-language-toggle type="button">English</button><a class="text-link" data-i18n="dashboardBack" href="/dashboard/">بازگشت به داشبورد <span>←</span></a></div></div></header>
+  <header class="site-header"><div class="container nav-wrap"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><div class="page-actions"><button class="icon-button" id="theme-toggle" type="button">☾</button><button class="language-button" data-language-toggle type="button">English</button>{% include "storefront/favorites-nav.html" %}<a class="text-link" data-i18n="dashboardBack" href="/dashboard/">بازگشت به داشبورد <span>←</span></a></div></div></header>
   <main class="profile-page container">
     <div class="profile-layout">
       <aside class="profile-sidebar">

@@ -10,7 +10,7 @@
 <body>
   <header class="site-header"><div class="container nav-wrap">
     <a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
-    <div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button><a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a></div>
+    <div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button>{% include "storefront/favorites-nav.html" %}<a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a></div>
   </div></header>
   <main class="checkout-page container">
     <div class="section-heading"><div><p class="eyebrow"><span></span> <span data-i18n="secureCheckout">خرید امن</span></p><h1 class="checkout-title" data-i18n="checkoutTitle">تکمیل سفارش</h1></div><span class="checkout-step" data-i18n="checkoutSteps">۱. آدرس　 ۲. پرداخت</span></div>
@@ -23,6 +23,6 @@
       <aside class="checkout-panel summary-panel"><h2 data-i18n="orderSummary">خلاصه سفارش</h2><div id="checkout-items"></div><div class="drawer-total checkout-subtotal"><span data-i18n="cartSubtotal">جمع کالاها</span><strong id="checkout-subtotal">۰ تومان</strong></div><div class="drawer-total checkout-discount" id="checkout-discount-row" hidden><span data-i18n="couponDiscount">تخفیف کد</span><strong id="checkout-discount">۰ تومان</strong></div><div class="drawer-total"><span data-i18n="finalTotal">جمع نهایی</span><strong id="checkout-total">۰ تومان</strong></div><button class="primary-button checkout-submit" id="checkout-submit" type="button"><span data-i18n="submitOrder">ثبت سفارش</span> <span>←</span></button></aside>
     </div>
   </main>
-  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/checkout.js' %}" defer></script>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/checkout.js' %}" defer></script>
 </body>
 </html>

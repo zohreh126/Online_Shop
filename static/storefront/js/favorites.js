@@ -1,6 +1,7 @@
 (function () {
   const API_BASE = "/api/v1/";
   const favoriteIds = new Set();
+  const favoriteItems = [];
   let loaded = false;
   let loadingPromise = null;
 
@@ -34,39 +35,62 @@
     button.textContent = isActive ? "♥" : "♡";
   }
 
+  function updateFavoriteNavigation() {
+    const locale = window.NexoraI18n?.current() === "en" ? "en-US" : "fa-IR";
+    const label = t("favorites");
+    document.querySelectorAll("[data-favorites-nav]").forEach((link) => {
+      link.setAttribute("aria-label", label);
+      link.title = label;
+    });
+    document.querySelectorAll("[data-favorite-count]").forEach((counter) => {
+      counter.textContent = new Intl.NumberFormat(locale).format(favoriteIds.size);
+    });
+  }
+
   function updateAllButtons(productId, active) {
     document.querySelectorAll("[data-favorite-product=\"" + productId + "\"]").forEach((button) => updateButton(button, active));
   }
 
   async function load() {
-    if (loaded) return Array.from(favoriteIds).map((id) => ({ product: { id } }));
+    if (loaded) return favoriteItems;
     if (loadingPromise) return loadingPromise;
     loadingPromise = (async () => {
       try {
         const response = await fetch(API_BASE + "auth/favorites/", { credentials: "same-origin" });
         if (response.status === 401) {
+          favoriteItems.length = 0;
           loaded = true;
+          updateFavoriteNavigation();
           return [];
         }
         if (!response.ok) throw new Error("favorites-request-failed");
         const data = await response.json();
         const favorites = data.results || data || [];
         favoriteIds.clear();
+        favoriteItems.splice(0, favoriteItems.length, ...favorites);
         favorites.forEach((item) => {
           const productId = Number(item.product?.id || item.product_id);
           if (productId) favoriteIds.add(productId);
         });
         loaded = true;
+        updateFavoriteNavigation();
         document.querySelectorAll("[data-favorite-product]").forEach((button) => updateButton(button, isFavorite(button.dataset.favoriteProduct)));
         return favorites;
       } catch (error) {
+        favoriteItems.length = 0;
         loaded = true;
+        updateFavoriteNavigation();
         return [];
       } finally {
         loadingPromise = null;
       }
     })();
     return loadingPromise;
+  }
+
+  async function refresh() {
+    loaded = false;
+    return load();
   }
 
   async function toggle(productId) {
@@ -89,6 +113,14 @@
     const active = Boolean(data.is_favorite);
     if (active) favoriteIds.add(numericProductId);
     else favoriteIds.delete(numericProductId);
+    const existingIndex = favoriteItems.findIndex((item) => Number(item.product?.id) === numericProductId);
+    if (active && data.favorite) {
+      if (existingIndex === -1) favoriteItems.unshift(data.favorite);
+      else favoriteItems[existingIndex] = data.favorite;
+    } else if (!active && existingIndex !== -1) {
+      favoriteItems.splice(existingIndex, 1);
+    }
+    updateFavoriteNavigation();
     updateAllButtons(numericProductId, active);
     document.dispatchEvent(new CustomEvent("nexora-favorite-changed", {
       detail: { productId: numericProductId, isFavorite: active, favorite: data.favorite || null },
@@ -134,6 +166,11 @@
     });
   }
 
-  window.NexoraFavorites = { bindButtons, isFavorite, load, toggle, updateButton };
-  window.addEventListener("nexora-language-changed", () => bindButtons(document));
+  window.NexoraFavorites = { bindButtons, isFavorite, load, refresh, toggle, updateButton };
+  window.addEventListener("nexora-language-changed", () => {
+    updateFavoriteNavigation();
+    bindButtons(document);
+  });
+  updateFavoriteNavigation();
+  load();
 })();

@@ -42,7 +42,7 @@ function renderFavorites() {
 }
 async function loadFavorites() {
   try {
-    const favorites = await window.NexoraFavorites?.load();
+    const favorites = await (window.NexoraFavorites?.refresh ? window.NexoraFavorites.refresh() : window.NexoraFavorites?.load());
     state.favorites = (favorites || []).map((item) => item.product).filter(Boolean);
     renderFavorites();
   } catch (error) { message(error.message); }

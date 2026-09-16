@@ -10,7 +10,7 @@
 <body>
   <header class="site-header"><div class="container nav-wrap">
     <a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
-    <div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button><a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a></div>
+    <div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button>{% include "storefront/favorites-nav.html" %}<a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a></div>
   </div></header>
   <main class="account-page container">
     <section class="account-card">
@@ -36,6 +36,6 @@
       <button class="account-switch" id="account-switch" type="button" data-i18n="noAccount">حساب ندارم؛ ثبت‌نام می‌کنم</button>
     </section>
   </main>
-  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/password-toggle.js' %}" defer></script><script src="{% static 'storefront/js/account.js' %}" defer></script>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/password-toggle.js' %}" defer></script><script src="{% static 'storefront/js/account.js' %}" defer></script>
 </body>
 </html>

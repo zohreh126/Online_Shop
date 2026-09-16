@@ -1,8 +1,10 @@
 import os
 import unittest
 
+from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
+from rest_framework_simplejwt.tokens import RefreshToken
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -11,6 +13,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from customers.models import Customer, Favorite
 from products.models import Category, Product
 
 
@@ -45,8 +48,9 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def setUp(self):
+        self.driver.delete_all_cookies()
         category = Category.objects.create(name="Selenium audio", slug="selenium-audio")
-        Product.objects.create(
+        self.product = Product.objects.create(
             name="Selenium Headphones",
             slug="selenium-headphones",
             sku="SEL-001",
@@ -98,4 +102,51 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
                 By.CSS_SELECTOR,
                 "#checkout-alert a[href^='/account/']",
             ).is_displayed(),
+        )
+
+    def test_authenticated_customer_sees_saved_product_from_nav(self):
+        customer = Customer.objects.create_user(
+            username="selenium-favorite-user",
+            email="selenium-favorite@example.com",
+            password="SecurePass#2026",
+        )
+        Favorite.objects.create(customer=customer, product=self.product)
+        refresh = RefreshToken.for_user(customer)
+
+        self.driver.get(f"{self.live_server_url}/")
+        self.driver.add_cookie(
+            {
+                "name": settings.AUTH_COOKIE_ACCESS,
+                "value": str(refresh.access_token),
+                "path": "/",
+            },
+        )
+        self.driver.get(f"{self.live_server_url}/")
+
+        favorite_nav = self.wait_for(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, ".favorite-nav-link")),
+        )
+        self.assertTrue(
+            favorite_nav.get_attribute("href").endswith(
+                "/profile/?section=favorites",
+            ),
+        )
+        self.wait_for(
+            lambda driver: driver.find_element(
+                By.CSS_SELECTOR,
+                f".product-card [data-favorite-product='{self.product.pk}']",
+            ).get_attribute("aria-pressed") == "true",
+        )
+
+        favorite_nav.click()
+        self.wait_for(EC.url_contains("/profile/"))
+        self.wait_for(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, ".favorite-card")),
+        )
+        self.assertIn(
+            self.product.name,
+            self.driver.find_element(
+                By.CSS_SELECTOR,
+                "#profile-favorites",
+            ).text,
         )
