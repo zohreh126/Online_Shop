@@ -111,3 +111,46 @@ a { transition: color .18s ease, background .18s ease, border-color .18s ease, t
   .nexora-admin-brand-copy small { display: none; }
   #user-tools { font-size: 9px; }
 }
+
+/* The dashboard deserves the full workspace; Django's default colMS floats are too narrow. */
+.nexora-dashboard #content {
+  width: min(1800px, calc(100% - 56px));
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+.nexora-dashboard #content-main {
+  grid-column: 1;
+  grid-row: 1;
+  width: auto;
+  min-width: 0;
+  float: none;
+}
+.nexora-dashboard #content-related {
+  grid-column: 2;
+  grid-row: 1;
+  width: auto;
+  min-width: 0;
+  float: none;
+  margin: 0;
+}
+.nexora-dashboard .nexora-admin-hero,
+.nexora-dashboard .nexora-stat-grid,
+.nexora-dashboard #content-main > .module {
+  width: 100%;
+  box-sizing: border-box;
+}
+.nexora-dashboard #content-main > .nexora-stat-grid { margin-bottom: 24px; }
+.nexora-dashboard #content-main .module:last-child { margin-bottom: 0; }
+.nexora-dashboard .nexora-recent-actions { position: sticky; top: 24px; }
+.nexora-dashboard .nexora-recent-actions .module { margin: 0; }
+@media (max-width: 1100px) {
+  .nexora-dashboard #content { grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; }
+}
+@media (max-width: 820px) {
+  .nexora-dashboard #content { display: block; width: min(100% - 28px, 720px); }
+  .nexora-dashboard #content-related { margin-top: 20px; }
+  .nexora-dashboard .nexora-recent-actions { position: static; }
+}
