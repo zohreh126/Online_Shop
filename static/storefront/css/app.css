@@ -1184,6 +1184,18 @@ html[dir="ltr"] .hero-copy .eyebrow,html[dir="ltr"] .section-heading .eyebrow { 
   .reward-history-heading small { display:block; margin-top:5px; }
 }
 
+/* Review helpful votes make public feedback easier to scan and trust. */
+.review-card-footer { display:flex; justify-content:flex-start; margin-top:15px; padding-top:12px; border-top:1px solid var(--line); }
+.review-helpful-button { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border:1px solid var(--line); border-radius:9px; color:var(--muted); background:var(--card); font-size:10px; cursor:pointer; transition:color .2s ease,border-color .2s ease,background .2s ease,transform .2s ease; }
+.review-helpful-button:hover { transform:translateY(-2px); color:var(--accent-strong); border-color:rgba(113,80,180,.35); background:var(--soft); }
+.review-helpful-button.is-helpful { color:#4d8a5c; border-color:rgba(77,138,92,.28); background:#edf8ef; }
+.review-helpful-button > span:first-child { font-size:14px; line-height:1; }
+.review-helpful-button b { min-width:14px; color:var(--ink); direction:ltr; font-size:10px; }
+.review-helpful-button:disabled { opacity:.65; cursor:wait; }
+.dark .review-helpful-button { border-color:#554a64; color:#c4bbca; background:#302a3b; }
+.dark .review-helpful-button:hover { border-color:#7352b5; background:#403451; }
+.dark .review-helpful-button.is-helpful { color:#bde5c5; border-color:#4f7c59; background:#294533; }
+
 /* A dedicated savings shelf makes product-level discounts visible at a glance. */
 .discount-shelf { scroll-margin-top:110px; margin-top:72px; padding:36px clamp(18px,3.5vw,42px) 34px; border:1px solid rgba(239,156,131,.28); border-radius:25px; background:linear-gradient(135deg,rgba(255,247,243,.92),rgba(255,255,255,.94) 56%,rgba(242,237,249,.9)); box-shadow:0 20px 48px rgba(75,55,100,.07); }
 .discount-shelf-heading { align-items:end; }

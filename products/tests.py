@@ -2,12 +2,20 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 
 from customers.models import Customer
 
-from .models import Category, Discount, DiscountCode, Product, ProductReview
+from .models import (
+    Category,
+    Discount,
+    DiscountCode,
+    Product,
+    ProductReview,
+    ProductReviewHelpfulVote,
+)
 
 
 class CategoryModelTests(TestCase):
@@ -159,6 +167,25 @@ class ProductReviewModelTests(TestCase):
         review.refresh_from_db()
 
         self.assertFalse(review.is_active)
+
+    def test_helpful_vote_is_unique_per_customer_and_review(self):
+        review = ProductReview.objects.create(
+            product=self.product,
+            customer=self.customer,
+            rating=5,
+            body="A useful review.",
+        )
+
+        ProductReviewHelpfulVote.objects.create(
+            review=review,
+            customer=self.customer,
+        )
+
+        with self.assertRaises(IntegrityError):
+            ProductReviewHelpfulVote.objects.create(
+                review=review,
+                customer=self.customer,
+            )
 
 
 class DiscountModelTests(TestCase):

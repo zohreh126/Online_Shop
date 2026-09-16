@@ -231,6 +231,38 @@ class ProductReview(TimeStampedModel):
         self.save(update_fields=("is_active", "updated_at"))
 
 
+class ProductReviewHelpfulVote(TimeStampedModel):
+    review = models.ForeignKey(
+        ProductReview,
+        on_delete=models.CASCADE,
+        related_name="helpful_votes",
+    )
+    customer = models.ForeignKey(
+        "customers.Customer",
+        on_delete=models.CASCADE,
+        related_name="review_helpful_votes",
+    )
+
+    class Meta:
+        verbose_name = "Product review helpful vote"
+        verbose_name_plural = "Product review helpful votes"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("review", "customer"),
+                name="one_helpful_vote_per_customer_review",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=("review", "created_at"),
+                name="pr_helpful_review_created",
+            ),
+        ]
+
+    def __str__(self):
+        return f"Helpful vote - {self.review_id} / {self.customer_id}"
+
+
 class Discount(TimeStampedModel):
     class DiscountType(models.TextChoices):
         PERCENTAGE = "percentage", "Percentage"

@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 
 from customers.models import Customer
 
-from .models import Category, Discount, Product, ProductReview
+from .models import Category, Discount, Product, ProductReview, ProductReviewHelpfulVote
 
 
 class ProductCatalogAPITests(APITestCase):
@@ -128,6 +128,8 @@ class ProductCatalogAPITests(APITestCase):
         )
         self.assertEqual(response.data["results"][0]["customer_name"], "public-reviewer")
         self.assertFalse(response.data["results"][0]["is_mine"])
+        self.assertEqual(response.data["results"][0]["helpful_count"], 0)
+        self.assertFalse(response.data["results"][0]["helpful_by_me"])
 
     def test_writing_product_review_requires_authentication(self):
         response = self.client.post(
@@ -185,6 +187,48 @@ class ProductCatalogAPITests(APITestCase):
             ).count(),
             1,
         )
+
+    def test_authenticated_customer_can_toggle_review_helpful_vote(self):
+        author = Customer.objects.create_user(
+            username="review-author",
+            email="review-author@example.com",
+            password="Strong-password-123",
+        )
+        voter = Customer.objects.create_user(
+            username="review-voter",
+            email="review-voter@example.com",
+            password="Strong-password-123",
+        )
+        review = ProductReview.objects.create(
+            product=self.keyboard,
+            customer=author,
+            rating=5,
+            body="A detailed and useful review.",
+        )
+        url = reverse(
+            "product-review-helpful",
+            kwargs={"slug": self.keyboard.slug, "review_id": review.pk},
+        )
+
+        anonymous_response = self.client.post(url, format="json")
+        self.assertEqual(anonymous_response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self.client.force_authenticate(user=voter)
+        first_response = self.client.post(url, format="json")
+        self.assertEqual(first_response.status_code, status.HTTP_200_OK)
+        self.assertTrue(first_response.data["helpful"])
+        self.assertEqual(first_response.data["helpful_count"], 1)
+
+        review_response = self.client.get(
+            reverse("product-reviews", kwargs={"slug": self.keyboard.slug})
+        )
+        self.assertTrue(review_response.data["results"][0]["helpful_by_me"])
+        self.assertEqual(review_response.data["results"][0]["helpful_count"], 1)
+
+        second_response = self.client.post(url, format="json")
+        self.assertFalse(second_response.data["helpful"])
+        self.assertEqual(second_response.data["helpful_count"], 0)
+        self.assertFalse(ProductReviewHelpfulVote.objects.exists())
 
     def test_product_image_url_is_returned_as_absolute_url(self):
         self.keyboard.image = SimpleUploadedFile(

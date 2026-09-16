@@ -45,6 +45,7 @@ class ProductReviewAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
         "product",
         "customer",
         "rating",
+        "helpful_votes_count",
         "title",
         "is_approved",
         "is_active",
@@ -55,6 +56,10 @@ class ProductReviewAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
     autocomplete_fields = ("product", "customer")
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at")
+
+    @admin.display(description="Helpful votes")
+    def helpful_votes_count(self, review):
+        return review.helpful_votes.count()
 
 
 @admin.register(Discount)

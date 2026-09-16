@@ -149,6 +149,8 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductReviewSerializer(serializers.ModelSerializer):
     customer_name = serializers.SerializerMethodField()
     is_mine = serializers.SerializerMethodField()
+    helpful_count = serializers.SerializerMethodField()
+    helpful_by_me = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductReview
@@ -156,6 +158,8 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             "id",
             "customer_name",
             "is_mine",
+            "helpful_count",
+            "helpful_by_me",
             "rating",
             "title",
             "body",
@@ -166,6 +170,8 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             "id",
             "customer_name",
             "is_mine",
+            "helpful_count",
+            "helpful_by_me",
             "created_at",
             "updated_at",
         )
@@ -177,6 +183,21 @@ class ProductReviewSerializer(serializers.ModelSerializer):
     def get_is_mine(self, review):
         request = self.context.get("request")
         return bool(request and request.user.is_authenticated and review.customer_id == request.user.id)
+
+    def get_helpful_count(self, review):
+        if hasattr(review, "helpful_count_value"):
+            return int(review.helpful_count_value or 0)
+        return review.helpful_votes.count()
+
+    def get_helpful_by_me(self, review):
+        if hasattr(review, "helpful_by_me_value"):
+            return bool(review.helpful_by_me_value)
+        request = self.context.get("request")
+        return bool(
+            request
+            and request.user.is_authenticated
+            and review.helpful_votes.filter(customer=request.user).exists()
+        )
 
     def validate_title(self, value):
         return " ".join(value.strip().split())

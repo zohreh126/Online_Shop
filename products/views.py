@@ -1,14 +1,15 @@
 from collections import Counter
 
 import django_filters
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Exists, OuterRef, Q
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import filters as drf_filters
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Category, Product, ProductReview
+from .models import Category, Product, ProductReview, ProductReviewHelpfulVote
 from .serializers import CategorySerializer, ProductReviewSerializer, ProductSerializer
 
 
@@ -186,7 +187,18 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
                 product=product,
                 is_active=True,
                 is_approved=True,
-            ).select_related("customer").order_by("-created_at")
+            ).select_related("customer").annotate(
+                helpful_count_value=Count("helpful_votes", distinct=True),
+            ).order_by("-created_at")
+            if request.user.is_authenticated:
+                reviews = reviews.annotate(
+                    helpful_by_me_value=Exists(
+                        ProductReviewHelpfulVote.objects.filter(
+                            review=OuterRef("pk"),
+                            customer=request.user,
+                        )
+                    )
+                )
             data = ProductReviewSerializer(
                 reviews,
                 many=True,
@@ -239,4 +251,45 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
                 **statistics,
             },
             status=200 if review else 201,
+        )
+
+    @action(
+        detail=True,
+        methods=("post",),
+        url_path=r"reviews/(?P<review_id>[0-9]+)/helpful",
+    )
+    def review_helpful(self, request, slug=None, review_id=None):
+        if not request.user.is_authenticated:
+            return Response(
+                {"detail": "Authentication is required to vote on a review."},
+                status=401,
+            )
+
+        product = self.get_object()
+        review = get_object_or_404(
+            ProductReview,
+            pk=review_id,
+            product=product,
+            is_active=True,
+            is_approved=True,
+        )
+        vote = ProductReviewHelpfulVote.objects.filter(
+            review=review,
+            customer=request.user,
+        ).first()
+        if vote:
+            vote.delete()
+            helpful = False
+        else:
+            ProductReviewHelpfulVote.objects.create(
+                review=review,
+                customer=request.user,
+            )
+            helpful = True
+
+        return Response(
+            {
+                "helpful": helpful,
+                "helpful_count": review.helpful_votes.count(),
+            }
         )

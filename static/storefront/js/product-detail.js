@@ -276,8 +276,42 @@ function renderReviewsList() {
 
   list.innerHTML = productReviews.map((review) => {
     const title = review.title ? `<h3>${escapeHTML(review.title)}</h3>` : "";
-    return `<article class="review-card"><div class="review-card-head"><div><strong>${escapeHTML(review.customer_name || t("customer"))}</strong><span class="rating-stars" aria-label="${escapeHTML(number(review.rating))} / 5">${reviewStars(review.rating)}</span></div><time datetime="${escapeHTML(review.created_at || "")}">${escapeHTML(reviewDate(review.created_at))}</time></div>${title}<p>${escapeHTML(review.body)}</p></article>`;
+    const helpfulCount = Number(review.helpful_count || 0);
+    const helpfulLabel = review.helpful_by_me ? t("helpfulMarked") : t("markHelpful");
+    return `<article class="review-card"><div class="review-card-head"><div><strong>${escapeHTML(review.customer_name || t("customer"))}</strong><span class="rating-stars" aria-label="${escapeHTML(number(review.rating))} / 5">${reviewStars(review.rating)}</span></div><time datetime="${escapeHTML(review.created_at || "")}">${escapeHTML(reviewDate(review.created_at))}</time></div>${title}<p>${escapeHTML(review.body)}</p><div class="review-card-footer"><button class="review-helpful-button ${review.helpful_by_me ? "is-helpful" : ""}" data-review-helpful="${review.id}" type="button" aria-pressed="${review.helpful_by_me ? "true" : "false"}" title="${escapeHTML(helpfulLabel)}"><span aria-hidden="true">👍</span><span>${escapeHTML(helpfulLabel)}</span><b>${escapeHTML(number(helpfulCount))}</b></button></div></article>`;
   }).join("");
+  list.querySelectorAll("[data-review-helpful]").forEach((button) => button.addEventListener("click", () => toggleReviewHelpful(Number(button.dataset.reviewHelpful), button)));
+}
+
+async function toggleReviewHelpful(reviewId, button) {
+  if (!reviewUser) {
+    window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+    return;
+  }
+  button.disabled = true;
+  try {
+    const response = await fetch(`${API_BASE}products/${encodeURIComponent(slug)}/reviews/${reviewId}/helpful/`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "X-CSRFToken": await csrf() },
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+      return;
+    }
+    if (!response.ok) throw new Error(data.detail || t("helpfulVoteFailed"));
+    const review = productReviews.find((item) => Number(item.id) === reviewId);
+    if (review) {
+      review.helpful_count = Number(data.helpful_count || 0);
+      review.helpful_by_me = Boolean(data.helpful);
+    }
+    renderReviewsList();
+    showToast(t(data.helpful ? "helpfulMarkedToast" : "helpfulUnmarkedToast"));
+  } catch (error) {
+    showToast(error.message || t("helpfulVoteFailed"));
+    button.disabled = false;
+  }
 }
 
 function renderReviewComposer() {
