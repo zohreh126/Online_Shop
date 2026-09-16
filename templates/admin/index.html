@@ -31,6 +31,17 @@
     </div>
   </section>
 
+  <section class="nexora-kpi-grid" aria-label="شاخص‌های زنده فروشگاه">
+    {% for metric in nexora_metrics %}
+      <a class="nexora-kpi-card tone-{{ metric.tone }}" href="{% url metric.url %}">
+        <span class="nexora-kpi-copy"><small>{{ metric.label }}</small><strong>{{ metric.value }}</strong><span>{{ metric.hint }}</span></span>
+        <span class="nexora-kpi-icon" aria-hidden="true">{{ metric.icon }}</span>
+      </a>
+    {% empty %}
+      <div class="nexora-empty-kpi">داده‌ای برای نمایش وجود ندارد.</div>
+    {% endfor %}
+  </section>
+
   <section class="nexora-stat-grid" aria-label="دسترسی سریع">
     {% if perms.products.view_product or perms.products.change_product %}
       <a class="nexora-stat-card" href="{% url 'admin:products_product_changelist' %}">
@@ -74,6 +85,41 @@
         <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
       </a>
     {% endif %}
+  </section>
+
+  <section class="nexora-dashboard-panels" aria-label="نمایش سریع فعالیت‌ها">
+    <article class="nexora-dashboard-panel">
+      <div class="nexora-panel-heading"><div><span class="nexora-panel-kicker">LIVE ORDERS</span><h2>آخرین سفارش‌ها</h2></div><a href="{% url 'admin:orders_order_changelist' %}">مشاهده همه ↗</a></div>
+      {% if nexora_recent_orders %}
+        <div class="nexora-order-feed">
+          {% for order in nexora_recent_orders %}
+            <a class="nexora-order-row" href="{% url 'admin:orders_order_change' order.pk %}">
+              <span class="nexora-feed-icon">▣</span>
+              <span class="nexora-feed-main"><strong>{{ order.order_number|truncatechars:13 }}</strong><small>{{ order.customer.username }} · {{ order.created_at|date:"Y/m/d H:i" }}</small></span>
+              <span class="nexora-feed-side"><strong>{{ order.total_amount|floatformat:0 }} تومان</strong><small class="status-{{ order.status }}">{{ order.get_status_display }}</small></span>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="nexora-panel-empty">هنوز سفارشی برای نمایش ثبت نشده است.</p>
+      {% endif %}
+    </article>
+    <article class="nexora-dashboard-panel">
+      <div class="nexora-panel-heading"><div><span class="nexora-panel-kicker">CUSTOMER VOICE</span><h2>آخرین نظرها</h2></div><a href="{% url 'admin:products_productreview_changelist' %}">مدیریت نظرها ↗</a></div>
+      {% if nexora_recent_reviews %}
+        <div class="nexora-review-feed">
+          {% for review in nexora_recent_reviews %}
+            <a class="nexora-review-row" href="{% url 'admin:products_productreview_change' review.pk %}">
+              <span class="nexora-feed-icon review">★</span>
+              <span class="nexora-feed-main"><strong>{{ review.product.name|truncatechars:30 }}</strong><small>{{ review.customer.username }} · {{ review.title|default:"بدون عنوان" }}</small></span>
+              <span class="nexora-review-rating">{{ review.rating }} ★</span>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="nexora-panel-empty">هنوز نظر محصولی برای نمایش ثبت نشده است.</p>
+      {% endif %}
+    </article>
   </section>
 
   <div id="content-main">

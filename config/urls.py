@@ -25,6 +25,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 from core.health import health_check
+from core.admin_dashboard import nexora_admin_index
 
 import customers.schema  # noqa: F401
 
@@ -39,7 +40,8 @@ urlpatterns = [
     path("dashboard/", TemplateView.as_view(template_name="storefront/dashboard.html"), name="storefront-dashboard"),
     path("favorites/", TemplateView.as_view(template_name="storefront/favorites.html"), name="storefront-favorites"),
     path("profile/", TemplateView.as_view(template_name="storefront/profile.html"), name="storefront-profile"),
-    path('admin/', admin.site.urls),
+    path("admin/", nexora_admin_index),
+    path("admin/", admin.site.urls),
     path("health/", health_check, name="health-check"),
     path("api/v1/", include("products.urls")),
     path("api/v1/auth/", include("customers.urls")),

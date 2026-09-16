@@ -122,6 +122,9 @@ class AdminPermissionTests(TestCase):
         self.assertContains(response, "nexora-admin-hero")
         self.assertContains(response, "مرکز فرماندهی فروشگاه")
         self.assertContains(response, "نظرات کاربران")
+        self.assertContains(response, "nexora-kpi-grid")
+        self.assertContains(response, "آخرین سفارش‌ها")
+        self.assertContains(response, "آخرین نظرها")
         self.assertContains(response, "/static/admin/css/nexora-admin.css")
 
     def test_customer_admin_delete_action_deactivates_account(self):
