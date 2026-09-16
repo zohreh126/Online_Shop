@@ -18,7 +18,7 @@ from rest_framework import serializers
 
 from .authentication import CookieJWTAuthentication
 from orders.cart_services import merge_guest_cart
-from .otp import request_otp, verify_otp
+from .otp import OTPDeliveryError, request_otp, verify_otp
 from .serializers import (
     CustomerProfileSerializer,
     OTPRequestSerializer,
@@ -148,7 +148,16 @@ class LoginOTPRequestView(APIView):
         user = authenticate(request, username=identifier, password=password)
         if user is None:
             return Response({"detail": "نام کاربری/ایمیل یا رمز عبور صحیح نیست."}, status=status.HTTP_401_UNAUTHORIZED)
-        request_otp(user.email)
+        try:
+            request_otp(user.email)
+        except OTPDeliveryError:
+            return Response(
+                {
+                    "error_code": "email_delivery_failed",
+                    "detail": "کد ورود ارسال نشد؛ تنظیمات ایمیل فروشگاه را بررسی کن.",
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
         cache.set(_login_otp_key(user.email), user.pk, timeout=LOGIN_OTP_TTL)
         return Response({"detail": "Verification code sent.", "email": user.email}, status=status.HTTP_200_OK)
 
@@ -300,6 +309,14 @@ class OTPRequestView(APIView):
             return Response(
                 {"detail": str(exc)},
                 status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+        except OTPDeliveryError:
+            return Response(
+                {
+                    "error_code": "email_delivery_failed",
+                    "detail": "کد تأیید ارسال نشد؛ تنظیمات ایمیل فروشگاه را بررسی کن.",
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
         return Response(

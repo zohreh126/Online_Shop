@@ -1,4 +1,5 @@
 import re
+from unittest.mock import patch
 
 from django.core import mail
 from django.core.cache import cache
@@ -71,3 +72,15 @@ class OTPAPITests(TestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
+    @patch("customers.otp.send_mail", side_effect=OSError("SMTP unavailable"))
+    def test_email_delivery_failure_is_reported_and_code_is_removed(self, _send_mail):
+        response = self.client.post(
+            self.request_url,
+            {"email": self.email},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.data["error_code"], "email_delivery_failed")
+        self.assertIsNone(cache.get(_otp_key(self.email)))

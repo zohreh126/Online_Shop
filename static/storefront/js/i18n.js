@@ -136,6 +136,8 @@ translations.en.sortNewest = "Newest";
 translations.en.sortPriceLow = "Price: low to high";
 translations.en.sortPriceHigh = "Price: high to low";
 translations.en.sortName = "Product name";
+translations.fa.emailDeliveryFailed = "کد ایمیل ارسال نشد؛ تنظیمات ایمیل فروشگاه یا اتصال اینترنتی را بررسی کن.";
+translations.en.emailDeliveryFailed = "The email code was not sent. Check the store email settings or network connection.";
 
 const pageTranslations = {
   fa: {

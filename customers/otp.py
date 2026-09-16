@@ -1,3 +1,4 @@
+import logging
 import secrets
 
 from django.conf import settings
@@ -10,6 +11,11 @@ OTP_TTL = 5 * 60
 OTP_MAX_ATTEMPTS = 5
 OTP_MAX_REQUESTS = 3
 OTP_REQUEST_WINDOW = 10 * 60
+logger = logging.getLogger("nexora.auth")
+
+
+class OTPDeliveryError(Exception):
+    """Raised when the verification code cannot be delivered by email."""
 
 
 def _otp_key(email):
@@ -21,6 +27,7 @@ def _rate_key(email):
 
 
 def request_otp(email):
+    email = email.strip().lower()
     rate_key = _rate_key(email)
     cache.add(rate_key, 0, timeout=OTP_REQUEST_WINDOW)
     request_count = cache.incr(rate_key)
@@ -35,13 +42,21 @@ def request_otp(email):
         timeout=OTP_TTL,
     )
 
-    send_mail(
-        subject="Nexora verification code",
-        message=f"Your Nexora verification code is: {code}",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[email],
-        fail_silently=False,
-    )
+    try:
+        send_mail(
+            subject="Nexora verification code",
+            message=(
+                "Your Nexora verification code is: "
+                f"{code}\n\nThis code expires in 5 minutes."
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+    except Exception as exc:
+        cache.delete(_otp_key(email))
+        logger.exception("OTP delivery failed", extra={"recipient": email})
+        raise OTPDeliveryError from exc
 
 
 def verify_otp(email, code):
