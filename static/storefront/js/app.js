@@ -128,13 +128,49 @@ function discountSavingsMarkup(product) {
   return `<small class="product-savings"><span aria-hidden="true">✦</span>${escapeHTML(formatMessage("youSave", { amount: money(amount) }))}</small>`;
 }
 
+function discountEndsTimestamp(product) {
+  const timestamp = Date.parse(product.discount_ends_at || "");
+  return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : 0;
+}
+
+function discountCountdownMarkup(product) {
+  const endsAt = discountEndsTimestamp(product);
+  if (!endsAt || Number(product.discount_amount || 0) <= 0) return "";
+  return `<small class="discount-countdown" data-discount-countdown="${endsAt}"><span aria-hidden="true">◷</span><span></span></small>`;
+}
+
+function discountCountdownText(milliseconds) {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const values = [
+    ["countdownDay", Math.floor(totalSeconds / 86400)],
+    ["countdownHour", Math.floor((totalSeconds % 86400) / 3600)],
+    ["countdownMinute", Math.floor((totalSeconds % 3600) / 60)],
+    ["countdownSecond", totalSeconds % 60],
+  ].filter(([, value]) => value > 0).slice(0, 2);
+  if (!values.length) values.push(["countdownSecond", 0]);
+  return values.map(([label, value]) => `${localizedNumber(value)} ${t(label)}`).join(" ");
+}
+
+function updateDiscountCountdowns() {
+  document.querySelectorAll("[data-discount-countdown]").forEach((element) => {
+    const remaining = Number(element.dataset.discountCountdown) - Date.now();
+    if (remaining <= 0) {
+      element.classList.add("expired");
+      element.innerHTML = `<span aria-hidden="true">!</span><span>${escapeHTML(t("discountEnded"))}</span>`;
+      return;
+    }
+    element.classList.remove("expired");
+    element.innerHTML = `<span aria-hidden="true">◷</span><span>${escapeHTML(formatMessage("discountEndsIn", { time: discountCountdownText(remaining) }))}</span>`;
+  });
+}
+
 function productCardMarkup(product, index = 0, compact = false) {
   const name = productName(product);
   const url = `/products/${encodeURIComponent(product.slug)}/`;
   const discount = discountLabel(product);
   const discountAmount = Number(product.discount_amount || 0);
   const addLabel = t("addToCart");
-  return `<article class="product-card${compact ? " recent-product-card" : ""}" style="--delay:${index * 60}ms"><div class="product-visual">${productImage(product)}${discount ? `<span class="discount-badge">${escapeHTML(discount)}</span>` : ""}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${escapeHTML(product.is_in_stock ? t("available") : t("unavailable"))}</span><button class="heart-button" aria-label="${escapeHTML(t("addToFavorites"))}" type="button">♡</button></div><div class="product-info"><div class="product-card-meta"><p class="product-category">${escapeHTML(product.category ? categoryName(product.category) : t("digitalAccessories"))}</p><div class="product-card-meta-actions">${productRating(product)}<button class="compare-button" data-compare-product="${product.id}" type="button" aria-pressed="false"><span aria-hidden="true">⇄</span><span>${escapeHTML(t("compare"))}</span></button></div></div><h3><a class="product-title-link" href="${url}">${escapeHTML(name)}</a></h3><div class="product-bottom"><div class="price-stack"><strong>${escapeHTML(money(product.final_price))}</strong>${discountAmount > 0 ? `<del>${escapeHTML(money(product.price))}</del>${discountSavingsMarkup(product)}` : ""}</div><button class="add-button cart-icon-button" data-product="${product.id}" aria-label="${escapeHTML(addLabel)}" title="${escapeHTML(addLabel)}" type="button" ${product.is_in_stock ? "" : "disabled"}><span data-cart-icon aria-hidden="true">${product.is_in_stock ? "🛒" : "−"}</span></button></div></div></article>`;
+  return `<article class="product-card${compact ? " recent-product-card" : ""}" style="--delay:${index * 60}ms"><div class="product-visual">${productImage(product)}${discount ? `<span class="discount-badge">${escapeHTML(discount)}</span>` : ""}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${escapeHTML(product.is_in_stock ? t("available") : t("unavailable"))}</span><button class="heart-button" aria-label="${escapeHTML(t("addToFavorites"))}" type="button">♡</button></div><div class="product-info"><div class="product-card-meta"><p class="product-category">${escapeHTML(product.category ? categoryName(product.category) : t("digitalAccessories"))}</p><div class="product-card-meta-actions">${productRating(product)}<button class="compare-button" data-compare-product="${product.id}" type="button" aria-pressed="false"><span aria-hidden="true">⇄</span><span>${escapeHTML(t("compare"))}</span></button></div></div><h3><a class="product-title-link" href="${url}">${escapeHTML(name)}</a></h3><div class="product-bottom"><div class="price-stack"><strong>${escapeHTML(money(product.final_price))}</strong>${discountAmount > 0 ? `<del>${escapeHTML(money(product.price))}</del>${discountSavingsMarkup(product)}${discountCountdownMarkup(product)}` : ""}</div><button class="add-button cart-icon-button" data-product="${product.id}" aria-label="${escapeHTML(addLabel)}" title="${escapeHTML(addLabel)}" type="button" ${product.is_in_stock ? "" : "disabled"}><span data-cart-icon aria-hidden="true">${product.is_in_stock ? "🛒" : "−"}</span></button></div></div></article>`;
 }
 
 function bindProductActions(container, products) {
@@ -196,6 +232,7 @@ function renderRecentlyViewed() {
   if (!products.length) return;
   grid.innerHTML = products.map((product, index) => productCardMarkup(product, index, true)).join("");
   bindProductActions(grid, products);
+  updateDiscountCountdowns();
   updateCompareUI();
 }
 
@@ -361,6 +398,7 @@ function renderProducts() {
   document.querySelector("#catalog-count").textContent = formatMessage("productCount", { count: localizedNumber(sorted.length) });
   grid.innerHTML = sorted.map((product, index) => productCardMarkup(product, index)).join("");
   bindProductActions(grid, sorted);
+  updateDiscountCountdowns();
   renderRecentlyViewed();
   updateCompareUI();
 }
@@ -391,6 +429,7 @@ function renderFeaturedProducts() {
 
   grid.innerHTML = candidates.map((product, index) => productCardMarkup(product, index)).join("");
   bindProductActions(grid, candidates);
+  updateDiscountCountdowns();
   updateCompareUI();
 }
 
@@ -415,6 +454,7 @@ function renderDiscountProducts() {
   }
   grid.innerHTML = discounted.map((product, index) => productCardMarkup(product, index)).join("");
   bindProductActions(grid, discounted);
+  updateDiscountCountdowns();
   updateCompareUI();
 }
 
@@ -584,6 +624,7 @@ document.querySelector("#theme-toggle").addEventListener("click", () => { docume
 if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.classList.add("dark");
 function updateThemeButton() { document.querySelector("#theme-toggle").textContent = document.documentElement.classList.contains("dark") ? "☼" : "☾"; }
 updateThemeButton();
+window.setInterval(updateDiscountCountdowns, 1000);
 renderCatalogFilters();
 refreshCart();
 loadAccountState();
@@ -604,5 +645,6 @@ window.addEventListener("nexora-language-changed", () => {
   refreshCart();
   loadAccountState();
   renderCatalogFilters();
+  updateDiscountCountdowns();
   updateCompareUI();
 });

@@ -2,6 +2,7 @@ from io import StringIO
 
 from django.core.management import call_command
 from django.test import TestCase
+from django.utils import timezone
 
 from .models import Category, Discount, DiscountCode, Product
 
@@ -30,6 +31,7 @@ class NexoraSeedCommandTests(TestCase):
         self.assertGreaterEqual(Product.objects.filter(is_active=True).count(), 26)
         self.assertGreaterEqual(Category.objects.filter(parent__isnull=False, is_active=True).count(), 9)
         self.assertGreaterEqual(Discount.objects.filter(is_active=True).count(), 5)
+        self.assertTrue(Discount.objects.filter(ends_at__gt=timezone.now()).exists())
         self.assertTrue(DiscountCode.objects.filter(code="NEXORA10", is_active=True).exists())
         self.assertTrue(
             Category.objects.filter(

@@ -1,7 +1,9 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -93,6 +95,7 @@ class ProductCatalogAPITests(APITestCase):
         )
         self.assertIn("final_price", response.data)
         self.assertIn("discount_amount", response.data)
+        self.assertIsNone(response.data["discount_ends_at"])
         self.assertEqual(response.data["brand"], "Nexora")
         self.assertEqual(response.data["specifications"]["layout"], "US")
         self.assertIsNone(response.data["image_url"])
@@ -296,6 +299,7 @@ class ProductCatalogAPITests(APITestCase):
             product=self.keyboard,
             discount_type=Discount.DiscountType.PERCENTAGE,
             value=Decimal("15.00"),
+            ends_at=timezone.now() + timedelta(days=2),
         )
 
         response = self.client.get(
@@ -308,6 +312,7 @@ class ProductCatalogAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["discount_type"], Discount.DiscountType.PERCENTAGE)
         self.assertEqual(Decimal(str(response.data["discount_value"])), Decimal("15.00"))
+        self.assertIsNotNone(response.data["discount_ends_at"])
 
     def test_stock_range_filters_work(self):
         response = self.client.get(

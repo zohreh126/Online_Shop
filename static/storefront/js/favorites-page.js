@@ -21,6 +21,46 @@
     return amount > 0 ? `<small class="product-savings"><span aria-hidden="true">✦</span>${escapeHTML(tr("youSave").replace("{amount}", money(amount)))}</small>` : "";
   }
 
+  function discountLabel(product) {
+    const amount = Number(product.discount_amount || 0);
+    if (!amount) return "";
+    if (product.discount_type === "percentage" && product.discount_value !== null && product.discount_value !== undefined) {
+      return tr("discountPercent").replace("{percent}", localizedNumber(Number(product.discount_value)));
+    }
+    return tr("discountAmount").replace("{amount}", money(amount));
+  }
+
+  function discountCountdownMarkup(product) {
+    const endsAt = Date.parse(product.discount_ends_at || "");
+    if (!Number.isFinite(endsAt) || Number(product.discount_amount || 0) <= 0) return "";
+    return `<small class="discount-countdown" data-discount-countdown="${endsAt}"><span aria-hidden="true">◷</span><span></span></small>`;
+  }
+
+  function discountCountdownText(milliseconds) {
+    const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+    const values = [
+      ["countdownDay", Math.floor(totalSeconds / 86400)],
+      ["countdownHour", Math.floor((totalSeconds % 86400) / 3600)],
+      ["countdownMinute", Math.floor((totalSeconds % 3600) / 60)],
+      ["countdownSecond", totalSeconds % 60],
+    ].filter(([, value]) => value > 0).slice(0, 2);
+    if (!values.length) values.push(["countdownSecond", 0]);
+    return values.map(([label, value]) => `${localizedNumber(value)} ${tr(label)}`).join(" ");
+  }
+
+  function updateDiscountCountdowns() {
+    document.querySelectorAll("[data-discount-countdown]").forEach((element) => {
+      const remaining = Number(element.dataset.discountCountdown) - Date.now();
+      if (remaining <= 0) {
+        element.classList.add("expired");
+        element.innerHTML = `<span aria-hidden="true">!</span><span>${escapeHTML(tr("discountEnded"))}</span>`;
+        return;
+      }
+      element.classList.remove("expired");
+      element.innerHTML = `<span aria-hidden="true">◷</span><span>${escapeHTML(tr("discountEndsIn").replace("{time}", discountCountdownText(remaining)))}</span>`;
+    });
+  }
+
   function favoriteCard(product) {
     const name = productName(product);
     const href = "/products/" + encodeURIComponent(product.slug) + "/";
@@ -28,13 +68,14 @@
       ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(name)}" loading="lazy">`
       : `<span class="favorite-placeholder">${escapeHTML((product.brand || "N").slice(0, 1))}</span>`;
     const discount = Number(product.discount_amount) > 0 ? `<del>${money(product.price)}</del>` : "";
+    const discountBadge = discountLabel(product) ? `<span class="favorite-discount-badge">${escapeHTML(discountLabel(product))}</span>` : "";
     return `<article class="favorite-card">
-      <a class="favorite-card-visual" href="${escapeHTML(href)}">${image}</a>
+      <a class="favorite-card-visual" href="${escapeHTML(href)}">${image}${discountBadge}</a>
       <div class="favorite-card-info">
         <p class="product-category">${escapeHTML(productCategory(product))}</p>
         <h3><a href="${escapeHTML(href)}">${escapeHTML(name)}</a></h3>
         <div class="favorite-card-bottom">
-          <div class="price-stack"><strong>${money(product.final_price)}</strong>${discount}${productSavings(product)}</div>
+          <div class="price-stack"><strong>${money(product.final_price)}</strong>${discount}${productSavings(product)}${discountCountdownMarkup(product)}</div>
           <button class="heart-button favorite-remove" data-favorite-product="${product.id}" type="button" aria-label="${escapeHTML(tr("removeFromFavorites"))}" aria-pressed="true">♥</button>
         </div>
       </div>
@@ -61,6 +102,7 @@
     list.hidden = false;
     list.innerHTML = products.map(favoriteCard).join("");
     window.NexoraFavorites?.bindButtons(list);
+    updateDiscountCountdowns();
   }
 
   function renderError() {
@@ -112,5 +154,6 @@
     if (loaded) render();
   });
 
+  window.setInterval(updateDiscountCountdowns, 1000);
   loadPage();
 })();

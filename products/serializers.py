@@ -43,6 +43,7 @@ class ProductSerializer(serializers.ModelSerializer):
     discount_amount = serializers.SerializerMethodField()
     discount_type = serializers.SerializerMethodField()
     discount_value = serializers.SerializerMethodField()
+    discount_ends_at = serializers.SerializerMethodField()
     final_price = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
     rating_average = serializers.SerializerMethodField()
@@ -63,6 +64,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "discount_amount",
             "discount_type",
             "discount_value",
+            "discount_ends_at",
             "final_price",
             "stock_quantity",
             "is_in_stock",
@@ -103,6 +105,11 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_discount_value(self, product):
         discount = self.get_product_discount(product)
         return discount.value if discount is not None else None
+
+    @extend_schema_field(serializers.DateTimeField(allow_null=True))
+    def get_discount_ends_at(self, product):
+        discount = self.get_product_discount(product)
+        return discount.ends_at if discount is not None else None
 
     @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_final_price(self, product):

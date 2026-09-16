@@ -1,7 +1,9 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 from django.utils.text import slugify
 
 from products.models import Category, Discount, DiscountCode, Product
@@ -308,14 +310,16 @@ class Command(BaseCommand):
                     products_by_sku[sku] = product
                     product_count += 1
 
+        campaign_started_at = timezone.now() - timedelta(minutes=1)
+        campaign_ends_at = timezone.now() + timedelta(days=7)
         for sku, discount_data in SEED_PRODUCT_DISCOUNTS.items():
             product = products_by_sku[sku]
             Discount.objects.update_or_create(
                 product=product,
                 defaults={
                     **discount_data,
-                    "starts_at": None,
-                    "ends_at": None,
+                    "starts_at": campaign_started_at,
+                    "ends_at": campaign_ends_at,
                     "is_active": True,
                 },
             )

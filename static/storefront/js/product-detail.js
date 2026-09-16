@@ -43,6 +43,42 @@ function recommendationSavingsMarkup(product) {
   return `<small class="product-savings"><span aria-hidden="true">✦</span>${escapeHTML(format("youSave", { amount: money(amount) }))}</small>`;
 }
 
+function discountEndsTimestamp(product) {
+  const timestamp = Date.parse(product.discount_ends_at || "");
+  return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : 0;
+}
+
+function discountCountdownMarkup(product) {
+  const endsAt = discountEndsTimestamp(product);
+  if (!endsAt || Number(product.discount_amount || 0) <= 0) return "";
+  return `<small class="discount-countdown" data-discount-countdown="${endsAt}"><span aria-hidden="true">◷</span><span></span></small>`;
+}
+
+function discountCountdownText(milliseconds) {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const values = [
+    ["countdownDay", Math.floor(totalSeconds / 86400)],
+    ["countdownHour", Math.floor((totalSeconds % 86400) / 3600)],
+    ["countdownMinute", Math.floor((totalSeconds % 3600) / 60)],
+    ["countdownSecond", totalSeconds % 60],
+  ].filter(([, value]) => value > 0).slice(0, 2);
+  if (!values.length) values.push(["countdownSecond", 0]);
+  return values.map(([label, value]) => `${number(value)} ${t(label)}`).join(" ");
+}
+
+function updateDiscountCountdowns() {
+  document.querySelectorAll("[data-discount-countdown]").forEach((element) => {
+    const remaining = Number(element.dataset.discountCountdown) - Date.now();
+    if (remaining <= 0) {
+      element.classList.add("expired");
+      element.innerHTML = `<span aria-hidden="true">!</span><span>${escapeHTML(t("discountEnded"))}</span>`;
+      return;
+    }
+    element.classList.remove("expired");
+    element.innerHTML = `<span aria-hidden="true">◷</span><span>${escapeHTML(format("discountEndsIn", { time: discountCountdownText(remaining) }))}</span>`;
+  });
+}
+
 function renderRecommendations() {
   const section = document.querySelector("#product-recommendations");
   const grid = document.querySelector("#product-recommendations-grid");
@@ -62,7 +98,7 @@ function renderRecommendations() {
     const image = product.image_url
       ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(name)}" loading="lazy">`
       : `<span class="recommendation-placeholder">${escapeHTML((product.brand || "N").slice(0, 1))}</span>`;
-    return `<article class="product-card recommendation-card" style="--delay:${index * 60}ms"><div class="product-visual"><a class="recommendation-visual-link" href="${url}" aria-label="${escapeHTML(name)}">${image}</a>${discount ? `<span class="discount-badge">${escapeHTML(discount)}</span>` : ""}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${escapeHTML(product.is_in_stock ? t("available") : t("unavailable"))}</span><button class="heart-button" data-favorite-product="${product.id}" aria-label="${escapeHTML(t("addToFavorites"))}" type="button">♡</button></div><div class="product-info"><p class="product-category">${escapeHTML(category)}</p><h3><a class="product-title-link" href="${url}">${escapeHTML(name)}</a></h3><div class="product-bottom"><div class="price-stack"><strong>${escapeHTML(money(product.final_price))}</strong>${Number(product.discount_amount) > 0 ? `<del>${escapeHTML(money(product.price))}</del>${recommendationSavingsMarkup(product)}` : ""}</div><a class="recommendation-link" href="${url}"><span>${escapeHTML(t("viewProduct"))}</span><span aria-hidden="true">↗</span></a></div></div></article>`;
+    return `<article class="product-card recommendation-card" style="--delay:${index * 60}ms"><div class="product-visual"><a class="recommendation-visual-link" href="${url}" aria-label="${escapeHTML(name)}">${image}</a>${discount ? `<span class="discount-badge">${escapeHTML(discount)}</span>` : ""}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${escapeHTML(product.is_in_stock ? t("available") : t("unavailable"))}</span><button class="heart-button" data-favorite-product="${product.id}" aria-label="${escapeHTML(t("addToFavorites"))}" type="button">♡</button></div><div class="product-info"><p class="product-category">${escapeHTML(category)}</p><h3><a class="product-title-link" href="${url}">${escapeHTML(name)}</a></h3><div class="product-bottom"><div class="price-stack"><strong>${escapeHTML(money(product.final_price))}</strong>${Number(product.discount_amount) > 0 ? `<del>${escapeHTML(money(product.price))}</del>${recommendationSavingsMarkup(product)}${discountCountdownMarkup(product)}` : ""}</div><a class="recommendation-link" href="${url}"><span>${escapeHTML(t("viewProduct"))}</span><span aria-hidden="true">↗</span></a></div></div></article>`;
   }).join("");
 
   window.NexoraFavorites?.bindButtons(grid);
@@ -70,6 +106,7 @@ function renderRecommendations() {
     if (event.target.closest("button, a")) return;
     window.location.href = card.querySelector(".product-title-link")?.getAttribute("href") || "/";
   }));
+  updateDiscountCountdowns();
 }
 
 async function loadRecommendations(product) {
@@ -444,12 +481,14 @@ async function submitReview(event) {
 function renderProduct(product) {
   const specs = Object.entries(product.specifications || {});
   const displayName = window.NexoraI18n?.productName(product) || product.name;
+  const displayCategory = window.NexoraI18n?.category(product.category?.slug, product.category?.name || t("digitalAccessories")) || t("digitalAccessories");
   const displayDescription = window.NexoraI18n?.productDescription(product) || product.description || t("carefulChoiceText");
   const image = product.image_url ? `<img class="product-detail-image" src="${escapeHTML(product.image_url)}" alt="${escapeHTML(displayName)}">` : `<div class="product-detail-placeholder"><span>${escapeHTML((product.brand || "N").slice(0, 1))}</span></div>`;
   const specsMarkup = specs.length ? `<dl>${specs.map(([key, value]) => `<div><dt>${escapeHTML(key)}</dt><dd>${escapeHTML(Array.isArray(value) ? value.join(", ") : value === true ? t("yes") : value === false ? t("no") : value)}</dd></div>`).join("")}</dl>` : `<p class="empty-inline">${escapeHTML(t("carefulChoiceText"))}</p>`;
   const detailDiscount = Number(product.discount_amount || 0);
-  const detailPrice = `<div class="product-detail-price"><div class="price-stack"><strong>${escapeHTML(money(product.final_price))}</strong>${detailDiscount > 0 ? `<del>${escapeHTML(money(product.price))}</del><small class="product-savings"><span aria-hidden="true">✦</span>${escapeHTML(format("youSave", { amount: money(detailDiscount) }))}</small>` : ""}</div></div>`;
-  document.querySelector("#product-detail-content").innerHTML = `<div class="product-detail-visual">${image}${detailDiscount > 0 ? `<span class="detail-discount-mark">✦ ${escapeHTML(t("specialOffer"))}</span>` : ""}<span class="detail-badge">${escapeHTML(product.category?.name || t("digitalAccessories"))}</span></div><div class="product-detail-copy"><p class="eyebrow"><span></span><span data-i18n="productDetails">${escapeHTML(t("productDetails"))}</span></p><h1>${escapeHTML(displayName)}</h1><p class="product-detail-brand">${escapeHTML(product.brand || "Nexora")} · ${escapeHTML(t("sku"))}: ${escapeHTML(product.sku)}</p><div class="product-rating-inline"><span class="rating-stars" id="product-rating-stars" aria-hidden="true">☆☆☆☆☆</span><strong id="product-rating-value">—</strong><span id="product-rating-count"></span></div><p class="product-detail-description">${escapeHTML(displayDescription)}</p>${detailPrice}<p class="product-stock ${product.is_in_stock ? "in-stock" : "out-of-stock"}">${product.is_in_stock ? escapeHTML(format("stockCount", { count: number(product.stock_quantity) })) : escapeHTML(t("unavailable"))}</p><button class="primary-button detail-add" type="button" ${product.is_in_stock ? "" : "disabled"}><span class="button-icon" aria-hidden="true">🛒</span><span>${escapeHTML(product.is_in_stock ? t("addToCart") : t("unavailable"))}</span><span>←</span></button><div class="specification-panel"><h2>${escapeHTML(t("specifications"))}</h2>${specsMarkup}</div></div>`;
+  const detailDiscountLabel = detailDiscount > 0 ? `<small class="detail-discount-label">${escapeHTML(recommendationDiscountLabel(product))}</small>` : "";
+  const detailPrice = `<div class="product-detail-price"><div class="price-stack"><strong>${escapeHTML(money(product.final_price))}</strong>${detailDiscount > 0 ? `<del>${escapeHTML(money(product.price))}</del>${detailDiscountLabel}<small class="product-savings"><span aria-hidden="true">✦</span>${escapeHTML(format("youSave", { amount: money(detailDiscount) }))}</small>${discountCountdownMarkup(product)}` : ""}</div></div>`;
+  document.querySelector("#product-detail-content").innerHTML = `<div class="product-detail-visual">${image}${detailDiscount > 0 ? `<span class="detail-discount-mark">✦ ${escapeHTML(t("specialOffer"))}</span>` : ""}<span class="detail-badge">${escapeHTML(displayCategory)}</span></div><div class="product-detail-copy"><p class="eyebrow"><span></span><span data-i18n="productDetails">${escapeHTML(t("productDetails"))}</span></p><h1>${escapeHTML(displayName)}</h1><p class="product-detail-brand">${escapeHTML(product.brand || "Nexora")} · ${escapeHTML(t("sku"))}: ${escapeHTML(product.sku)}</p><div class="product-rating-inline"><span class="rating-stars" id="product-rating-stars" aria-hidden="true">☆☆☆☆☆</span><strong id="product-rating-value">—</strong><span id="product-rating-count"></span></div><p class="product-detail-description">${escapeHTML(displayDescription)}</p>${detailPrice}<p class="product-stock ${product.is_in_stock ? "in-stock" : "out-of-stock"}">${product.is_in_stock ? escapeHTML(format("stockCount", { count: number(product.stock_quantity) })) : escapeHTML(t("unavailable"))}</p><button class="primary-button detail-add" type="button" ${product.is_in_stock ? "" : "disabled"}><span class="button-icon" aria-hidden="true">🛒</span><span>${escapeHTML(product.is_in_stock ? t("addToCart") : t("unavailable"))}</span><span>←</span></button><div class="specification-panel"><h2>${escapeHTML(t("specifications"))}</h2>${specsMarkup}</div></div>`;
   const detailContent = document.querySelector("#product-detail-content");
   const addButton = detailContent.querySelector(".detail-add");
   const actionRow = document.createElement("div");
@@ -479,11 +518,12 @@ function renderProduct(product) {
   favoriteButton.textContent = "♡";
   detailContent.querySelector(".product-detail-visual")?.appendChild(favoriteButton);
   window.NexoraFavorites?.bindButtons(detailContent);
-  detailContent.querySelector(".detail-badge").textContent = window.NexoraI18n?.category(product.category?.slug, product.category?.name || t("digitalAccessories")) || t("digitalAccessories");
+  detailContent.querySelector(".detail-badge").textContent = displayCategory;
   detailContent.querySelector(".product-detail-description").textContent = displayDescription;
   detailContent.querySelectorAll(".specification-panel dt").forEach((element, index) => { element.textContent = window.NexoraI18n?.specificationLabel(specs[index][0]) || specs[index][0]; });
   detailContent.querySelectorAll(".specification-panel dd").forEach((element, index) => { const value = specs[index][1]; element.textContent = Array.isArray(value) ? value.join(", ") : value === true ? t("yes") : value === false ? t("no") : value; });
   updateProductRating(product);
+  updateDiscountCountdowns();
   document.querySelector(".detail-add")?.addEventListener("click", async (event) => { event.currentTarget.disabled = true; try { await addToCart(product); } catch (error) { showToast(error.message); } finally { event.currentTarget.disabled = false; } });
   document.querySelector("#product-watch-button")?.addEventListener("click", () => toggleProductWatch(product));
   updateProductWatchButton(product);
@@ -514,5 +554,6 @@ function updateThemeButton() { document.querySelector("#theme-toggle").textConte
 document.querySelector("#theme-toggle").addEventListener("click", () => { document.documentElement.classList.toggle("dark"); localStorage.setItem("nexora-theme", document.documentElement.classList.contains("dark") ? "dark" : "light"); updateThemeButton(); });
 if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.classList.add("dark");
 updateThemeButton();
-window.addEventListener("nexora-language-changed", () => { if (window.productDetail) { renderProduct(window.productDetail); renderReviewSection(window.productDetail); renderRecommendations(); } });
+window.setInterval(updateDiscountCountdowns, 1000);
+window.addEventListener("nexora-language-changed", () => { if (window.productDetail) { renderProduct(window.productDetail); renderReviewSection(window.productDetail); renderRecommendations(); updateDiscountCountdowns(); } });
 loadProduct();
