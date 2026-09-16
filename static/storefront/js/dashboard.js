@@ -18,6 +18,10 @@ async function request(path) {
   return data;
 }
 
+function getCookie(name) { const cookie = (document.cookie ? document.cookie.split("; ") : []).find((value) => value.startsWith(`${name}=`)); return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : null; }
+async function csrf() { let token = getCookie("csrftoken"); if (token) return token; await fetch(`${API_BASE}auth/csrf/`, { credentials: "same-origin" }); return getCookie("csrftoken"); }
+function showToast(message) { const toast = document.createElement("div"); toast.className = "toast-message"; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3200); }
+
 function showAlert(message) {
   const alert = document.querySelector("#dashboard-alert");
   alert.hidden = false;
@@ -32,13 +36,39 @@ function renderOrders(orders) {
   const list = document.querySelector("#orders-list");
   document.querySelector("#order-count").textContent = formatMessage("orderCount", { count: localizedNumber(orders.length) });
   if (!orders.length) { list.innerHTML = `<div class="empty-inline">${tr("noOrders")}</div>`; return; }
-  list.innerHTML = orders.map((order) => `<article class="order-card"><button class="order-summary" data-order="${order.order_number}" type="button"><span><strong>${formatMessage("orderLabel", { number: String(order.order_number).slice(0, 8).toUpperCase() })}</strong><small>${new Date(order.created_at).toLocaleDateString(document.documentElement.lang === "en" ? "en-US" : "fa-IR")}</small></span><span><b>${money(order.total_amount)}</b><small class="status-${order.status}">${tr(statusLabels[order.status] || order.status)} · ${tr(paymentLabels[order.payment_status] || order.payment_status)}</small></span><i>⌄</i></button><div class="order-detail-slot" hidden></div></article>`).join("");
+  list.innerHTML = orders.map((order) => `<article class="order-card"><button class="order-summary" data-order="${order.order_number}" type="button"><span><strong>${formatMessage("orderLabel", { number: String(order.order_number).slice(0, 8).toUpperCase() })}</strong><small>${new Date(order.created_at).toLocaleDateString(document.documentElement.lang === "en" ? "en-US" : "fa-IR")}</small></span><span><b>${money(order.total_amount)}</b><small class="status-${order.status}">${tr(statusLabels[order.status] || order.status)} · ${tr(paymentLabels[order.payment_status] || order.payment_status)}</small></span><i>⌄</i></button><div class="order-actions"><button class="order-reorder" data-reorder="${order.order_number}" type="button" title="${tr("reorderHint")}"><span aria-hidden="true">↻</span><span>${tr("reorder")}</span></button></div><div class="order-detail-slot" hidden></div></article>`).join("");
   list.querySelectorAll(".order-summary").forEach((button) => button.addEventListener("click", async () => {
-    const slot = button.nextElementSibling;
+    const slot = button.parentElement.querySelector(".order-detail-slot");
     if (!slot.hidden) { slot.hidden = true; return; }
     slot.innerHTML = `<div class="drawer-loading"><span class="loader"></span></div>`; slot.hidden = false;
     try { renderOrderDetail(slot, await request(`orders/${button.dataset.order}/`)); } catch (error) { slot.innerHTML = `<p class="field-error">${error.message}</p>`; }
   }));
+  list.querySelectorAll(".order-reorder").forEach((button) => button.addEventListener("click", () => reorderOrder(button.dataset.reorder, button)));
+}
+
+async function reorderOrder(orderNumber, button) {
+  button.disabled = true;
+  try {
+    const response = await fetch(`${API_BASE}orders/${encodeURIComponent(orderNumber)}/reorder/`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "X-CSRFToken": await csrf() },
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+      return;
+    }
+    if (!response.ok) throw new Error(data.detail || tr("reorderFailed"));
+    const addedCount = (data.added || []).reduce((total, item) => total + Number(item.quantity || 0), 0);
+    const skippedCount = (data.skipped || []).length;
+    const notice = skippedCount ? formatMessage("reorderPartial", { added: localizedNumber(addedCount), skipped: localizedNumber(skippedCount) }) : formatMessage("reorderSuccess", { count: localizedNumber(addedCount) });
+    sessionStorage.setItem("nexora-toast", notice);
+    window.location.href = "/?cart=open";
+  } catch (error) {
+    showToast(error.message || tr("reorderFailed"));
+    button.disabled = false;
+  }
 }
 
 async function loadDashboard() {

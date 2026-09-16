@@ -175,6 +175,13 @@ html[dir="ltr"] .checkout-step { text-align:right; }
 .order-address strong { display:block; margin-bottom:8px; }
 .order-address p { color:var(--muted); line-height:2; margin:0 0 5px; }
 .order-address small { color:var(--muted); }
+.order-actions { display:flex; justify-content:flex-start; padding:0 0 14px; }
+.order-reorder { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border:1px solid var(--line); border-radius:9px; color:var(--accent-strong); background:var(--soft); font-size:10px; cursor:pointer; transition:transform .2s ease,border-color .2s ease,background .2s ease; }
+.order-reorder:hover { transform:translateY(-2px); border-color:rgba(113,80,180,.35); background:var(--card); }
+.order-reorder > span:first-child { font-size:16px; line-height:1; }
+.order-reorder:disabled { opacity:.6; cursor:wait; }
+.dark .order-reorder { border-color:#554a64; background:#403451; color:#d7c6f5; }
+html[dir="ltr"] .order-actions { justify-content:flex-start; }
 @media (max-width:800px) { .dashboard-page { padding-top:45px; } .dashboard-heading { display:block; } .dashboard-actions { margin-top:18px; } .dashboard-heading .primary-button { margin-top:0; } .dashboard-shortcuts { grid-template-columns:repeat(2,1fr); } .order-detail { grid-template-columns:1fr; gap:12px; } .order-summary { gap:8px; } }
 @media (max-width:800px) { .checkout-page { padding-top:45px; } .checkout-grid { grid-template-columns:1fr; } .summary-panel { position:static; } .checkout-step { display:none; } .form-grid { grid-template-columns:1fr; } .form-grid label.full { grid-column:auto; } }
 @media (max-width:800px) { .profile-page { padding-top:45px; } .profile-layout { grid-template-columns:1fr; } html[dir="ltr"] .profile-layout { grid-template-columns:1fr; } html[dir="ltr"] .profile-sidebar,html[dir="ltr"] .profile-main { grid-column:auto; grid-row:auto; } .profile-sidebar { position:static; } .profile-nav { display:flex; overflow:auto; } .profile-nav button { white-space:nowrap; } .profile-main { padding:20px; } .section-title-row { display:block; } .section-title-row .secondary-button { margin-top:8px; } .profile-address-card,.profile-order { display:block; } .profile-order > div:last-child { text-align:start; margin-top:10px; } }

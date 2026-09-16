@@ -510,3 +510,20 @@ class CouponSerializer(serializers.Serializer):
 
 class MockPaymentSerializer(serializers.Serializer):
     result = serializers.ChoiceField(choices=("success", "failed"))
+
+
+class ReorderAddedItemSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField()
+    product_name = serializers.CharField()
+    quantity = serializers.IntegerField()
+
+
+class ReorderSkippedItemSerializer(serializers.Serializer):
+    product_name = serializers.CharField()
+    reason = serializers.CharField()
+
+
+class ReorderResultSerializer(serializers.Serializer):
+    added = ReorderAddedItemSerializer(many=True)
+    skipped = ReorderSkippedItemSerializer(many=True)
+    cart = CartSerializer()

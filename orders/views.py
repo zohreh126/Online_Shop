@@ -6,6 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from products.models import Product
+
 from .models import Cart, CartItem, Order, RewardTransaction
 from .rewards import calculate_order_reward_points
 from .serializers import (
@@ -16,6 +18,7 @@ from .serializers import (
     CouponSerializer,
     MockPaymentSerializer,
     OrderSerializer,
+    ReorderResultSerializer,
 )
 
 
@@ -303,6 +306,110 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         return self._process_mock_payment(
             order,
             serializer.validated_data["result"],
+        )
+
+    @extend_schema(request=None, responses=ReorderResultSerializer)
+    @action(detail=True, methods=["post"], url_path="reorder")
+    @transaction.atomic
+    def reorder(self, request, *args, **kwargs):
+        order = self.get_object()
+        cart = get_active_cart(request.user)
+        cart = Cart.objects.select_for_update().get(pk=cart.pk)
+        existing_items = {
+            item.product_id: item
+            for item in CartItem.objects.select_for_update().filter(cart=cart)
+        }
+        added = []
+        skipped = []
+
+        order_items = order.items.select_related("product").order_by("id")
+        if not order_items.exists():
+            return Response(
+                {"detail": "This order has no items that can be reordered."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        for order_item in order_items:
+            product_name = order_item.product_name
+            if order_item.product_id is None:
+                skipped.append(
+                    {
+                        "product_name": product_name,
+                        "reason": "The original product is no longer available.",
+                    }
+                )
+                continue
+
+            product = Product.objects.select_for_update().filter(
+                pk=order_item.product_id,
+                is_active=True,
+            ).first()
+            if product is None:
+                skipped.append(
+                    {
+                        "product_name": product_name,
+                        "reason": "The product is no longer available.",
+                    }
+                )
+                continue
+
+            existing_item = existing_items.get(product.pk)
+            current_quantity = existing_item.quantity if existing_item else 0
+            available_quantity = product.stock_quantity - current_quantity
+            if available_quantity <= 0:
+                skipped.append(
+                    {
+                        "product_name": product_name,
+                        "reason": "There is no more stock available for this product.",
+                    }
+                )
+                continue
+
+            quantity = min(order_item.quantity, available_quantity)
+            if existing_item is None:
+                existing_item = CartItem.objects.create(
+                    cart=cart,
+                    product=product,
+                    quantity=quantity,
+                )
+                existing_items[product.pk] = existing_item
+            else:
+                existing_item.quantity += quantity
+                existing_item.save(update_fields=["quantity", "updated_at"])
+
+            added.append(
+                {
+                    "product_id": product.pk,
+                    "product_name": product.name,
+                    "quantity": quantity,
+                }
+            )
+            if quantity < order_item.quantity:
+                skipped.append(
+                    {
+                        "product_name": product_name,
+                        "reason": "Only the currently available quantity was added.",
+                    }
+                )
+
+        if not added:
+            return Response(
+                {
+                    "detail": "No items from this order are currently available.",
+                    "added": added,
+                    "skipped": skipped,
+                    "cart": CartSerializer(cart, context={"request": request}).data,
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        return Response(
+            {
+                "added": added,
+                "skipped": skipped,
+                "cart": CartSerializer(cart, context={"request": request}).data,
+            },
+            status=status.HTTP_200_OK,
         )
 
     @action(detail=True, methods=["post"], url_path="cancel")

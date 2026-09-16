@@ -17,6 +17,7 @@ class APIDocumentationTests(APITestCase):
             "/api/v1/orders/{order_number}/mock-payment/",
             response.data["paths"],
         )
+        self.assertIn("/api/v1/orders/{order_number}/reorder/", response.data["paths"])
         self.assertIn("/api/v1/cart/checkout/", response.data["paths"])
         self.assertIn("/api/v1/auth/favorites/", response.data["paths"])
         self.assertIn("/api/v1/auth/favorites/toggle/", response.data["paths"])

@@ -518,6 +518,11 @@ translations.fa.rewardHistory = "تاریخچه امتیاز";
 translations.fa.rewardOrder = "پاداش سفارش";
 translations.fa.rewardRule = "هر ۱۰۰ هزار تومان خرید = ۱ امتیاز";
 translations.fa.noRewards = "هنوز امتیازی ثبت نشده است.";
+translations.fa.reorder = "خرید مجدد";
+translations.fa.reorderHint = "افزودن دوباره‌ی اقلام این سفارش به سبد";
+translations.fa.reorderSuccess = "{count} کالا از سفارش قبلی دوباره به سبد اضافه شد.";
+translations.fa.reorderPartial = "{added} کالا اضافه شد؛ {skipped} مورد به‌دلیل موجودی یا وضعیت محصول اضافه نشد.";
+translations.fa.reorderFailed = "خرید مجدد انجام نشد؛ دوباره تلاش کن.";
 translations.en.rewards = "Nexora Club";
 translations.en.rewardBalance = "My points";
 translations.en.rewardPoints = "points";
@@ -526,6 +531,11 @@ translations.en.rewardHistory = "Points history";
 translations.en.rewardOrder = "Order reward";
 translations.en.rewardRule = "1 point for every 100,000 toman spent";
 translations.en.noRewards = "No points have been earned yet.";
+translations.en.reorder = "Buy again";
+translations.en.reorderHint = "Add this order's items to your cart again";
+translations.en.reorderSuccess = "{count} item(s) from your previous order were added again.";
+translations.en.reorderPartial = "{added} item(s) added; {skipped} could not be added because of stock or product status.";
+translations.en.reorderFailed = "Buy again failed. Please try once more.";
 
 const pageTranslations = {
   fa: {

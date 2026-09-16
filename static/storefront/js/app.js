@@ -587,7 +587,14 @@ updateThemeButton();
 renderCatalogFilters();
 refreshCart();
 loadAccountState();
-loadCatalog();
+loadCatalog().then(() => {
+  const pendingToast = sessionStorage.getItem("nexora-toast");
+  if (pendingToast) {
+    sessionStorage.removeItem("nexora-toast");
+    showToast(pendingToast);
+  }
+  if (new URLSearchParams(window.location.search).get("cart") === "open") openCart();
+});
 window.addEventListener("nexora-language-changed", () => {
   renderCategories(state.categories);
   renderProducts();
