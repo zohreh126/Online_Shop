@@ -490,6 +490,60 @@ html[dir="ltr"] .profile-panel-heading { direction:ltr; }
   .profile-section-action-row { align-items:flex-start; flex-direction:column; }
 }
 
+/* Profile command strip: turn the account page into a useful personal workspace. */
+.profile-command-strip { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(330px,.75fr); gap:14px; margin-bottom:18px; }
+.profile-completion-card { padding:22px 24px; border:1px solid rgba(113,80,180,.18); border-radius:18px; background:linear-gradient(135deg,var(--card),#f7f1fb 68%,#fff1ec); box-shadow:0 14px 32px rgba(75,55,100,.06); }
+.profile-completion-top { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; }
+.profile-completion-copy .eyebrow { margin:0 0 9px; }
+.profile-completion-copy h2 { margin:0 0 6px; color:var(--ink); font-size:21px; }
+.profile-completion-hint { margin:0; color:var(--muted); font-size:10px; line-height:1.9; }
+.profile-completion-score { display:grid; justify-items:end; flex:0 0 auto; }
+.profile-completion-score strong { color:var(--accent-strong); font:800 31px/1 Georgia,serif; direction:ltr; }
+.profile-completion-score small { margin-top:5px; color:var(--muted); font-size:9px; }
+.profile-progress { height:8px; overflow:hidden; margin-top:22px; border-radius:999px; background:rgba(113,80,180,.12); }
+.profile-progress span { display:block; width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--accent-strong),var(--coral)); transition:width .45s ease; }
+.profile-completion-footer { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-top:14px; }
+.profile-completion-footer small { color:var(--muted); font-size:9px; line-height:1.8; }
+.profile-completion-action { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border:1px solid rgba(113,80,180,.18); border-radius:9px; color:var(--accent-strong); background:var(--card); font-size:10px; font-weight:700; cursor:pointer; white-space:nowrap; }
+.profile-completion-action:hover { color:#fff; background:var(--accent-strong); }
+.profile-completion-action[hidden] { display:none; }
+.profile-quick-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; padding:17px; border:1px solid var(--line); border-radius:18px; background:var(--card); box-shadow:0 14px 32px rgba(75,55,100,.05); }
+.profile-quick-actions-heading { grid-column:1/-1; display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding-bottom:3px; }
+.profile-quick-actions-heading .eyebrow { margin:0; }
+.profile-quick-actions-heading small { color:var(--muted); font-size:9px; text-align:end; }
+.profile-quick-card { display:grid; grid-template-columns:34px minmax(0,1fr) 12px; align-items:center; gap:8px; min-width:0; padding:10px 8px; border:1px solid var(--line); border-radius:12px; color:var(--ink); background:linear-gradient(135deg,var(--soft),var(--card)); text-align:start; cursor:pointer; transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+.profile-quick-card:hover { transform:translateY(-3px); border-color:rgba(113,80,180,.34); box-shadow:0 10px 20px rgba(75,55,100,.09); }
+.profile-quick-icon { display:grid; place-items:center; width:34px; height:34px; border-radius:10px; color:var(--accent-strong); background:var(--card); font-size:16px; }
+.profile-quick-card:nth-child(3) .profile-quick-icon { color:#b86e62; }
+.profile-quick-card:nth-child(4) .profile-quick-icon { color:#4d8a5c; }
+.profile-quick-card strong,.profile-quick-card small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.profile-quick-card strong { font-size:10px; }
+.profile-quick-card small { margin-top:4px; color:var(--muted); font-size:8px; }
+.profile-quick-card b { color:var(--coral); font-size:14px; font-weight:400; }
+.dark .profile-completion-card { border-color:#59445f; background:linear-gradient(135deg,#302a3b,#3d3048 70%,#44333f); box-shadow:0 14px 32px rgba(0,0,0,.18); }
+.dark .profile-progress { background:#4c405a; }
+.dark .profile-completion-action { border-color:#59445f; background:#3a3048; }
+.dark .profile-quick-actions { box-shadow:0 14px 32px rgba(0,0,0,.18); }
+.dark .profile-quick-card { background:linear-gradient(135deg,#3b304a,#302a3b); }
+.dark .profile-quick-icon { background:#3a3048; }
+html[dir="ltr"] .profile-completion-footer { direction:ltr; }
+html[dir="ltr"] .profile-quick-card { text-align:left; }
+@media (max-width:900px) {
+  .profile-command-strip { grid-template-columns:1fr; }
+}
+@media (max-width:620px) {
+  .profile-completion-card { padding:19px 17px; }
+  .profile-completion-top { gap:12px; }
+  .profile-completion-copy h2 { font-size:18px; }
+  .profile-completion-score strong { font-size:25px; }
+  .profile-completion-footer { align-items:flex-start; flex-direction:column; }
+  .profile-quick-actions { padding:14px; }
+  .profile-quick-actions-heading { display:block; }
+  .profile-quick-actions-heading small { display:block; margin-top:6px; text-align:start; }
+  .profile-quick-card { grid-template-columns:31px minmax(0,1fr) 12px; padding:8px 6px; }
+  .profile-quick-icon { width:31px; height:31px; }
+}
+
 /* Savings are part of the product decision, not a hidden implementation detail. */
 .price-stack { display:grid; justify-items:start; gap:4px; min-width:0; }
 .price-stack strong { line-height:1.25; }

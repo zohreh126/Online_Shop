@@ -44,6 +44,35 @@ function renderFavorites() {
   window.NexoraFavorites?.bindButtons(list);
   updateProfileStats();
 }
+function renderProfileCompletion() {
+  if (!state.profile) return;
+  const steps = [
+    { complete: Boolean(state.profile.first_name && state.profile.last_name), label: tr("personalInfo"), section: "personal" },
+    { complete: Boolean(state.profile.phone_number), label: tr("phone"), section: "personal" },
+    { complete: Boolean(state.profile.email_verified), label: tr("emailVerified"), section: "personal" },
+    { complete: state.addresses.length > 0, label: tr("addresses"), section: "addresses" },
+  ];
+  const completed = steps.filter((step) => step.complete).length;
+  const percentage = Math.round((completed / steps.length) * 100);
+  const remaining = steps.length - completed;
+  const percent = document.querySelector("#profile-completion-percent");
+  const progress = document.querySelector("#profile-completion-progress");
+  const hint = document.querySelector("#profile-completion-hint");
+  const next = document.querySelector("#profile-completion-next");
+  const action = document.querySelector("#profile-completion-action");
+  const percentSuffix = document.documentElement.lang === "en" ? "%" : "٪";
+  const nextStep = steps.find((step) => !step.complete);
+  if (percent) percent.textContent = `${localizedNumber(percentage)}${percentSuffix}`;
+  if (progress) progress.style.width = `${percentage}%`;
+  const progressBar = progress?.parentElement;
+  if (progressBar) progressBar.setAttribute("aria-valuenow", String(percentage));
+  if (hint) hint.textContent = remaining ? formatMessage("profileCompletionHint", { remaining: localizedNumber(remaining) }) : tr("profileCompletionDone");
+  if (next) next.textContent = nextStep ? formatMessage("profileCompletionNext", { step: nextStep.label }) : tr("profileCompletionDone");
+  if (action) {
+    action.hidden = !nextStep;
+    if (nextStep) action.dataset.profileShortcut = nextStep.section;
+  }
+}
 function updateProfileStats() {
   const values = {
     "#profile-orders-count": state.orders.length,
@@ -56,6 +85,7 @@ function updateProfileStats() {
     const element = document.querySelector(selector);
     if (element) element.textContent = localizedNumber(value);
   });
+  renderProfileCompletion();
 }
 
 function watchCard(watch) {
@@ -151,7 +181,7 @@ async function loadFavorites() {
   } catch (error) { message(error.message); }
 }
 function openSection(name) { document.querySelectorAll(".profile-nav button").forEach((button) => button.classList.toggle("selected", button.dataset.section === name)); document.querySelectorAll(".profile-section").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === name)); if (name === "addresses") loadAddresses(); if (name === "orders") loadOrders(); if (name === "favorites") loadFavorites(); if (name === "watches") loadWatches(); if (name === "rewards") loadRewards(); }
-function renderProfile(profile) { Object.entries(profile).forEach(([key, value]) => { const input = document.querySelector(`[name="${key}"]`); if (input) input.value = value || ""; }); const name = `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || profile.username; const roleKey = roleTranslationKey[profile.role] || "normalCustomer"; const roleLabel = tr(roleKey); const profileName = document.querySelector("#profile-name"); const profileEmail = document.querySelector("#profile-email"); const avatar = document.querySelector("#profile-avatar"); const role = document.querySelector("#profile-role"); const roleHint = document.querySelector("#profile-role-hint"); const verified = document.querySelector("#profile-verified"); const emailHint = document.querySelector("#profile-email-hint"); if (profileName) profileName.textContent = name; if (profileEmail) profileEmail.textContent = profile.email || ""; if (avatar) avatar.textContent = (name || "N").slice(0, 1).toUpperCase(); if (role) { role.textContent = roleLabel; role.classList.toggle("is-staff", Boolean(profile.role)); } if (roleHint) roleHint.textContent = roleLabel; if (verified) { verified.textContent = profile.email_verified ? `✓ ${tr("emailVerified")}` : `! ${tr("emailNotVerified")}`; verified.classList.toggle("is-warning", !profile.email_verified); } if (emailHint) emailHint.textContent = profile.email_verified ? tr("emailVerified") : tr("emailNotVerified"); }
+function renderProfile(profile) { Object.entries(profile).forEach(([key, value]) => { const input = document.querySelector(`[name="${key}"]`); if (input) input.value = value || ""; }); const name = `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || profile.username; const roleKey = roleTranslationKey[profile.role] || "normalCustomer"; const roleLabel = tr(roleKey); const profileName = document.querySelector("#profile-name"); const profileEmail = document.querySelector("#profile-email"); const avatar = document.querySelector("#profile-avatar"); const role = document.querySelector("#profile-role"); const roleHint = document.querySelector("#profile-role-hint"); const verified = document.querySelector("#profile-verified"); const emailHint = document.querySelector("#profile-email-hint"); if (profileName) profileName.textContent = name; if (profileEmail) profileEmail.textContent = profile.email || ""; if (avatar) avatar.textContent = (name || "N").slice(0, 1).toUpperCase(); if (role) { role.textContent = roleLabel; role.classList.toggle("is-staff", Boolean(profile.role)); } if (roleHint) roleHint.textContent = roleLabel; if (verified) { verified.textContent = profile.email_verified ? `✓ ${tr("emailVerified")}` : `! ${tr("emailNotVerified")}`; verified.classList.toggle("is-warning", !profile.email_verified); } if (emailHint) emailHint.textContent = profile.email_verified ? tr("emailVerified") : tr("emailNotVerified"); renderProfileCompletion(); }
 function resetAddressForm() { const form = document.querySelector("#profile-address-form"); form.reset(); form.hidden = true; form.dataset.addressId = ""; form.classList.remove("editing"); document.querySelector("#profile-address-title").textContent = tr("addNewAddress"); clearErrors(form); }
 function renderAddresses() { const list = document.querySelector("#profile-addresses"); if (!state.addresses.length) { list.innerHTML = `<div class="empty-inline">${tr("noSavedAddress")}</div>`; return; } list.innerHTML = state.addresses.map((address) => `<article class="profile-address-card"><div><strong>${escapeHTML(address.title)} ${address.is_default ? `<small class="default-badge">${tr("defaultAddress")}</small>` : ""}</strong><p>${escapeHTML(address.province)}، ${escapeHTML(address.city)}، ${escapeHTML(address.address_line)}</p><small>${escapeHTML(address.recipient_name)} · ${escapeHTML(address.recipient_phone)} · ${escapeHTML(address.postal_code)}</small></div><div class="address-actions"><button class="address-action" data-action="edit" data-id="${address.id}" type="button">${tr("editAddress")}</button><button class="address-action delete" data-action="delete" data-id="${address.id}" type="button">${tr("remove")}</button></div></article>`).join(""); list.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => { const address = state.addresses.find((item) => item.id === Number(button.dataset.id)); button.dataset.action === "edit" ? beginAddressEdit(address) : deleteAddress(address); })); }
 function beginAddressEdit(address) { const form = document.querySelector("#profile-address-form"); form.hidden = false; form.dataset.addressId = address.id; form.classList.add("editing"); document.querySelector("#profile-address-title").textContent = tr("editAddress"); Object.entries(address).forEach(([key, value]) => { const input = form.querySelector(`[name="${key}"]`); if (input) input.value = value || ""; }); form.scrollIntoView({ behavior: "smooth", block: "center" }); }
@@ -161,6 +191,7 @@ function renderOrders() { const list = document.querySelector("#profile-orders")
 async function loadOrders() { try { const data = await request("orders/?page_size=100"); state.orders = data.results || data; renderOrders(); updateProfileStats(); } catch (error) { message(error.message); } }
 
 document.querySelectorAll(".profile-nav button").forEach((button) => button.addEventListener("click", () => openSection(button.dataset.section)));
+document.querySelectorAll("[data-profile-shortcut]").forEach((button) => button.addEventListener("click", () => { openSection(button.dataset.profileShortcut); document.querySelector(".profile-main")?.scrollIntoView({ behavior: "smooth", block: "start" }); }));
 document.querySelector("#new-address").addEventListener("click", () => { const form = document.querySelector("#profile-address-form"); resetAddressForm(); form.hidden = false; form.scrollIntoView({ behavior: "smooth", block: "center" }); });
 document.querySelector("#cancel-profile-address").addEventListener("click", resetAddressForm);
 document.querySelector("#profile-form").addEventListener("submit", async (event) => { event.preventDefault(); const form = event.currentTarget; const payload = Object.fromEntries(new FormData(form)); payload.phone_number = digits(payload.phone_number).replace(/[\s-]/g, ""); try { const profile = await request("auth/profile/", { method: "PATCH", body: JSON.stringify(payload) }); state.profile = profile; renderProfile(profile); message(tr("profileSaved"), true); } catch (error) { if (!showErrors(form, error.data)) message(error.message); } });
@@ -177,5 +208,5 @@ document.addEventListener("nexora-favorite-changed", (event) => {
   updateProfileStats();
   if (document.querySelector('[data-panel="favorites"]')?.classList.contains("active")) renderFavorites();
 });
-window.addEventListener("nexora-language-changed", () => { if (state.profile) renderProfile(state.profile); if (state.addresses.length) renderAddresses(); if (state.orders.length) renderOrders(); if (state.favorites.length) renderFavorites(); if (state.watchesLoaded) renderWatches(); if (state.rewardsLoaded) renderRewards(); });
+window.addEventListener("nexora-language-changed", () => { if (state.profile) renderProfile(state.profile); if (state.addresses.length) renderAddresses(); if (state.orders.length) renderOrders(); if (state.favorites.length) renderFavorites(); if (state.watchesLoaded) renderWatches(); if (state.rewardsLoaded) renderRewards(); renderProfileCompletion(); });
 setupTheme(); openSection(["personal", "addresses", "orders", "favorites", "watches", "rewards", "security"].includes(initialSection) ? initialSection : "personal"); load();

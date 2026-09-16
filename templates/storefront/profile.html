@@ -3,7 +3,7 @@
 <html lang="fa" dir="rtl">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-i18n="profileEdit">ویرایش پروفایل | Nexora</title><link rel="stylesheet" href="{% static 'storefront/css/app.css' %}"></head>
 <body>
-  <header class="site-header"><div class="container nav-wrap"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button>{% include "storefront/favorites-nav.html" %}<a class="secondary-button profile-back-link" data-i18n="dashboardBack" href="/dashboard/"><span aria-hidden="true">↩</span> بازگشت به داشبورد</a></div></div></header>
+  <header class="site-header"><div class="container nav-wrap"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button>{% include "storefront/favorites-nav.html" %}<a class="secondary-button profile-back-link" href="/dashboard/"><span aria-hidden="true">↩</span> <span data-i18n="dashboardBack">بازگشت به داشبورد</span></a></div></div></header>
   <main class="profile-page container">
     <section class="profile-hero">
       <div class="profile-hero-identity">
@@ -11,6 +11,22 @@
         <div class="profile-hero-copy"><p class="eyebrow light"><span></span> <span data-i18n="profileSections">فضای حساب کاربری</span></p><h1 id="profile-name" data-i18n="account">حساب نکستورا</h1><p id="profile-email" class="profile-hero-email"></p><div class="profile-status-row"><span id="profile-role" class="profile-status-chip">مشتری</span><span id="profile-verified" class="profile-status-chip">✓ ایمیل تأییدشده</span></div></div>
       </div>
       <div class="profile-hero-side"><span class="profile-hero-mark" aria-hidden="true">✦</span><strong data-i18n="profileWelcome">خوش آمدی؛ اینجا همه‌چیز درباره خریدهای توست.</strong><small data-i18n="profileHeroHint">اطلاعات حساب، ارسال و امنیتت را یک‌جا مدیریت کن.</small></div>
+    </section>
+    <section class="profile-command-strip" aria-label="خلاصه و میانبرهای حساب">
+      <article class="profile-completion-card">
+        <div class="profile-completion-top">
+          <div class="profile-completion-copy"><p class="eyebrow"><span></span> <span data-i18n="profileCompletion">تکمیل پروفایل</span></p><h2 data-i18n="profileCompletionTitle">پروفایلت را آماده‌تر کن</h2><p id="profile-completion-hint" class="profile-completion-hint" data-i18n="profileCompletionHint">برای تکمیل پروفایل، چند مورد کوچک باقی مانده است.</p></div>
+          <div class="profile-completion-score"><strong id="profile-completion-percent">۰٪</strong><small data-i18n="profileCompletionScore">کامل‌شده</small></div>
+        </div>
+        <div class="profile-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="profile-completion-percent"><span id="profile-completion-progress"></span></div>
+        <div class="profile-completion-footer"><small id="profile-completion-next" data-i18n="profileCompletionNext">گام بعدی: اطلاعات شخصی</small><button class="profile-completion-action" id="profile-completion-action" data-profile-shortcut="personal" type="button"><span data-i18n="completeNow">تکمیل اطلاعات</span> <span aria-hidden="true">↗</span></button></div>
+      </article>
+      <div class="profile-quick-actions">
+        <div class="profile-quick-actions-heading"><span class="eyebrow"><span></span> <span data-i18n="profileQuickAccess">دسترسی سریع</span></span><small data-i18n="profileQuickHint">پرکاربردترین بخش‌ها همیشه همین‌جا هستند.</small></div>
+        <button class="profile-quick-card" data-profile-shortcut="addresses" type="button"><span class="profile-quick-icon">⌖</span><span><strong data-i18n="profileQuickAddresses">آدرس‌ها</strong><small data-i18n="profileQuickAddressesHint">تحویل سریع‌تر</small></span><b aria-hidden="true">↗</b></button>
+        <button class="profile-quick-card" data-profile-shortcut="favorites" type="button"><span class="profile-quick-icon">♥</span><span><strong data-i18n="profileQuickFavorites">علاقه‌مندی‌ها</strong><small data-i18n="profileQuickFavoritesHint">انتخاب‌های ذخیره‌شده</small></span><b aria-hidden="true">↗</b></button>
+        <button class="profile-quick-card" data-profile-shortcut="rewards" type="button"><span class="profile-quick-icon">✦</span><span><strong data-i18n="profileQuickRewards">باشگاه نکستورا</strong><small data-i18n="profileQuickRewardsHint">امتیاز و مزایا</small></span><b aria-hidden="true">↗</b></button>
+      </div>
     </section>
     <section class="profile-stats" aria-label="خلاصه حساب">
       <article class="profile-stat-card"><span class="profile-stat-icon">▣</span><div><small data-i18n="profileOrders">سفارش‌ها</small><strong id="profile-orders-count">۰</strong></div><span class="profile-stat-arrow" aria-hidden="true">↗</span></article>
