@@ -23,6 +23,9 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="feedback-form"')
         self.assertContains(response, "/static/storefront/js/feedback.js")
         self.assertContains(response, 'id="shipping-progress"')
+        self.assertContains(response, 'data-catalog-filter="discount"')
+        self.assertContains(response, 'data-catalog-filter="stock"')
+        self.assertContains(response, 'id="price-filter"')
         self.assertContains(response, "/about/")
         self.assertContains(response, "/contact/")
 

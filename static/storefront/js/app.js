@@ -1,5 +1,5 @@
 const API_BASE = "/api/v1/";
-const state = { products: [], categories: [], category: "", search: "", sort: "newest" };
+const state = { products: [], categories: [], category: "", search: "", sort: "newest", onlyDiscounted: false, onlyInStock: false, priceBand: "all" };
 const COMPARE_STORAGE_KEY = "nexora-compare";
 const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 const FREE_SHIPPING_THRESHOLD = 2000000;
@@ -292,6 +292,35 @@ function closeCompare() {
   document.body.classList.remove("compare-open");
 }
 
+function matchesPriceBand(product) {
+  const price = Number(product.final_price ?? product.price ?? 0);
+  if (state.priceBand === "under-2m") return price < 2000000;
+  if (state.priceBand === "2m-4m") return price >= 2000000 && price <= 4000000;
+  if (state.priceBand === "over-4m") return price > 4000000;
+  return true;
+}
+
+function renderCatalogFilters() {
+  const activeFilters = { discount: state.onlyDiscounted, stock: state.onlyInStock };
+  document.querySelectorAll("[data-catalog-filter]").forEach((button) => {
+    const active = Boolean(activeFilters[button.dataset.catalogFilter]);
+    button.classList.toggle("selected", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  const priceFilter = document.querySelector("#price-filter");
+  if (priceFilter) priceFilter.value = state.priceBand;
+  const clearButton = document.querySelector("#clear-catalog-filters");
+  if (clearButton) clearButton.hidden = !(state.onlyDiscounted || state.onlyInStock || state.priceBand !== "all");
+}
+
+function clearCatalogFilters() {
+  state.onlyDiscounted = false;
+  state.onlyInStock = false;
+  state.priceBand = "all";
+  renderCatalogFilters();
+  renderProducts();
+}
+
 function renderProducts() {
   const grid = document.querySelector("#product-grid");
   syncCompareSelection();
@@ -303,7 +332,9 @@ function renderProducts() {
     const matchesCategory = !state.category || categorySlugs.has(product.category?.slug);
     const query = state.search.trim().toLowerCase();
     const matchesSearch = !query || `${productName(product)} ${product.name} ${product.brand || ""}`.toLowerCase().includes(query);
-    return matchesCategory && matchesSearch;
+    const matchesDiscount = !state.onlyDiscounted || Number(product.discount_amount || 0) > 0;
+    const matchesStock = !state.onlyInStock || product.is_in_stock;
+    return matchesCategory && matchesSearch && matchesDiscount && matchesStock && matchesPriceBand(product);
   });
   const sorted = [...filtered].sort((a, b) => {
     if (state.sort === "price-low") return Number(a.final_price) - Number(b.final_price);
@@ -434,6 +465,7 @@ async function loadCatalog() {
     syncCompareSelection();
     await window.NexoraFavorites?.load();
     renderCategories(state.categories);
+    renderCatalogFilters();
     renderProducts();
   } catch (error) {
     document.querySelector("#product-grid").innerHTML = `<div class="state-card"><span class="state-icon">!</span><h3>${t("storefrontConnectionFailed")}</h3><p>${t("serverCheck")}</p><button class="retry-button" onclick="loadCatalog()">${t("tryAgain")}</button></div>`;
@@ -442,6 +474,18 @@ async function loadCatalog() {
 
 document.querySelector("#product-search").addEventListener("input", (event) => { state.search = event.target.value; renderProducts(); });
 document.querySelector("#product-sort").addEventListener("change", (event) => { state.sort = event.target.value; renderProducts(); });
+document.querySelectorAll("[data-catalog-filter]").forEach((button) => button.addEventListener("click", () => {
+  if (button.dataset.catalogFilter === "discount") state.onlyDiscounted = !state.onlyDiscounted;
+  if (button.dataset.catalogFilter === "stock") state.onlyInStock = !state.onlyInStock;
+  renderCatalogFilters();
+  renderProducts();
+}));
+document.querySelector("#price-filter")?.addEventListener("change", (event) => {
+  state.priceBand = event.target.value;
+  renderCatalogFilters();
+  renderProducts();
+});
+document.querySelector("#clear-catalog-filters")?.addEventListener("click", clearCatalogFilters);
 document.querySelector("#menu-toggle").addEventListener("click", () => document.querySelector("#mobile-nav").classList.toggle("open"));
 document.querySelector("#cart-toggle").addEventListener("click", openCart);
 document.querySelector("#cart-close").addEventListener("click", closeCart);
@@ -467,6 +511,7 @@ document.querySelector("#theme-toggle").addEventListener("click", () => { docume
 if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.classList.add("dark");
 function updateThemeButton() { document.querySelector("#theme-toggle").textContent = document.documentElement.classList.contains("dark") ? "☼" : "☾"; }
 updateThemeButton();
+renderCatalogFilters();
 refreshCart();
 loadAccountState();
 loadCatalog();
@@ -476,5 +521,6 @@ window.addEventListener("nexora-language-changed", () => {
   renderRecentlyViewed();
   refreshCart();
   loadAccountState();
+  renderCatalogFilters();
   updateCompareUI();
 });

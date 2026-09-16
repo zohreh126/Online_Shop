@@ -49,12 +49,12 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
 
     def setUp(self):
         self.driver.delete_all_cookies()
-        category = Category.objects.create(name="Selenium audio", slug="selenium-audio")
+        self.category = Category.objects.create(name="Selenium audio", slug="selenium-audio")
         self.product = Product.objects.create(
             name="Selenium Headphones",
             slug="selenium-headphones",
             sku="SEL-001",
-            category=category,
+            category=self.category,
             brand="Nexora",
             price="1250000.00",
             stock_quantity=5,
@@ -198,6 +198,40 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
         feedback = SiteFeedback.objects.latest("created_at")
         self.assertEqual(feedback.rating, 5)
         self.assertEqual(feedback.page, "/")
+
+    def test_guest_can_filter_catalog_to_available_products(self):
+        self.out_of_stock_product = Product.objects.create(
+            name="Selenium Sold Out Cable",
+            slug="selenium-sold-out-cable",
+            sku="SEL-003",
+            category=self.category,
+            brand="Nexora",
+            price="450000.00",
+            stock_quantity=0,
+        )
+        self.driver.get(f"{self.live_server_url}/")
+        self.driver.execute_script("window.localStorage.clear();")
+        self.driver.get(f"{self.live_server_url}/")
+
+        stock_filter = self.wait_for(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-catalog-filter='stock']")),
+        )
+        self.driver.execute_script("arguments[0].click();", stock_filter)
+        self.wait_for(
+            lambda driver: driver.find_element(
+                By.CSS_SELECTOR,
+                "[data-catalog-filter='stock']",
+            ).get_attribute("aria-pressed") == "true",
+        )
+        self.wait_for(
+            EC.text_to_be_present_in_element(
+                (By.CSS_SELECTOR, "#product-grid .product-title-link"),
+                self.product.name,
+            ),
+        )
+        catalog_text = self.driver.find_element(By.ID, "product-grid").text
+        self.assertIn(self.product.name, catalog_text)
+        self.assertNotIn(self.out_of_stock_product.name, catalog_text)
 
     def test_guest_can_open_contact_faq(self):
         self.driver.get(f"{self.live_server_url}/contact/")
