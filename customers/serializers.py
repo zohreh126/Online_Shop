@@ -6,6 +6,7 @@ from django.db import transaction
 from unicodedata import normalize
 from rest_framework import serializers
 
+from orders.models import RewardTransaction
 from products.models import Product
 from products.pricing import get_current_product_price
 from products.serializers import ProductSerializer
@@ -398,6 +399,15 @@ class ProductWatchSerializer(serializers.ModelSerializer):
 
     def get_is_in_stock(self, watch):
         return watch.product.stock_quantity > 0
+
+
+class RewardTransactionSerializer(serializers.ModelSerializer):
+    order_number = serializers.UUIDField(source="order.order_number", read_only=True)
+
+    class Meta:
+        model = RewardTransaction
+        fields = ("id", "points", "reason", "order_number", "created_at")
+        read_only_fields = fields
 
 
 class SiteFeedbackSerializer(serializers.ModelSerializer):

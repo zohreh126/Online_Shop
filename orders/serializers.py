@@ -10,7 +10,7 @@ from customers.models import Address
 from products.models import DiscountCode, Product
 from products.serializers import ProductSerializer
 
-from .models import Cart, CartItem, Order, OrderItem
+from .models import Cart, CartItem, Order, OrderItem, RewardTransaction
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -247,6 +247,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    reward_points = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -272,9 +273,16 @@ class OrderSerializer(serializers.ModelSerializer):
             "shipping_recipient_phone",
             "notes",
             "items",
+            "reward_points",
             "created_at",
         )
         read_only_fields = fields
+
+    def get_reward_points(self, order):
+        try:
+            return order.reward_transaction.points
+        except RewardTransaction.DoesNotExist:
+            return 0
 
 
 class AdminOrderStatusSerializer(serializers.ModelSerializer):

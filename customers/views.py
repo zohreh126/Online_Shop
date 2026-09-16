@@ -1,9 +1,11 @@
 from django.db import transaction
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from orders.models import RewardTransaction
 from products.models import Product
 
 from .models import Address, Favorite, ProductWatch, SiteFeedback
@@ -14,6 +16,7 @@ from .serializers import (
     FavoriteSerializer,
     FavoriteToggleSerializer,
     ProductWatchSerializer,
+    RewardTransactionSerializer,
     SiteFeedbackSerializer,
 )
 
@@ -78,6 +81,29 @@ class AddressViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         instance.delete()
+
+
+class RewardSummaryView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        queryset = RewardTransaction.objects.filter(
+            customer=request.user,
+        ).select_related("order")
+        balance = queryset.aggregate(total=Sum("points"))["total"] or 0
+        transactions = queryset[:20]
+        return Response(
+            {
+                "balance": int(balance),
+                "transaction_count": queryset.count(),
+                "points_per_100000_toman": 1,
+                "transactions": RewardTransactionSerializer(
+                    transactions,
+                    many=True,
+                    context={"request": request},
+                ).data,
+            }
+        )
 
 
 class FavoriteViewSet(

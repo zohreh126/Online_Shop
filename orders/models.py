@@ -275,6 +275,42 @@ class Order(TimeStampedModel):
         return str(self.order_number)
 
 
+class RewardTransaction(TimeStampedModel):
+    """Immutable points earned by a customer from a completed order."""
+
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="reward_transactions",
+    )
+    order = models.OneToOneField(
+        Order,
+        on_delete=models.PROTECT,
+        related_name="reward_transaction",
+    )
+    points = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+    )
+    reason = models.CharField(
+        max_length=150,
+        default="Nexora order reward",
+    )
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Reward transaction"
+        verbose_name_plural = "Reward transactions"
+        indexes = [
+            models.Index(
+                fields=("customer", "-created_at"),
+                name="reward_customer_date_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.customer.username} +{self.points}"
+
+
 class OrderItem(TimeStampedModel):
     order = models.ForeignKey(
         Order,

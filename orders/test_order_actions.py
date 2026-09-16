@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 
 from customers.models import Customer
 
-from .models import Order
+from .models import Order, RewardTransaction
 
 
 class OrderActionAPITests(APITestCase):
@@ -49,6 +49,10 @@ class OrderActionAPITests(APITestCase):
         self.assertEqual(order.status, Order.Status.CONFIRMED)
         self.assertTrue(order.payment_reference.startswith("MOCK-"))
         self.assertIsNotNone(order.paid_at)
+        self.assertEqual(
+            RewardTransaction.objects.get(order=order).points,
+            1,
+        )
 
     def test_order_cannot_be_paid_twice(self):
         order = self.create_order()

@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from core.admin_permissions import RolePermissionAdminMixin
 
-from .models import Order, OrderItem
+from .models import Order, OrderItem, RewardTransaction
 
 
 class OrderItemInline(admin.TabularInline):
@@ -84,6 +84,27 @@ class OrderItemAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
         "unit_discount",
         "quantity",
         "line_total",
+        "created_at",
+        "updated_at",
+    )
+
+
+@admin.register(RewardTransaction)
+class RewardTransactionAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = ("customer", "order", "points", "reason", "created_at")
+    search_fields = (
+        "customer__username",
+        "customer__email",
+        "order__order_number",
+        "reason",
+    )
+    ordering = ("-created_at",)
+    autocomplete_fields = ("customer", "order")
+    readonly_fields = (
+        "customer",
+        "order",
+        "points",
+        "reason",
         "created_at",
         "updated_at",
     )

@@ -18,6 +18,7 @@ from .views import (
     CustomerRegistrationView,
     FavoriteViewSet,
     ProductWatchViewSet,
+    RewardSummaryView,
     SiteFeedbackListCreateView,
 )
 
@@ -72,6 +73,11 @@ urlpatterns = router.urls + [
         "profile/",
         CustomerProfileView.as_view(),
         name="customer-profile",
+    ),
+    path(
+        "rewards/",
+        RewardSummaryView.as_view(),
+        name="customer-rewards",
     ),
     path(
         "password/change/",

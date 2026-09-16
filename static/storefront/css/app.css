@@ -1080,3 +1080,34 @@ html[dir="ltr"] .hero-copy .eyebrow,html[dir="ltr"] .section-heading .eyebrow { 
   .profile-watch-icon { width:35px; height:35px; }
   .profile-watch-side { grid-column:2; justify-content:space-between; text-align:start; }
 }
+
+/* Nexora Club: make earned value visible and useful inside the account workspace. */
+.profile-stats { grid-template-columns:repeat(5,minmax(0,1fr)); }
+.reward-stat-card .profile-stat-icon { color:#8b5d18; background:#fff2d8; }
+.profile-rewards { margin-top:24px; }
+.reward-balance-card { display:flex; align-items:center; gap:14px; padding:18px; border-radius:16px; color:#fff; background:radial-gradient(circle at 85% 15%,rgba(239,156,131,.3),transparent 28%),linear-gradient(120deg,#30263f,#7150b4); }
+.reward-balance-icon { display:grid; place-items:center; flex:0 0 50px; width:50px; height:50px; border-radius:15px; color:#4a355f; background:var(--coral); font-size:23px; }
+.reward-balance-card small,.reward-balance-card strong,.reward-balance-card span { display:block; }
+.reward-balance-card small { color:#eadcf5; font-size:10px; }
+.reward-balance-card strong { margin-top:3px; font-size:30px; line-height:1; }
+.reward-balance-card span { margin-top:4px; color:#f6d9d1; font-size:10px; }
+.reward-balance-card p { margin-inline-start:auto; max-width:230px; color:#eadcf5; font-size:10px; line-height:1.8; text-align:end; }
+.reward-history { margin-top:20px; padding-top:19px; border-top:1px solid var(--line); }
+.reward-history-heading { display:flex; justify-content:space-between; gap:15px; margin-bottom:10px; }
+.reward-history-heading strong { color:var(--ink); font-size:13px; }
+.reward-history-heading small { color:var(--muted); font-size:10px; }
+.reward-history-item { display:grid; grid-template-columns:35px minmax(0,1fr) auto; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); }
+.reward-history-icon { display:grid; place-items:center; width:35px; height:35px; border-radius:11px; color:#fff; background:var(--accent-strong); }
+.reward-history-item strong,.reward-history-item small { display:block; }
+.reward-history-item strong { color:var(--ink); font-size:11px; }
+.reward-history-item small { margin-top:4px; color:var(--muted); font-size:9px; }
+.reward-history-item b { color:#4d8a5c; font-size:13px; direction:ltr; }
+.dark .reward-history-icon { background:#594176; }
+@media (max-width:880px) { .profile-stats { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (max-width:560px) {
+  .profile-stats { grid-template-columns:1fr; }
+  .reward-balance-card { align-items:flex-start; flex-wrap:wrap; }
+  .reward-balance-card p { width:100%; margin-inline-start:0; text-align:start; }
+  .reward-history-heading { display:block; }
+  .reward-history-heading small { display:block; margin-top:5px; }
+}

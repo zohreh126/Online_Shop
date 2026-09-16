@@ -6,7 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Cart, CartItem, Order
+from .models import Cart, CartItem, Order, RewardTransaction
+from .rewards import calculate_order_reward_points
 from .serializers import (
     AdminOrderStatusSerializer,
     CartItemSerializer,
@@ -261,6 +262,16 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
                 "updated_at",
             ]
         )
+        reward_points = calculate_order_reward_points(order.total_amount)
+        if reward_points:
+            RewardTransaction.objects.get_or_create(
+                order=order,
+                defaults={
+                    "customer": order.customer,
+                    "points": reward_points,
+                    "reason": "Nexora order reward",
+                },
+            )
 
         CartItem.objects.filter(
             cart__customer=order.customer,

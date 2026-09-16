@@ -448,6 +448,22 @@ translations.en.restockAlert = "Back in stock";
 translations.en.watchCurrentPrice = "Current price";
 translations.en.watchTargetPrice = "Target price";
 translations.en.watchDeleteConfirm = "Stop alerts for “{name}”?";
+translations.fa.rewards = "باشگاه نکستورا";
+translations.fa.rewardBalance = "امتیازهای من";
+translations.fa.rewardPoints = "امتیاز";
+translations.fa.rewardHint = "با هر خرید موفق، امتیاز جمع کن و از مزایای آینده استفاده کن.";
+translations.fa.rewardHistory = "تاریخچه امتیاز";
+translations.fa.rewardOrder = "پاداش سفارش";
+translations.fa.rewardRule = "هر ۱۰۰ هزار تومان خرید = ۱ امتیاز";
+translations.fa.noRewards = "هنوز امتیازی ثبت نشده است.";
+translations.en.rewards = "Nexora Club";
+translations.en.rewardBalance = "My points";
+translations.en.rewardPoints = "points";
+translations.en.rewardHint = "Earn points with every successful order and unlock future perks.";
+translations.en.rewardHistory = "Points history";
+translations.en.rewardOrder = "Order reward";
+translations.en.rewardRule = "1 point for every 100,000 toman spent";
+translations.en.noRewards = "No points have been earned yet.";
 
 const pageTranslations = {
   fa: {
