@@ -1,6 +1,73 @@
 const FEEDBACK_API_BASE = "/api/v1/";
 const FEEDBACK_STORAGE_KEY = "nexora-feedback-submitted";
 const feedbackText = (key) => window.NexoraI18n?.t(key) || key;
+let feedbackItems = [];
+let feedbackLoaded = false;
+
+function feedbackEscape(value) {
+  return String(value ?? "").replace(/[&<>\'\"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
+}
+
+function feedbackNumber(value) {
+  const locale = document.documentElement.lang === "en" ? "en-US" : "fa-IR";
+  return new Intl.NumberFormat(locale).format(value);
+}
+
+function feedbackDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString(document.documentElement.lang === "en" ? "en-US" : "fa-IR", { year: "numeric", month: "short", day: "numeric" });
+}
+
+function renderFeedbackSummary() {
+  const summary = document.querySelector("#feedback-summary");
+  if (!summary) return;
+  if (!feedbackItems.length) {
+    summary.textContent = "";
+    return;
+  }
+  const average = feedbackItems.reduce((total, item) => total + Number(item.rating || 0), 0) / feedbackItems.length;
+  summary.textContent = `★ ${feedbackNumber(average.toFixed(1))} · ${feedbackNumber(feedbackItems.length)} ${feedbackText("feedbackReviewCount")}`;
+}
+
+function renderFeedbackList() {
+  const list = document.querySelector("#feedback-list");
+  if (!list) return;
+  renderFeedbackSummary();
+  if (!feedbackItems.length) {
+    list.innerHTML = `<div class="feedback-list-state"><span class="feedback-empty-icon" aria-hidden="true">✦</span><p>${feedbackEscape(feedbackText("feedbackNoReviews"))}</p></div>`;
+    return;
+  }
+  list.innerHTML = feedbackItems.map((item) => {
+    const rating = Math.max(0, Math.min(5, Number(item.rating || 0)));
+    const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
+    const name = item.customer_name?.trim() || feedbackText("feedbackGuest");
+    const comment = item.comment?.trim() || feedbackText("feedbackNoComment");
+    return `<article class="feedback-card"><div class="feedback-card-head"><div class="feedback-author"><span class="feedback-avatar" aria-hidden="true">${feedbackEscape(name.slice(0, 1).toUpperCase())}</span><div><strong>${feedbackEscape(name)}</strong><small>${feedbackEscape(feedbackDate(item.created_at))}</small></div></div><span class="feedback-stars" aria-label="${feedbackEscape(feedbackNumber(rating))}">${stars}</span></div><p>${feedbackEscape(comment)}</p></article>`;
+  }).join("");
+}
+
+function renderFeedbackError() {
+  const list = document.querySelector("#feedback-list");
+  if (!list) return;
+  list.innerHTML = `<div class="feedback-list-state"><span class="feedback-empty-icon" aria-hidden="true">!</span><p>${feedbackEscape(feedbackText("feedbackLoadFailed"))}</p></div>`;
+}
+
+async function loadFeedback() {
+  const list = document.querySelector("#feedback-list");
+  if (!list) return;
+  try {
+    const response = await fetch(`${FEEDBACK_API_BASE}auth/feedback/?page_path=${encodeURIComponent("/")}`, { credentials: "same-origin" });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error("feedback-request-failed");
+    feedbackItems = data.results || data || [];
+    feedbackLoaded = true;
+    renderFeedbackList();
+  } catch (error) {
+    feedbackLoaded = true;
+    renderFeedbackError();
+  }
+}
 
 function feedbackCookie(name) {
   const cookie = document.cookie.split("; ").find((item) => item.startsWith(`${name}=`));
@@ -69,6 +136,7 @@ async function submitFeedback(event) {
     }
     try { localStorage.setItem(FEEDBACK_STORAGE_KEY, "1"); } catch (error) { /* best effort */ }
     lockFeedbackForm();
+    await loadFeedback();
   } catch (error) {
     setFeedbackMessage("feedbackError");
     submit.disabled = false;
@@ -77,12 +145,15 @@ async function submitFeedback(event) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("#feedback-form");
-  if (!form) return;
-  if (feedbackWasSubmitted()) lockFeedbackForm();
-  form.addEventListener("submit", submitFeedback);
+  if (form) {
+    if (feedbackWasSubmitted()) lockFeedbackForm();
+    form.addEventListener("submit", submitFeedback);
+  }
+  loadFeedback();
 });
 
 window.addEventListener("nexora-language-changed", () => {
   const message = document.querySelector("#feedback-message");
   if (message?.dataset.feedbackState) setFeedbackMessage(message.dataset.feedbackState);
+  if (feedbackLoaded) renderFeedbackList();
 });

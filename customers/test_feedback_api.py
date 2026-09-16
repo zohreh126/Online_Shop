@@ -60,3 +60,36 @@ class SiteFeedbackAPITests(APITestCase):
         feedback.refresh_from_db()
 
         self.assertFalse(feedback.is_active)
+
+    def test_guest_can_read_active_public_feedback_without_authentication(self):
+        customer = Customer.objects.create_user(
+            username="public-feedback-user",
+            email="public-feedback@example.com",
+            password="Strong-password-123",
+            first_name="Zohreh",
+        )
+        SiteFeedback.objects.create(
+            customer=customer,
+            rating=5,
+            comment="Very smooth shopping.",
+            page="/",
+        )
+        SiteFeedback.objects.create(
+            rating=1,
+            comment="Hidden feedback.",
+            page="/",
+            is_active=False,
+        )
+        SiteFeedback.objects.create(
+            rating=4,
+            comment="Another page.",
+            page="/contact/",
+        )
+
+        response = self.client.get(reverse("site-feedback"), {"page_path": "/"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["customer_name"], "Zohreh")
+        self.assertEqual(response.data["results"][0]["rating"], 5)
+        self.assertNotContains(response, "Hidden feedback")

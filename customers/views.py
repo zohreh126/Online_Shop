@@ -35,9 +35,16 @@ class CustomerProfileView(generics.RetrieveUpdateAPIView):
         return CustomerProfileSerializer
 
 
-class SiteFeedbackCreateView(generics.CreateAPIView):
+class SiteFeedbackListCreateView(generics.ListCreateAPIView):
     serializer_class = SiteFeedbackSerializer
     permission_classes = (permissions.AllowAny,)
+
+    def get_queryset(self):
+        queryset = SiteFeedback.objects.filter(is_active=True).select_related("customer")
+        page = (self.request.query_params.get("page_path") or "").strip()
+        if page:
+            queryset = queryset.filter(page=page[:120])
+        return queryset.order_by("-created_at")
 
     def perform_create(self, serializer):
         if not self.request.session.session_key:

@@ -93,6 +93,10 @@
         <input type="hidden" name="page" value="/">
         <div class="feedback-actions"><button class="primary-button" type="submit"><span data-i18n="feedbackSubmit">ثبت بازخورد</span><span>←</span></button><small id="feedback-message" role="status" aria-live="polite"></small></div>
       </form>
+      <section class="feedback-wall" aria-labelledby="feedback-wall-title">
+        <div class="feedback-wall-heading"><div><p class="eyebrow"><span></span> <span data-i18n="feedbackWallHint">تجربه‌های واقعی</span></p><h3 id="feedback-wall-title" data-i18n="feedbackWallTitle">نظرهای ثبت‌شده</h3></div><strong id="feedback-summary" aria-live="polite"></strong></div>
+        <div id="feedback-list" class="feedback-list" aria-live="polite"><div class="feedback-list-state"><span class="loader"></span><p data-i18n="feedbackLoading">در حال بارگذاری نظرها...</p></div></div>
+      </section>
     </section>
   </main>
 

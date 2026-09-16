@@ -270,10 +270,12 @@ class FavoriteToggleSerializer(serializers.Serializer):
 
 
 class SiteFeedbackSerializer(serializers.ModelSerializer):
+    customer_name = serializers.SerializerMethodField()
+
     class Meta:
         model = SiteFeedback
-        fields = ("id", "rating", "comment", "page", "created_at")
-        read_only_fields = ("id", "created_at")
+        fields = ("id", "customer_name", "rating", "comment", "page", "created_at")
+        read_only_fields = ("id", "customer_name", "created_at")
         extra_kwargs = {
             "comment": {"required": False, "allow_blank": True},
             "page": {"required": False, "allow_blank": True, "max_length": 120},
@@ -281,6 +283,12 @@ class SiteFeedbackSerializer(serializers.ModelSerializer):
 
     def validate_comment(self, value):
         return " ".join(value.strip().split())
+
+    def get_customer_name(self, feedback):
+        if not feedback.customer_id:
+            return ""
+        full_name = f"{feedback.customer.first_name} {feedback.customer.last_name}".strip()
+        return full_name or feedback.customer.username
 
     def validate_page(self, value):
         value = value.strip()
