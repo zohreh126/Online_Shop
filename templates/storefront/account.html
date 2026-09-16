@@ -20,7 +20,7 @@
       <div id="account-alert" class="account-alert" hidden></div>
       <form id="login-form" autocomplete="off">
         <label><span data-i18n="usernameOrEmail">نام کاربری یا ایمیل</span><input name="identifier" required autocomplete="username"></label>
-        <label><span data-i18n="password">رمز عبور</span><input name="password" type="password" required autocomplete="off"></label>
+        <label class="password-field"><span data-i18n="password">رمز عبور</span><span class="password-input-wrap"><input id="login-password" name="password" type="password" required autocomplete="off"><button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="نمایش رمز عبور" title="نمایش رمز عبور">◉</button></span></label>
         <button class="primary-button account-submit" type="submit"><span data-i18n="requestLoginCode">دریافت کد ورود</span> <span>←</span></button>
       </form>
       <form id="login-otp-form" hidden>
@@ -30,12 +30,12 @@
         <button class="account-switch" id="login-otp-back" type="button" data-i18n="backStep">بازگشت به مرحله قبل</button>
       </form>
       <form id="register-form" hidden>
-        <div class="form-grid"><label><span data-i18n="username">نام کاربری</span><input name="username" required autocomplete="username"></label><label><span data-i18n="email">ایمیل</span><input name="email" type="email" required autocomplete="email"></label><label><span data-i18n="firstName">نام</span><input name="first_name"></label><label><span data-i18n="lastName">نام خانوادگی</span><input name="last_name"></label><label><span data-i18n="password">رمز عبور</span><input name="password" type="password" minlength="8" required autocomplete="new-password"></label><label><span data-i18n="confirmPassword">تکرار رمز عبور</span><input name="password_confirm" type="password" minlength="8" required autocomplete="new-password"></label></div>
+        <div class="form-grid"><label><span data-i18n="username">نام کاربری</span><input name="username" required autocomplete="username"></label><label><span data-i18n="email">ایمیل</span><input name="email" type="email" required autocomplete="email"></label><label><span data-i18n="firstName">نام</span><input name="first_name"></label><label><span data-i18n="lastName">نام خانوادگی</span><input name="last_name"></label><label class="password-field"><span data-i18n="password">رمز عبور</span><span class="password-input-wrap"><input id="register-password" name="password" type="password" minlength="8" required autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="register-password" aria-label="نمایش رمز عبور" title="نمایش رمز عبور">◉</button></span></label><label class="password-field"><span data-i18n="confirmPassword">تکرار رمز عبور</span><span class="password-input-wrap"><input id="register-password-confirm" name="password_confirm" type="password" minlength="8" required autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="register-password-confirm" aria-label="نمایش رمز عبور" title="نمایش رمز عبور">◉</button></span></label></div>
         <button class="primary-button account-submit" type="submit"><span data-i18n="createAccount">ساخت حساب</span> <span>←</span></button>
       </form>
       <button class="account-switch" id="account-switch" type="button" data-i18n="noAccount">حساب ندارم؛ ثبت‌نام می‌کنم</button>
     </section>
   </main>
-  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/account.js' %}" defer></script>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/password-toggle.js' %}" defer></script><script src="{% static 'storefront/js/account.js' %}" defer></script>
 </body>
 </html>

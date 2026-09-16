@@ -76,6 +76,10 @@ input[aria-invalid=true], textarea[aria-invalid=true] { border-color:#d46a76; bo
 .account-card form[hidden], .account-alert[hidden] { display:none; }
 .account-card label { color:var(--muted); font-size:11px; }
 .account-card input { display:block; width:100%; border:1px solid var(--line); background:var(--paper); color:var(--ink); border-radius:4px; padding:12px; margin-top:6px; outline-color:var(--accent-strong); }
+.password-input-wrap { position:relative; display:block; margin-top:6px; }
+.account-card .password-input-wrap input,.profile-main .password-input-wrap input { margin-top:0; padding-inline-end:44px; }
+.password-toggle { position:absolute; inset-inline-end:8px; top:50%; transform:translateY(-50%); width:30px; height:30px; padding:0; background:transparent; color:var(--muted); font-size:16px; line-height:1; }
+.password-toggle:hover,.password-toggle:focus-visible { color:var(--accent-strong); outline:0; }
 .account-submit { width:100%; justify-content:space-between; border:0; cursor:pointer; }
 .account-switch { display:block; margin:22px auto 0; background:transparent; color:var(--accent-strong); font-size:12px; }
 .account-alert { margin-top:18px; padding:12px 14px; font-size:12px; border-radius:4px; }

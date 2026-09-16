@@ -65,6 +65,8 @@ class StorefrontPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "ورود به حساب")
         self.assertContains(response, "/static/storefront/js/account.js")
+        self.assertContains(response, "/static/storefront/js/password-toggle.js")
+        self.assertContains(response, 'data-password-toggle="register-password"')
 
     def test_dashboard_page_is_available(self):
         response = self.client.get(reverse("storefront-dashboard"))
@@ -79,6 +81,7 @@ class StorefrontPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "ویرایش پروفایل")
         self.assertContains(response, "/static/storefront/js/profile.js")
+        self.assertContains(response, "/static/storefront/js/password-toggle.js")
 
     @override_settings(DEBUG=False)
     def test_custom_error_pages_are_configured(self):
