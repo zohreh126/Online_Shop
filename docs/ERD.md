@@ -7,6 +7,7 @@ erDiagram
     CUSTOMER ||--o{ ADDRESS : has
     CUSTOMER ||--o{ CART : owns
     CUSTOMER ||--o{ ORDER : places
+    CUSTOMER ||--o{ REWARD_TRANSACTION : earns
     CATEGORY ||--o{ CATEGORY : contains
     CATEGORY ||--o{ PRODUCT : classifies
     PRODUCT ||--o| DISCOUNT : has
@@ -15,6 +16,7 @@ erDiagram
     CART ||--o{ CART_ITEM : contains
     PRODUCT ||--o{ CART_ITEM : selected
     ORDER ||--o{ ORDER_ITEM : contains
+    ORDER ||--o| REWARD_TRANSACTION : grants
     PRODUCT ||--o{ ORDER_ITEM : snapshot_source
 
     CUSTOMER {
@@ -99,6 +101,14 @@ erDiagram
         integer quantity
         decimal line_total
     }
+    REWARD_TRANSACTION {
+        bigint id PK
+        bigint customer_id FK
+        bigint order_id UK FK
+        integer points
+        string reason
+    }
 ```
 
 `ORDER_ITEM` نام، SKU، قیمت و تخفیف محصول را snapshot می‌کند تا تاریخچه‌ی سفارش با تغییر محصول از بین نرود.
+`REWARD_TRANSACTION` نیز یک دفتر immutable برای امتیاز سفارش‌های پرداخت‌شده است؛ هر سفارش حداکثر یک تراکنش امتیاز دارد.
