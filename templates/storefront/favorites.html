@@ -1,0 +1,49 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="محصولات ذخیره‌شده در علاقه‌مندی‌های نکستورا.">
+  <title data-i18n="favoritesPageTitle">علاقه‌مندی‌های من | Nexora</title>
+  <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/" aria-label="صفحه اصلی Nexora">
+        <span class="brand-mark">N</span>
+        <span>NEXORA<small>SMART ESSENTIALS</small></span>
+      </a>
+      <div class="page-actions">
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button>
+        <button class="language-button" data-language-toggle type="button">English</button>
+        {% include "storefront/favorites-nav.html" %}
+        <a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="favorites-page container">
+    <div class="section-heading favorites-heading">
+      <div>
+        <p class="eyebrow"><span></span> <span data-i18n="favoriteCollection">نشانه‌گذاری‌های شما</span></p>
+        <h1 class="favorites-title" data-i18n="favorites">علاقه‌مندی‌ها</h1>
+        <p class="section-help" data-i18n="favoritesHint">محصولاتی که برای بعد ذخیره کرده‌ای.</p>
+      </div>
+      <a class="secondary-button" href="/" data-i18n="continueShopping">ادامه خرید</a>
+    </div>
+
+    <div id="favorites-state" class="state-card favorites-state">
+      <span class="loader"></span>
+      <p data-i18n="loadingFavorites">در حال بارگذاری علاقه‌مندی‌ها...</p>
+    </div>
+    <div id="favorites-list" class="favorite-grid" hidden></div>
+  </main>
+
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script>
+  <script src="{% static 'storefront/js/favorites.js' %}" defer></script>
+  <script src="{% static 'storefront/js/favorites-page.js' %}" defer></script>
+  <script src="{% static 'storefront/js/site.js' %}" defer></script>
+</body>
+</html>

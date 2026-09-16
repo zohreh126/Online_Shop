@@ -156,6 +156,12 @@ translations.en.noFavorites = "You have not saved any products yet.";
 translations.en.removeFromFavorites = "Remove from favorites";
 translations.en.favoriteAdded = "Added to favorites.";
 translations.en.favoriteRemoved = "Removed from favorites.";
+translations.fa.favoritesPageTitle = "علاقه‌مندی‌های من | Nexora";
+translations.fa.loadingFavorites = "در حال بارگذاری علاقه‌مندی‌ها...";
+translations.fa.favoritesLoadFailed = "بارگذاری علاقه‌مندی‌ها انجام نشد.";
+translations.en.favoritesPageTitle = "My favorites | Nexora";
+translations.en.loadingFavorites = "Loading your favorites...";
+translations.en.favoritesLoadFailed = "Favorites could not be loaded.";
 
 const pageTranslations = {
   fa: {

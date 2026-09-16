@@ -77,15 +77,23 @@ class StorefrontPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "داشبورد مشتری")
-        self.assertContains(response, "section=favorites")
+        self.assertContains(response, 'href="/favorites/"')
         self.assertContains(response, "/static/storefront/js/dashboard.js")
+
+    def test_favorites_page_is_available(self):
+        response = self.client.get(reverse("storefront-favorites"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "favorites-page")
+        self.assertContains(response, "/static/storefront/js/favorites-page.js")
+        self.assertContains(response, 'href="/favorites/"')
 
     def test_profile_page_is_available(self):
         response = self.client.get(reverse("storefront-profile"))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "ویرایش پروفایل")
-        self.assertContains(response, 'data-section="favorites"')
+        self.assertContains(response, 'href="/favorites/"')
         self.assertContains(response, 'data-panel="favorites"')
         self.assertContains(response, 'class="favorite-nav-link"')
         self.assertContains(response, "/static/storefront/js/favorites.js")

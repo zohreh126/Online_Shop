@@ -51,6 +51,20 @@
     document.querySelectorAll("[data-favorite-product=\"" + productId + "\"]").forEach((button) => updateButton(button, active));
   }
 
+  function sync(favorites) {
+    const items = Array.isArray(favorites) ? favorites : [];
+    favoriteIds.clear();
+    favoriteItems.splice(0, favoriteItems.length, ...items);
+    items.forEach((item) => {
+      const productId = Number(item.product?.id || item.product_id);
+      if (productId) favoriteIds.add(productId);
+    });
+    loaded = true;
+    updateFavoriteNavigation();
+    document.querySelectorAll("[data-favorite-product]").forEach((button) => updateButton(button, isFavorite(button.dataset.favoriteProduct)));
+    return favoriteItems;
+  }
+
   async function load() {
     if (loaded) return favoriteItems;
     if (loadingPromise) return loadingPromise;
@@ -58,29 +72,14 @@
       try {
         const response = await fetch(API_BASE + "auth/favorites/", { credentials: "same-origin" });
         if (response.status === 401) {
-          favoriteItems.length = 0;
-          loaded = true;
-          updateFavoriteNavigation();
-          return [];
+          return sync([]);
         }
         if (!response.ok) throw new Error("favorites-request-failed");
         const data = await response.json();
         const favorites = data.results || data || [];
-        favoriteIds.clear();
-        favoriteItems.splice(0, favoriteItems.length, ...favorites);
-        favorites.forEach((item) => {
-          const productId = Number(item.product?.id || item.product_id);
-          if (productId) favoriteIds.add(productId);
-        });
-        loaded = true;
-        updateFavoriteNavigation();
-        document.querySelectorAll("[data-favorite-product]").forEach((button) => updateButton(button, isFavorite(button.dataset.favoriteProduct)));
-        return favorites;
+        return sync(favorites);
       } catch (error) {
-        favoriteItems.length = 0;
-        loaded = true;
-        updateFavoriteNavigation();
-        return [];
+        return sync([]);
       } finally {
         loadingPromise = null;
       }
@@ -166,7 +165,7 @@
     });
   }
 
-  window.NexoraFavorites = { bindButtons, isFavorite, load, refresh, toggle, updateButton };
+  window.NexoraFavorites = { bindButtons, isFavorite, load, refresh, sync, toggle, updateButton };
   window.addEventListener("nexora-language-changed", () => {
     updateFavoriteNavigation();
     bindButtons(document);

@@ -128,7 +128,7 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
         )
         self.assertTrue(
             favorite_nav.get_attribute("href").endswith(
-                "/profile/?section=favorites",
+                "/favorites/",
             ),
         )
         self.wait_for(
@@ -139,7 +139,7 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
         )
 
         favorite_nav.click()
-        self.wait_for(EC.url_contains("/profile/"))
+        self.wait_for(EC.url_contains("/favorites/"))
         self.wait_for(
             EC.visibility_of_element_located((By.CSS_SELECTOR, ".favorite-card")),
         )
@@ -147,6 +147,6 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
             self.product.name,
             self.driver.find_element(
                 By.CSS_SELECTOR,
-                "#profile-favorites",
+                "#favorites-list",
             ).text,
         )

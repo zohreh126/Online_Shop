@@ -37,6 +37,7 @@ urlpatterns = [
     path("order-result/", TemplateView.as_view(template_name="storefront/order-result.html"), name="storefront-order-result"),
     path("account/", TemplateView.as_view(template_name="storefront/account.html"), name="storefront-account"),
     path("dashboard/", TemplateView.as_view(template_name="storefront/dashboard.html"), name="storefront-dashboard"),
+    path("favorites/", TemplateView.as_view(template_name="storefront/favorites.html"), name="storefront-favorites"),
     path("profile/", TemplateView.as_view(template_name="storefront/profile.html"), name="storefront-profile"),
     path('admin/', admin.site.urls),
     path("health/", health_check, name="health-check"),
