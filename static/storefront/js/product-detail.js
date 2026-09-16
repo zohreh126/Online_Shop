@@ -8,7 +8,7 @@ const slug = window.location.pathname.split("/").filter(Boolean).pop();
 const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 let productReviews = [];
 let reviewUser = null;
-let reviewSummary = { average: 0, count: 0, loaded: false };
+let reviewSummary = { average: 0, count: 0, distribution: {}, loaded: false };
 let productRecommendations = [];
 let productWatch = null;
 let productWatchLoaded = false;
@@ -256,9 +256,13 @@ function renderReviewSummary(product) {
   if (!summaryNode) return;
 
   const summary = productRatingSummary(product);
-  summaryNode.innerHTML = summary.count
-    ? `<span class="rating-stars" aria-hidden="true">${reviewStars(summary.average)}</span><strong>${escapeHTML(number(summary.average))}</strong><small>${escapeHTML(format("reviewCount", { count: number(summary.count) }))}</small>`
-    : `<span class="rating-stars" aria-hidden="true">☆☆☆☆☆</span><small>${escapeHTML(t("noReviews"))}</small>`;
+  const distribution = summary.distribution || {};
+  const distributionMarkup = [5, 4, 3, 2, 1].map((rating) => {
+    const count = Number(distribution[String(rating)] || 0);
+    const width = summary.count ? Math.round((count / summary.count) * 100) : 0;
+    return `<div class="review-distribution-row"><span>${escapeHTML(number(rating))} ★</span><span class="review-distribution-track"><i style="width:${width}%"></i></span><b>${escapeHTML(number(count))}</b></div>`;
+  }).join("");
+  summaryNode.innerHTML = `<div class="review-summary-main"><span class="rating-stars" aria-hidden="true">${summary.count ? reviewStars(summary.average) : "☆☆☆☆☆"}</span><strong>${summary.count ? escapeHTML(number(summary.average)) : "—"}</strong><small>${escapeHTML(summary.count ? format("reviewCount", { count: number(summary.count) }) : t("noReviews"))}</small></div><div class="review-distribution">${distributionMarkup}</div>`;
 }
 
 function renderReviewsList() {
@@ -334,6 +338,7 @@ async function loadReviews(product) {
     reviewSummary = {
       average: Number(data.average || 0),
       count: Number(data.count || 0),
+      distribution: data.rating_distribution || {},
       loaded: true,
     };
     reviewUser = user;
@@ -390,6 +395,7 @@ async function submitReview(event) {
     reviewSummary = {
       average: Number(data.average || 0),
       count: Number(data.count || 0),
+      distribution: data.rating_distribution || {},
       loaded: true,
     };
     renderReviewSection(window.productDetail);

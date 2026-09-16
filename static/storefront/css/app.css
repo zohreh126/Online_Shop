@@ -674,7 +674,23 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
 .review-rating-summary { display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--soft); }
 .review-rating-summary strong { color:var(--accent-strong); font-size:18px; }
 .review-rating-summary small { color:var(--muted); font-size:10px; }
-.review-composer { margin-top:26px; }
+.review-summary-main { display:flex; align-items:center; gap:10px; }
+.review-summary-main .rating-stars { color:#d18b38; direction:ltr; letter-spacing:1px; }
+.review-distribution { display:grid; gap:4px; margin-top:10px; min-width:180px; }
+.review-distribution-row { display:grid; grid-template-columns:28px minmax(80px,1fr) 18px; align-items:center; gap:7px; color:var(--muted); font-size:9px; }
+.review-distribution-row > span:first-child { direction:ltr; text-align:start; }
+.review-distribution-row b { color:var(--ink); font-size:9px; text-align:end; }
+.review-distribution-track { height:5px; overflow:hidden; border-radius:999px; background:var(--line); }
+.review-distribution-track i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--coral),var(--accent-strong)); }
+.reviews-layout { display:grid; grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr); gap:20px; margin-top:26px; }
+.review-composer { margin-top:0; }
+.review-composer-column,.review-list-column { min-width:0; }
+.review-list-column { padding:20px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(135deg,var(--soft),var(--card)); }
+.reviews-public-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding-bottom:14px; border-bottom:1px solid var(--line); }
+.reviews-public-heading > div { display:grid; gap:5px; }
+.reviews-public-heading > span { color:var(--coral); font-size:19px; }
+.reviews-public-kicker { color:var(--accent-strong); font-size:9px; font-weight:800; letter-spacing:.7px; }
+.reviews-public-heading strong { color:var(--ink); font-size:13px; }
 .review-login-callout { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:18px 20px; border:1px solid var(--line); background:var(--soft); color:var(--muted); }
 .review-login-callout p { margin:0; font-size:12px; line-height:1.9; }
 .review-login-callout .secondary-button { margin-top:0; }
@@ -687,7 +703,7 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
 .review-form-actions { display:flex; align-items:center; gap:14px; }
 .review-form-actions .primary-button { margin-top:0; }
 .review-form-message { color:#b35b64; font-size:11px; }
-.reviews-list { display:grid; gap:12px; margin-top:26px; }
+.reviews-list { display:grid; gap:12px; margin-top:16px; }
 .review-card { padding:20px; border:1px solid var(--line); border-radius:10px; background:var(--card); }
 .review-card-head { display:flex; justify-content:space-between; gap:15px; align-items:start; }
 .review-card-head > div { display:grid; gap:7px; }
@@ -700,6 +716,7 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
 .review-form textarea { min-height:130px; resize:vertical; }
 .review-form select,.review-form input,.review-form textarea { border-radius:8px; }
 .dark .review-login-callout,.dark .review-form,.dark .review-card { background:#302a3b; }
+.dark .review-list-column { background:linear-gradient(135deg,#3b304a,#302a3b); }
 
 .recently-viewed { padding:5px 0 90px; }
 .recently-viewed .section-heading { align-items:end; margin-bottom:25px; }
@@ -756,6 +773,7 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
   .product-reviews-section { margin-top:58px; padding-top:28px; }
   .product-reviews-section .section-title-row { display:block; }
   .review-rating-summary { margin-top:15px; width:max-content; max-width:100%; }
+  .reviews-layout { grid-template-columns:1fr; }
   .review-login-callout { align-items:flex-start; flex-direction:column; }
   .review-form { padding:18px; }
   .review-form-header { align-items:flex-start; flex-direction:column; }

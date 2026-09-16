@@ -122,6 +122,10 @@ class ProductCatalogAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 1)
         self.assertEqual(response.data["average"], 4.0)
+        self.assertEqual(
+            response.data["rating_distribution"],
+            {"5": 0, "4": 1, "3": 0, "2": 0, "1": 0},
+        )
         self.assertEqual(response.data["results"][0]["customer_name"], "public-reviewer")
         self.assertFalse(response.data["results"][0]["is_mine"])
 
@@ -157,6 +161,7 @@ class ProductCatalogAPITests(APITestCase):
         self.assertTrue(create_response.data["review"]["is_mine"])
         self.assertEqual(create_response.data["count"], 1)
         self.assertEqual(create_response.data["average"], 5.0)
+        self.assertEqual(create_response.data["rating_distribution"]["5"], 1)
 
         update_response = self.client.post(
             url,
@@ -172,6 +177,7 @@ class ProductCatalogAPITests(APITestCase):
         self.assertEqual(update_response.data["review"]["rating"], 3)
         self.assertEqual(update_response.data["count"], 1)
         self.assertEqual(update_response.data["average"], 3.0)
+        self.assertEqual(update_response.data["rating_distribution"]["3"], 1)
         self.assertEqual(
             ProductReview.objects.filter(
                 product=self.keyboard,

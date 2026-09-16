@@ -1,3 +1,5 @@
+from collections import Counter
+
 import django_filters
 from django.db.models import Avg, Count, Q
 from django.utils import timezone
@@ -163,6 +165,19 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             .order_by("-created_at")
         )
 
+    @staticmethod
+    def review_statistics(reviews):
+        ratings = list(reviews.values_list("rating", flat=True))
+        counts = Counter(ratings)
+        return {
+            "count": len(ratings),
+            "average": round(sum(ratings) / len(ratings), 1) if ratings else 0.0,
+            "rating_distribution": {
+                str(rating): counts.get(rating, 0)
+                for rating in range(5, 0, -1)
+            },
+        }
+
     @action(detail=True, methods=("get", "post"), url_path="reviews")
     def reviews(self, request, slug=None):
         product = self.get_object()
@@ -177,9 +192,12 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
                 many=True,
                 context={"request": request},
             ).data
-            ratings = list(reviews.values_list("rating", flat=True))
-            average = round(sum(ratings) / len(ratings), 1) if ratings else 0.0
-            return Response({"results": data, "count": len(ratings), "average": average})
+            return Response(
+                {
+                    "results": data,
+                    **self.review_statistics(reviews),
+                }
+            )
 
         if not request.user.is_authenticated:
             return Response(
@@ -206,22 +224,19 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             is_active=True,
             is_approved=True,
         )
-        visible_ratings = list(
-            ProductReview.objects.filter(
-                product=product,
-                is_active=True,
-                is_approved=True,
-            ).values_list("rating", flat=True)
+        visible_reviews = ProductReview.objects.filter(
+            product=product,
+            is_active=True,
+            is_approved=True,
         )
-        average = round(sum(visible_ratings) / len(visible_ratings), 1) if visible_ratings else 0.0
+        statistics = self.review_statistics(visible_reviews)
         return Response(
             {
                 "review": ProductReviewSerializer(
                     saved_review,
                     context={"request": request},
                 ).data,
-                "count": len(visible_ratings),
-                "average": average,
+                **statistics,
             },
             status=200 if review else 201,
         )

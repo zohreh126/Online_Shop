@@ -59,6 +59,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="product-recommendations"')
         self.assertContains(response, 'id="product-recommendations-grid"')
         self.assertContains(response, 'id="product-reviews"')
+        self.assertContains(response, 'class="reviews-layout"')
+        self.assertContains(response, 'id="reviews-list"')
         self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/product-detail.js")
 
