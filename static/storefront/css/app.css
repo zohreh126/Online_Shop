@@ -508,6 +508,19 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
 .rating-stars { color:#c88d3b; letter-spacing:2px; font-size:15px; line-height:1; }
 .product-rating-inline strong { color:var(--ink); font-size:12px; }
 .product-rating-inline > span:last-child { font-size:11px; }
+.product-recommendations-section { margin-top:85px; padding-top:38px; border-top:1px solid var(--line); }
+.product-recommendations-section .section-title-row { align-items:end; }
+.product-recommendations-section .section-title-row h2 { margin-bottom:10px; }
+.recommendation-help { margin:0; max-width:570px; color:var(--muted); font-size:12px; line-height:1.9; }
+.recommendation-grid { grid-template-columns:repeat(4,minmax(0,1fr)); min-height:0; margin-top:25px; }
+.recommendation-card .product-visual { height:205px; }
+.recommendation-card .product-info { min-height:175px; }
+.recommendation-visual-link { display:block; width:100%; height:100%; }
+.recommendation-visual-link img { width:100%; height:100%; object-fit:cover; }
+.recommendation-placeholder { display:grid; place-items:center; width:110px; height:110px; border-radius:45% 55% 50% 50%; color:#f1e7ff; background:linear-gradient(140deg,#3f3450,#9b7bd2); font:58px var(--serif); transform:rotate(-10deg); }
+.recommendation-link { display:inline-flex; align-items:center; gap:8px; color:var(--accent-strong); font-size:10px; font-weight:700; }
+.recommendation-link span:last-child { color:var(--coral); font-size:15px; }
+.recommendation-link:hover { color:var(--coral); }
 .product-reviews-section { margin-top:85px; padding-top:38px; border-top:1px solid var(--line); }
 .product-reviews-section .section-title-row { align-items:end; }
 .review-rating-summary { display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--soft); }
@@ -599,6 +612,12 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
   .review-form { padding:18px; }
   .review-form-header { align-items:flex-start; flex-direction:column; }
   .review-form-actions { align-items:flex-start; flex-direction:column; }
+  .product-recommendations-section { margin-top:58px; padding-top:28px; }
+  .product-recommendations-section .section-title-row { display:block; }
+  .product-recommendations-section .text-link { margin-top:15px; }
+  .recommendation-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .recommendation-card .product-visual { height:175px; }
+  .recommendation-card .product-info { min-height:165px; padding:11px; }
 }
 
 .faq-section { display:grid; grid-template-columns:minmax(260px,.75fr) minmax(0,1.25fr); gap:60px; margin-bottom:110px; padding-top:20px; }

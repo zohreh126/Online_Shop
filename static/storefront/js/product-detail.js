@@ -9,6 +9,7 @@ const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 let productReviews = [];
 let reviewUser = null;
 let reviewSummary = { average: 0, count: 0, loaded: false };
+let productRecommendations = [];
 
 function rememberProduct(product) {
   try {
@@ -22,6 +23,67 @@ function rememberProduct(product) {
     localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(current.slice(0, 8)));
   } catch (error) {
     // Recently viewed is an enhancement; private browsing must not break the page.
+  }
+}
+
+function recommendationDiscountLabel(product) {
+  const amount = Number(product.discount_amount || 0);
+  if (!amount) return "";
+  if (product.discount_type === "percentage" && product.discount_value !== null && product.discount_value !== undefined) {
+    return format("discountPercent", { percent: number(Number(product.discount_value)) });
+  }
+  return format("discountAmount", { amount: money(amount) });
+}
+
+function renderRecommendations() {
+  const section = document.querySelector("#product-recommendations");
+  const grid = document.querySelector("#product-recommendations-grid");
+  if (!section || !grid) return;
+
+  section.hidden = !productRecommendations.length;
+  if (!productRecommendations.length) {
+    grid.innerHTML = "";
+    return;
+  }
+
+  grid.innerHTML = productRecommendations.map((product, index) => {
+    const name = window.NexoraI18n?.productName(product) || product.name;
+    const category = window.NexoraI18n?.category(product.category?.slug, product.category?.name || t("digitalAccessories")) || t("digitalAccessories");
+    const url = `/products/${encodeURIComponent(product.slug)}/`;
+    const discount = recommendationDiscountLabel(product);
+    const image = product.image_url
+      ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(name)}" loading="lazy">`
+      : `<span class="recommendation-placeholder">${escapeHTML((product.brand || "N").slice(0, 1))}</span>`;
+    return `<article class="product-card recommendation-card" style="--delay:${index * 60}ms"><div class="product-visual"><a class="recommendation-visual-link" href="${url}" aria-label="${escapeHTML(name)}">${image}</a>${discount ? `<span class="discount-badge">${escapeHTML(discount)}</span>` : ""}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${escapeHTML(product.is_in_stock ? t("available") : t("unavailable"))}</span><button class="heart-button" data-favorite-product="${product.id}" aria-label="${escapeHTML(t("addToFavorites"))}" type="button">♡</button></div><div class="product-info"><p class="product-category">${escapeHTML(category)}</p><h3><a class="product-title-link" href="${url}">${escapeHTML(name)}</a></h3><div class="product-bottom"><div><strong>${escapeHTML(money(product.final_price))}</strong>${Number(product.discount_amount) > 0 ? `<del>${escapeHTML(money(product.price))}</del>` : ""}</div><a class="recommendation-link" href="${url}"><span>${escapeHTML(t("viewProduct"))}</span><span aria-hidden="true">↗</span></a></div></div></article>`;
+  }).join("");
+
+  window.NexoraFavorites?.bindButtons(grid);
+  grid.querySelectorAll(".recommendation-card").forEach((card) => card.addEventListener("click", (event) => {
+    if (event.target.closest("button, a")) return;
+    window.location.href = card.querySelector(".product-title-link")?.getAttribute("href") || "/";
+  }));
+}
+
+async function loadRecommendations(product) {
+  const categorySlug = product.category?.slug;
+  if (!categorySlug) return;
+
+  try {
+    const categoryData = await getJSON(`products/?category=${encodeURIComponent(categorySlug)}&page_size=8`);
+    let candidates = Array.isArray(categoryData.results) ? categoryData.results : categoryData;
+    candidates = candidates.filter((item) => Number(item.id) !== Number(product.id));
+    if (candidates.length < 4) {
+      const allData = await getJSON("products/?page_size=100");
+      const allProducts = Array.isArray(allData.results) ? allData.results : allData;
+      candidates = [...candidates, ...allProducts.filter((item) => Number(item.id) !== Number(product.id) && !candidates.some((candidate) => Number(candidate.id) === Number(item.id)))];
+    }
+    productRecommendations = candidates
+      .sort((first, second) => (Number(second.rating_count || 0) - Number(first.rating_count || 0)) || (Number(second.discount_amount || 0) - Number(first.discount_amount || 0)))
+      .slice(0, 4);
+    renderRecommendations();
+  } catch (error) {
+    productRecommendations = [];
+    renderRecommendations();
   }
 }
 
@@ -280,7 +342,8 @@ async function loadProduct() {
     document.querySelector("#product-reviews").hidden = false;
     renderReviewSection(product);
     loadReviews(product);
-    document.title = `${product.name} | Nexora`;
+    loadRecommendations(product);
+    document.title = `${window.NexoraI18n?.productName(product) || product.name} | Nexora`;
     return product;
   } catch (error) {
     document.querySelector("#product-detail-state").innerHTML = `<span class="state-icon">!</span><h3>${t("noProducts")}</h3><p>${t("changeFilter")}</p>`;
@@ -291,5 +354,5 @@ function updateThemeButton() { document.querySelector("#theme-toggle").textConte
 document.querySelector("#theme-toggle").addEventListener("click", () => { document.documentElement.classList.toggle("dark"); localStorage.setItem("nexora-theme", document.documentElement.classList.contains("dark") ? "dark" : "light"); updateThemeButton(); });
 if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.classList.add("dark");
 updateThemeButton();
-window.addEventListener("nexora-language-changed", () => { if (window.productDetail) { renderProduct(window.productDetail); renderReviewSection(window.productDetail); } });
+window.addEventListener("nexora-language-changed", () => { if (window.productDetail) { renderProduct(window.productDetail); renderReviewSection(window.productDetail); renderRecommendations(); } });
 loadProduct();

@@ -175,6 +175,33 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
             ).is_displayed(),
         )
 
+    def test_guest_sees_related_products_on_product_detail(self):
+        related = Product.objects.create(
+            name="Selenium Related Headphones",
+            slug="selenium-related-headphones",
+            sku="SEL-004",
+            category=self.category,
+            brand="Nexora",
+            price="1750000.00",
+            stock_quantity=4,
+        )
+        self.driver.get(f"{self.live_server_url}/products/{self.product.slug}/")
+        self.wait_for(
+            EC.visibility_of_element_located(
+                (By.CSS_SELECTOR, "#product-recommendations:not([hidden])"),
+            ),
+        )
+        self.wait_for(
+            EC.text_to_be_present_in_element(
+                (By.CSS_SELECTOR, "#product-recommendations-grid .product-title-link"),
+                related.name,
+            ),
+        )
+        self.assertIn(
+            related.name,
+            self.driver.find_element(By.ID, "product-recommendations-grid").text,
+        )
+
     def test_guest_can_submit_site_feedback(self):
         self.driver.get(f"{self.live_server_url}/")
         self.driver.execute_script("window.localStorage.removeItem('nexora-feedback-submitted');")
