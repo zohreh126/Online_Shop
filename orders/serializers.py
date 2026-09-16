@@ -278,6 +278,7 @@ class OrderSerializer(serializers.ModelSerializer):
         )
         read_only_fields = fields
 
+    @extend_schema_field(OpenApiTypes.INT)
     def get_reward_points(self, order):
         try:
             return order.reward_transaction.points

@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from unicodedata import normalize
 from rest_framework import serializers
 
@@ -394,9 +396,11 @@ class ProductWatchSerializer(serializers.ModelSerializer):
 
         return watch
 
+    @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_current_price(self, watch):
         return get_current_product_price(watch.product)
 
+    @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_in_stock(self, watch):
         return watch.product.stock_quantity > 0
 
@@ -408,6 +412,13 @@ class RewardTransactionSerializer(serializers.ModelSerializer):
         model = RewardTransaction
         fields = ("id", "points", "reason", "order_number", "created_at")
         read_only_fields = fields
+
+
+class RewardSummarySerializer(serializers.Serializer):
+    balance = serializers.IntegerField()
+    transaction_count = serializers.IntegerField()
+    points_per_100000_toman = serializers.IntegerField()
+    transactions = RewardTransactionSerializer(many=True)
 
 
 class SiteFeedbackSerializer(serializers.ModelSerializer):
@@ -425,6 +436,7 @@ class SiteFeedbackSerializer(serializers.ModelSerializer):
     def validate_comment(self, value):
         return " ".join(value.strip().split())
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_customer_name(self, feedback):
         if not feedback.customer_id:
             return ""

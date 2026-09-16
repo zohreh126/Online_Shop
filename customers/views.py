@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -16,6 +17,7 @@ from .serializers import (
     FavoriteSerializer,
     FavoriteToggleSerializer,
     ProductWatchSerializer,
+    RewardSummarySerializer,
     RewardTransactionSerializer,
     SiteFeedbackSerializer,
 )
@@ -84,25 +86,24 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 
 class RewardSummaryView(generics.GenericAPIView):
+    serializer_class = RewardSummarySerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    @extend_schema(responses=RewardSummarySerializer)
     def get(self, request):
         queryset = RewardTransaction.objects.filter(
             customer=request.user,
         ).select_related("order")
         balance = queryset.aggregate(total=Sum("points"))["total"] or 0
         transactions = queryset[:20]
+        payload = {
+            "balance": int(balance),
+            "transaction_count": queryset.count(),
+            "points_per_100000_toman": 1,
+            "transactions": transactions,
+        }
         return Response(
-            {
-                "balance": int(balance),
-                "transaction_count": queryset.count(),
-                "points_per_100000_toman": 1,
-                "transactions": RewardTransactionSerializer(
-                    transactions,
-                    many=True,
-                    context={"request": request},
-                ).data,
-            }
+            RewardSummarySerializer(payload, context={"request": request}).data
         )
 
 
