@@ -22,6 +22,7 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="clear-recently-viewed"')
         self.assertContains(response, 'id="feedback-form"')
         self.assertContains(response, "/static/storefront/js/feedback.js")
+        self.assertContains(response, 'id="shipping-progress"')
         self.assertContains(response, "/about/")
         self.assertContains(response, "/contact/")
 
@@ -40,6 +41,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "contact-page")
         self.assertContains(response, "support@nexora.example")
         self.assertContains(response, "openstreetmap.org/export/embed.html")
+        self.assertContains(response, 'id="faq"')
+        self.assertContains(response, 'class="faq-question"')
         self.assertContains(response, "/static/storefront/js/site.js")
 
     def test_product_detail_page_is_available(self):

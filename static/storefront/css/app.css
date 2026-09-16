@@ -24,6 +24,13 @@
 .coupon-form button:last-child { background:transparent; color:#b35b64; border:1px solid var(--line); }
 .coupon-form button:disabled { opacity:.5; cursor:wait; }
 .coupon-form small { min-height:16px; color:#5f9a6d; font-size:10px; }
+.shipping-progress { display:grid; gap:8px; margin:4px 0 20px; padding:12px 13px; border:1px solid var(--line); border-radius:10px; background:var(--soft); }
+.shipping-progress-head { display:flex; align-items:center; justify-content:space-between; gap:12px; color:var(--muted); font-size:10px; }
+.shipping-progress-head strong { color:var(--accent-strong); font-size:10px; }
+.shipping-progress-track { height:6px; overflow:hidden; border-radius:999px; background:var(--line); }
+.shipping-progress-track span { display:block; width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--accent-strong),var(--coral)); transition:width .35s ease,background .35s ease; }
+.shipping-progress-track span.complete { background:#5f9a6d; }
+.shipping-progress > small { color:var(--muted); font-size:9px; line-height:1.7; }
 @media (max-width:800px) { .container { width:min(100% - 28px, 600px); } .desktop-nav { display:none; } .menu-button { display:block; } .mobile-nav { display:none; padding-bottom:14px; gap:18px; font-size:12px; } .mobile-nav.open { display:flex; } .hero { grid-template-columns:1fr; min-height:auto; padding-top:60px; } .hero-art { order:-1; height:300px; } .art-glow { width:220px; height:220px; } .art-ring { width:290px; height:290px; } .headphone-shape { transform:scale(.7) rotate(-12deg); } .card-one { top:20px; right:5px; } .card-two { bottom:10px; left:5px; } .hero h1 { font-size:49px; } .trust-items { display:grid; grid-template-columns:1fr 1fr; gap:15px; } .catalog { padding-top:70px; } .section-heading { align-items:start; } .section-heading h2 { font-size:30px; } .catalog-tools { display:block; } .search-box { margin-top:15px; width:100%; } .search-box input { width:100%; } .product-grid { grid-template-columns:repeat(2,1fr); gap:10px; } .product-visual { height:175px; } .product-placeholder { width:105px; height:105px; } .product-placeholder span { font-size:50px; } .product-info { padding:11px; } .product-info h3 { font-size:12px; } .feature-banner { display:block; padding:40px 25px; } .feature-banner h2 { font-size:42px; } .banner-orbit { display:none; } .why-us { grid-template-columns:1fr; gap:10px; padding:75px 0; } .footer-wrap { flex-wrap:wrap; gap:15px; } }
 
 .heart-button { display:flex; align-items:center; justify-content:center; padding:0; line-height:1; }
@@ -592,6 +599,27 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
   .review-form { padding:18px; }
   .review-form-header { align-items:flex-start; flex-direction:column; }
   .review-form-actions { align-items:flex-start; flex-direction:column; }
+}
+
+.faq-section { display:grid; grid-template-columns:minmax(260px,.75fr) minmax(0,1.25fr); gap:60px; margin-bottom:110px; padding-top:20px; }
+.faq-heading h2 { margin:13px 0 15px; font-size:clamp(30px,4vw,48px); line-height:1.25; }
+.faq-heading > p:not(.eyebrow) { max-width:430px; color:var(--muted); font-size:12px; line-height:2; }
+.faq-list { border-top:1px solid var(--line); }
+.faq-item { border-bottom:1px solid var(--line); }
+.faq-question { display:flex; align-items:center; justify-content:space-between; gap:18px; width:100%; padding:20px 0; background:transparent; color:var(--ink); text-align:start; font-size:13px; font-weight:700; }
+.faq-question b { display:grid; place-items:center; flex:0 0 26px; width:26px; height:26px; border:1px solid var(--line); border-radius:50%; color:var(--accent-strong); font-size:18px; font-weight:400; transition:transform .2s ease,background .2s ease,color .2s ease; }
+.faq-item.open .faq-question b { transform:rotate(45deg); color:#fff; background:var(--accent-strong); border-color:var(--accent-strong); }
+.faq-answer { padding:0 45px 20px 0; }
+.faq-answer p { margin:0; color:var(--muted); font-size:12px; line-height:2; }
+html[dir="ltr"] .faq-answer { padding:0 0 20px 45px; }
+.dark .faq-question b { background:#302a3b; }
+
+@media (max-width:800px) {
+  .faq-section { grid-template-columns:1fr; gap:25px; margin-bottom:75px; padding-top:0; }
+  .faq-heading h2 { font-size:31px; }
+  .faq-question { padding:17px 0; font-size:12px; }
+  .faq-answer { padding:0 0 18px; }
+  html[dir="ltr"] .faq-answer { padding:0 0 18px; }
 }
 
 /* Modern catalog layer: a calm sticky chrome and focused product actions. */

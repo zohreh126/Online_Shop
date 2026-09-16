@@ -2,6 +2,7 @@ const API_BASE = "/api/v1/";
 const state = { products: [], categories: [], category: "", search: "", sort: "newest" };
 const COMPARE_STORAGE_KEY = "nexora-compare";
 const RECENT_STORAGE_KEY = "nexora-recently-viewed";
+const FREE_SHIPPING_THRESHOLD = 2000000;
 const compareIds = new Set();
 
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
@@ -330,6 +331,22 @@ function renderCart(cart) {
   document.querySelector("#cart-count").textContent = localizedNumber(cart.item_count || 0);
   document.querySelector("#cart-subtotal").textContent = money(cart.subtotal ?? 0);
   document.querySelector("#cart-total").textContent = money(cart.total_amount ?? cart.subtotal ?? 0);
+  const shippingProgress = document.querySelector("#shipping-progress");
+  const shippingProgressBar = document.querySelector("#shipping-progress-bar");
+  const shippingProgressAmount = document.querySelector("#shipping-progress-amount");
+  const shippingProgressMessage = document.querySelector("#shipping-progress-message");
+  if (shippingProgress && shippingProgressBar && shippingProgressAmount && shippingProgressMessage) {
+    const subtotal = Number(cart.subtotal || 0);
+    const remaining = Math.max(FREE_SHIPPING_THRESHOLD - subtotal, 0);
+    const progress = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
+    shippingProgress.hidden = false;
+    shippingProgressBar.style.width = `${progress}%`;
+    shippingProgressBar.classList.toggle("complete", remaining === 0);
+    shippingProgressAmount.textContent = remaining ? money(remaining) : "✓";
+    shippingProgressMessage.textContent = remaining
+      ? formatMessage("shippingProgress", { amount: money(remaining) })
+      : t("freeShippingUnlocked");
+  }
   const couponTotal = document.querySelector("#coupon-total");
   const couponMessage = document.querySelector("#coupon-message");
   const couponInput = document.querySelector("#coupon-code");

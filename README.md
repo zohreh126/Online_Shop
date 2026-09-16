@@ -13,6 +13,8 @@
 - سبد خرید مهمان و کاربر، ادغام سبد بعد از ورود، کوپن و تسویه‌حساب
 - سفارش با snapshot اطلاعات محصول و کنترل موجودی هنگام پرداخت
 - داشبورد مشتری، تاریخچه سفارش و پنل Admin سفارشی
+- امتیازدهی و نقد محصول، نظرسنجی تجربه خرید و بخش پرسش‌های متداول تعاملی
+- مقایسه محصولات، علاقه‌مندی‌ها، محصولات اخیراً دیده‌شده و نوار پیشرفت ارسال رایگان
 - فارسی/انگلیسی واقعی، RTL/LTR، Dark Mode و صفحات 404/500 اختصاصی
 - OpenAPI/Swagger/ReDoc، health check و Celery Beat برای cleanup کاربران تأییدنشده
 
@@ -43,6 +45,7 @@ python manage.py runserver
 |---|---|
 | محصولات و دسته‌بندی‌ها | `/api/v1/products/` و `/api/v1/categories/` |
 | احراز هویت و پروفایل | `/api/v1/auth/` |
+| علاقه‌مندی، نظر و بازخورد مشتری | `/api/v1/auth/favorites/`، `/api/v1/products/{slug}/reviews/` و `/api/v1/auth/feedback/` |
 | سبد خرید | `/api/v1/cart/` |
 | سفارش‌های مشتری | `/api/v1/orders/` |
 | سفارش‌های پنل | `/api/v1/admin/orders/` |
@@ -98,5 +101,5 @@ RUN_SELENIUM=1 python manage.py test config.test_selenium
 ## موارد محیطی تحویل
 
 - production واقعی به Redis، PostgreSQL، worker/beat و SMTP معتبر نیاز دارد.
-- تست Selenium مسیر خرید در `config/test_selenium.py` قرار دارد و با `RUN_SELENIUM=1` اجرا می‌شود.
+- ۶ تست Selenium برای خرید، مقایسه، علاقه‌مندی، محصولات اخیراً دیده‌شده، بازخورد و FAQ در `config/test_selenium.py` قرار دارد و با `RUN_SELENIUM=1` اجرا می‌شود.
 - Docker Compose باید روی سیستم مقصد نصب و فعال باشد.

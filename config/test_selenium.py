@@ -121,11 +121,16 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
         cart_toggle.click()
         self.wait_for(EC.visibility_of_element_located((By.CSS_SELECTOR, ".cart-drawer.open .cart-item")))
 
-        increase = self.driver.find_element(
-            By.CSS_SELECTOR,
-            ".cart-drawer.open [data-action='increase']",
+        self.wait_for(
+            lambda driver: driver.execute_script(
+                """
+                const button = document.querySelector(".cart-drawer.open [data-action='increase']");
+                if (!button || button.disabled) return false;
+                button.click();
+                return true;
+                """,
+            ),
         )
-        increase.click()
         self.wait_for(
             EC.text_to_be_present_in_element(
                 (By.CSS_SELECTOR, ".cart-drawer.open .quantity-control span"),
@@ -193,6 +198,24 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
         feedback = SiteFeedback.objects.latest("created_at")
         self.assertEqual(feedback.rating, 5)
         self.assertEqual(feedback.page, "/")
+
+    def test_guest_can_open_contact_faq(self):
+        self.driver.get(f"{self.live_server_url}/contact/")
+        question = self.wait_for(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, ".faq-question")),
+        )
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});",
+            question,
+        )
+        self.driver.execute_script("arguments[0].click();", question)
+        self.wait_for(lambda driver: question.get_attribute("aria-expanded") == "true")
+        self.assertTrue(
+            self.driver.find_element(
+                By.CSS_SELECTOR,
+                ".faq-item.open .faq-answer",
+            ).is_displayed(),
+        )
 
     def test_authenticated_customer_sees_saved_product_from_nav(self):
         customer = Customer.objects.create_user(
