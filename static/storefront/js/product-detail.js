@@ -44,6 +44,15 @@ function renderProduct(product) {
   const image = product.image_url ? `<img class="product-detail-image" src="${product.image_url}" alt="${displayName}">` : `<div class="product-detail-placeholder"><span>${(product.brand || "N").slice(0, 1)}</span></div>`;
   document.querySelector("#product-detail-content").innerHTML = `<div class="product-detail-visual">${image}<span class="detail-badge">${product.category?.name || t("digitalAccessories")}</span></div><div class="product-detail-copy"><p class="eyebrow"><span></span><span data-i18n="productDetails">${t("productDetails")}</span></p><h1>${displayName}</h1><p class="product-detail-brand">${product.brand || "Nexora"} · ${t("sku")}: ${product.sku}</p><p class="product-detail-description">${window.NexoraI18n?.productDescription(product) || product.description || t("carefulChoiceText")}</p><div class="product-detail-price"><strong>${money(product.final_price)}</strong>${Number(product.discount_amount) > 0 ? `<del>${money(product.price)}</del>` : ""}</div><p class="product-stock ${product.is_in_stock ? "in-stock" : "out-of-stock"}">${product.is_in_stock ? format("stockCount", { count: number(product.stock_quantity) }) : t("unavailable")}</p><button class="primary-button detail-add" type="button" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? t("addToCart") : t("unavailable")} <span>←</span></button><div class="specification-panel"><h2>${t("specifications")}</h2>${specs.length ? `<dl>${specs.map(([key, value]) => `<div><dt>${key}</dt><dd>${value}</dd></div>`).join("")}</dl>` : `<p class="empty-inline">${t("carefulChoiceText")}</p>`}</div></div>`;
   const detailContent = document.querySelector("#product-detail-content");
+  const favoriteButton = document.createElement("button");
+  favoriteButton.className = "heart-button detail-heart";
+  favoriteButton.dataset.favoriteProduct = product.id;
+  favoriteButton.type = "button";
+  favoriteButton.setAttribute("aria-label", t("addToFavorites"));
+  favoriteButton.setAttribute("aria-pressed", "false");
+  favoriteButton.textContent = "♡";
+  detailContent.querySelector(".product-detail-visual")?.appendChild(favoriteButton);
+  window.NexoraFavorites?.bindButtons(detailContent);
   detailContent.querySelector(".detail-badge").textContent = window.NexoraI18n?.category(product.category?.slug, product.category?.name || t("digitalAccessories")) || t("digitalAccessories");
   detailContent.querySelector(".product-detail-description").textContent = window.NexoraI18n?.productDescription(product) || t("carefulChoiceText");
   detailContent.querySelectorAll(".specification-panel dt").forEach((element, index) => { element.textContent = window.NexoraI18n?.specificationLabel(specs[index][0]) || specs[index][0]; });
@@ -55,6 +64,7 @@ async function loadProduct() {
   try {
     const product = await getJSON(`products/${encodeURIComponent(slug)}/`);
     window.productDetail = product;
+    await window.NexoraFavorites?.load();
     renderProduct(product);
     document.querySelector("#product-detail-state").hidden = true;
     document.querySelector("#product-detail-content").hidden = false;

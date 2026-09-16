@@ -6,7 +6,7 @@ const localizedNumber = (value) => new Intl.NumberFormat(document.documentElemen
 const money = (value) => `${localizedNumber(Math.round(Number(value)))} ${tr("toman")}`;
 const digits = (value) => String(value ?? "").replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
 const normalizeText = (value) => String(value ?? "").normalize("NFC").replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/\s+/g, " ").trim();
-const state = { profile: null, addresses: [], orders: [] };
+const state = { profile: null, addresses: [], orders: [], favorites: [] };
 
 function getCookie(name) { const cookie = (document.cookie ? document.cookie.split("; ") : []).find((value) => value.startsWith(`${name}=`)); return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : null; }
 async function csrf() { let token = getCookie("csrftoken"); if (token) return token; await fetch(`${API_BASE}auth/csrf/`, { credentials: "same-origin" }); return getCookie("csrftoken"); }
@@ -22,7 +22,32 @@ function message(text, success = false) { const alert = document.querySelector("
 function clearErrors(form) { form.querySelectorAll(".field-error").forEach((item) => item.remove()); form.querySelectorAll("[aria-invalid=true]").forEach((item) => item.removeAttribute("aria-invalid")); }
 function showErrors(form, data) { clearErrors(form); let shown = false; Object.entries(data || {}).forEach(([field, values]) => { const input = form.querySelector(`[name="${field}"]`); if (!input) return; input.setAttribute("aria-invalid", "true"); const error = document.createElement("small"); error.className = "field-error"; error.textContent = Array.isArray(values) ? values[0] : values; input.insertAdjacentElement("afterend", error); shown = true; }); return shown; }
 function escapeHTML(value) { return String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char])); }
-function openSection(name) { document.querySelectorAll(".profile-nav button").forEach((button) => button.classList.toggle("selected", button.dataset.section === name)); document.querySelectorAll(".profile-section").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === name)); if (name === "addresses") loadAddresses(); if (name === "orders") loadOrders(); }
+const favoriteProductName = (product) => window.NexoraI18n?.productName(product) || product.name || product.product_name || tr("product");
+function favoriteCard(product) {
+  const name = favoriteProductName(product);
+  const category = product.category ? (window.NexoraI18n?.category(product.category.slug, product.category.name) || product.category.name) : tr("digitalAccessories");
+  const href = "/products/" + encodeURIComponent(product.slug) + "/";
+  const image = product.image_url
+    ? "<img src=\"" + escapeHTML(product.image_url) + "\" alt=\"" + escapeHTML(name) + "\" loading=\"lazy\">"
+    : "<span class=\"favorite-placeholder\">" + escapeHTML((product.brand || "N").slice(0, 1)) + "</span>";
+  const discount = Number(product.discount_amount) > 0 ? "<del>" + money(product.price) + "</del>" : "";
+  return "<article class=\"favorite-card\"><a class=\"favorite-card-visual\" href=\"" + escapeHTML(href) + "\">" + image + "</a><div class=\"favorite-card-info\"><p class=\"product-category\">" + escapeHTML(category) + "</p><h3><a href=\"" + escapeHTML(href) + "\">" + escapeHTML(name) + "</a></h3><div class=\"favorite-card-bottom\"><div><strong>" + money(product.final_price) + "</strong>" + discount + "</div><button class=\"heart-button favorite-remove\" data-favorite-product=\"" + product.id + "\" type=\"button\" aria-label=\"" + tr("removeFromFavorites") + "\" aria-pressed=\"true\">♥</button></div></div></article>";
+}
+function renderFavorites() {
+  const list = document.querySelector("#profile-favorites");
+  if (!list) return;
+  if (!state.favorites.length) { list.innerHTML = "<div class=\"empty-inline\">" + tr("noFavorites") + "</div>"; return; }
+  list.innerHTML = state.favorites.map(favoriteCard).join("");
+  window.NexoraFavorites?.bindButtons(list);
+}
+async function loadFavorites() {
+  try {
+    const favorites = await window.NexoraFavorites?.load();
+    state.favorites = (favorites || []).map((item) => item.product).filter(Boolean);
+    renderFavorites();
+  } catch (error) { message(error.message); }
+}
+function openSection(name) { document.querySelectorAll(".profile-nav button").forEach((button) => button.classList.toggle("selected", button.dataset.section === name)); document.querySelectorAll(".profile-section").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === name)); if (name === "addresses") loadAddresses(); if (name === "orders") loadOrders(); if (name === "favorites") loadFavorites(); }
 function renderProfile(profile) { Object.entries(profile).forEach(([key, value]) => { const input = document.querySelector(`[name="${key}"]`); if (input) input.value = value || ""; }); const name = `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || profile.username; document.querySelector("#profile-name").textContent = name; document.querySelector("#profile-email").textContent = profile.email; document.querySelector("#profile-avatar").textContent = (name || "N").slice(0, 1).toUpperCase(); }
 function resetAddressForm() { const form = document.querySelector("#profile-address-form"); form.reset(); form.hidden = true; form.dataset.addressId = ""; form.classList.remove("editing"); document.querySelector("#profile-address-title").textContent = tr("addNewAddress"); clearErrors(form); }
 function renderAddresses() { const list = document.querySelector("#profile-addresses"); if (!state.addresses.length) { list.innerHTML = `<div class="empty-inline">${tr("noSavedAddress")}</div>`; return; } list.innerHTML = state.addresses.map((address) => `<article class="profile-address-card"><div><strong>${escapeHTML(address.title)} ${address.is_default ? `<small class="default-badge">${tr("defaultAddress")}</small>` : ""}</strong><p>${escapeHTML(address.province)}، ${escapeHTML(address.city)}، ${escapeHTML(address.address_line)}</p><small>${escapeHTML(address.recipient_name)} · ${escapeHTML(address.recipient_phone)} · ${escapeHTML(address.postal_code)}</small></div><div class="address-actions"><button class="address-action" data-action="edit" data-id="${address.id}" type="button">${tr("editAddress")}</button><button class="address-action delete" data-action="delete" data-id="${address.id}" type="button">${tr("remove")}</button></div></article>`).join(""); list.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => { const address = state.addresses.find((item) => item.id === Number(button.dataset.id)); button.dataset.action === "edit" ? beginAddressEdit(address) : deleteAddress(address); })); }
@@ -40,5 +65,13 @@ document.querySelector("#profile-address-form").addEventListener("submit", async
 document.querySelector("#password-form").addEventListener("submit", async (event) => { event.preventDefault(); const form = event.currentTarget; const payload = Object.fromEntries(new FormData(form)); try { await request("auth/password/change/", { method: "POST", body: JSON.stringify(payload) }); form.reset(); message(tr("passwordChanged"), true); } catch (error) { if (!showErrors(form, error.data)) message(error.message); } });
 async function load() { try { state.profile = await request("auth/profile/"); renderProfile(state.profile); await loadAddresses(); } catch (error) { if (error.status === 401) window.location.href = "/account/?next=/profile/"; else message(error.message); } }
 const initialSection = new URLSearchParams(window.location.search).get("section") || window.location.hash.slice(1) || "personal";
-window.addEventListener("nexora-language-changed", () => { if (state.addresses.length) renderAddresses(); if (state.orders.length) renderOrders(); });
-setupTheme(); openSection(["personal", "addresses", "orders", "security"].includes(initialSection) ? initialSection : "personal"); load();
+document.addEventListener("nexora-favorite-changed", (event) => {
+  const detail = event.detail || {};
+  const productId = Number(detail.productId);
+  const index = state.favorites.findIndex((product) => Number(product.id) === productId);
+  if (detail.isFavorite && index === -1 && detail.favorite?.product) state.favorites = [detail.favorite.product, ...state.favorites];
+  if (!detail.isFavorite) state.favorites = state.favorites.filter((product) => Number(product.id) !== productId);
+  if (document.querySelector('[data-panel="favorites"]')?.classList.contains("active")) renderFavorites();
+});
+window.addEventListener("nexora-language-changed", () => { if (state.addresses.length) renderAddresses(); if (state.orders.length) renderOrders(); if (state.favorites.length) renderFavorites(); });
+setupTheme(); openSection(["personal", "addresses", "orders", "favorites", "security"].includes(initialSection) ? initialSection : "personal"); load();

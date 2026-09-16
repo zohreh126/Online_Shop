@@ -142,6 +142,20 @@ translations.en.sortPriceHigh = "Price: high to low";
 translations.en.sortName = "Product name";
 translations.fa.emailDeliveryFailed = "کد ایمیل ارسال نشد؛ تنظیمات ایمیل فروشگاه یا اتصال اینترنتی را بررسی کن.";
 translations.en.emailDeliveryFailed = "The email code was not sent. Check the store email settings or network connection.";
+translations.fa.favorites = "علاقه‌مندی‌ها";
+translations.fa.favoriteCollection = "نشانه‌گذاری‌های شما";
+translations.fa.favoritesHint = "محصولاتی که برای بعد ذخیره کرده‌ای.";
+translations.fa.noFavorites = "هنوز محصولی ذخیره نکرده‌ای.";
+translations.fa.removeFromFavorites = "حذف از علاقه‌مندی‌ها";
+translations.fa.favoriteAdded = "به علاقه‌مندی‌ها اضافه شد.";
+translations.fa.favoriteRemoved = "از علاقه‌مندی‌ها حذف شد.";
+translations.en.favorites = "Favorites";
+translations.en.favoriteCollection = "Your saved picks";
+translations.en.favoritesHint = "Products you saved for later.";
+translations.en.noFavorites = "You have not saved any products yet.";
+translations.en.removeFromFavorites = "Remove from favorites";
+translations.en.favoriteAdded = "Added to favorites.";
+translations.en.favoriteRemoved = "Removed from favorites.";
 
 const pageTranslations = {
   fa: {

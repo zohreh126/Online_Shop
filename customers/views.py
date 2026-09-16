@@ -1,10 +1,18 @@
-from rest_framework import generics, permissions, viewsets
+from django.db import transaction
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, mixins, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from .models import Address
+from products.models import Product
+
+from .models import Address, Favorite
 from .serializers import (
     AddressSerializer,
     CustomerProfileSerializer,
     CustomerRegistrationSerializer,
+    FavoriteSerializer,
+    FavoriteToggleSerializer,
 )
 
 
@@ -41,3 +49,76 @@ class AddressViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         instance.delete()
+
+
+class FavoriteViewSet(
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = FavoriteSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Favorite.objects.none()
+
+        return (
+            Favorite.objects.filter(
+                customer=self.request.user,
+                is_active=True,
+                product__is_active=True,
+            )
+            .select_related("product", "product__category", "product__discount")
+            .prefetch_related("product__category__children")
+            .order_by("-created_at")
+        )
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+    @action(detail=False, methods=("post",), url_path="toggle")
+    @transaction.atomic
+    def toggle(self, request):
+        input_serializer = FavoriteToggleSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+        product = get_object_or_404(
+            Product.objects.active(),
+            pk=input_serializer.validated_data["product_id"],
+        )
+        favorite = Favorite.objects.filter(
+            customer=request.user,
+            product=product,
+        ).first()
+
+        if favorite and favorite.is_active:
+            favorite.delete()
+            return Response(
+                {
+                    "detail": "Favorite removed.",
+                    "is_favorite": False,
+                    "favorite": None,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        if favorite:
+            favorite.is_active = True
+            favorite.save(update_fields=("is_active", "updated_at"))
+        else:
+            favorite = Favorite.objects.create(
+                customer=request.user,
+                product=product,
+            )
+
+        return Response(
+            {
+                "detail": "Favorite added.",
+                "is_favorite": True,
+                "favorite": FavoriteSerializer(
+                    favorite,
+                    context={"request": request},
+                ).data,
+            },
+            status=status.HTTP_200_OK,
+        )

@@ -118,6 +118,11 @@ function renderProducts() {
       <div class="product-visual">${productImage(product)}${product.discount_amount > 0 ? `<span class="discount-badge">${t("specialOffer")}</span>` : ''}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${product.is_in_stock ? t("available") : t("unavailable")}</span><button class="heart-button" aria-label="${t("addToFavorites")}">♡</button></div>
       <div class="product-info"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><h3><a class="product-title-link" href="/products/${product.slug}/">${productName(product)}</a></h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
     </article>`).join("");
+  grid.querySelectorAll(".heart-button").forEach((button, index) => {
+    button.dataset.favoriteProduct = sorted[index].id;
+    button.setAttribute("aria-pressed", "false");
+  });
+  window.NexoraFavorites?.bindButtons(grid);
   grid.querySelectorAll(".add-button").forEach((button) => button.addEventListener("click", async () => {
     button.disabled = true;
     button.classList.add("is-loading");
@@ -230,6 +235,7 @@ async function loadCatalog() {
     const [products, categories] = await Promise.all([getJSON("products/?page_size=100"), getJSON("categories/?page_size=100")]);
     state.products = products.results || products;
     state.categories = categories.results || categories;
+    await window.NexoraFavorites?.load();
     renderCategories(state.categories);
     renderProducts();
   } catch (error) {

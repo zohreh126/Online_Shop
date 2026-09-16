@@ -16,6 +16,8 @@ class APIDocumentationTests(APITestCase):
             response.data["paths"],
         )
         self.assertIn("/api/v1/cart/checkout/", response.data["paths"])
+        self.assertIn("/api/v1/auth/favorites/", response.data["paths"])
+        self.assertIn("/api/v1/auth/favorites/toggle/", response.data["paths"])
 
     def test_swagger_ui_is_available(self):
         response = self.client.get(reverse("swagger-ui"))

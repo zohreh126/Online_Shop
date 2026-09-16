@@ -11,6 +11,7 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "product-grid")
         self.assertContains(response, "cart-drawer")
         self.assertContains(response, "/static/storefront/css/app.css")
+        self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/app.js")
         self.assertContains(response, "/about/")
         self.assertContains(response, "/contact/")
@@ -37,6 +38,7 @@ class StorefrontPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "product-detail")
+        self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/product-detail.js")
 
     def test_csrf_token_endpoint_is_available_to_storefront(self):
@@ -73,6 +75,7 @@ class StorefrontPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "داشبورد مشتری")
+        self.assertContains(response, "section=favorites")
         self.assertContains(response, "/static/storefront/js/dashboard.js")
 
     def test_profile_page_is_available(self):
@@ -80,6 +83,9 @@ class StorefrontPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "ویرایش پروفایل")
+        self.assertContains(response, 'data-section="favorites"')
+        self.assertContains(response, 'data-panel="favorites"')
+        self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/profile.js")
         self.assertContains(response, "/static/storefront/js/password-toggle.js")
 

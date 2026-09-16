@@ -4,7 +4,9 @@ from django.db import transaction
 from unicodedata import normalize
 from rest_framework import serializers
 
-from .models import Address, Customer
+from products.serializers import ProductSerializer
+
+from .models import Address, Customer, Favorite
 
 
 class CustomerRegistrationSerializer(serializers.ModelSerializer):
@@ -252,3 +254,16 @@ class AddressSerializer(serializers.ModelSerializer):
             )
 
         return super().update(instance, validated_data)
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = Favorite
+        fields = ("id", "product", "created_at")
+        read_only_fields = fields
+
+
+class FavoriteToggleSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField(min_value=1)

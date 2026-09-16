@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
 
+from core.models import TimeStampedModel
+
 
 class CustomerManager(BaseUserManager):
     use_in_migrations = True
@@ -142,3 +144,42 @@ class Address(models.Model):
         self.is_active = False
         self.is_default = False
         self.save(update_fields=("is_active", "is_default"))
+
+
+class Favorite(TimeStampedModel):
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="favorites",
+    )
+    product = models.ForeignKey(
+        "products.Product",
+        on_delete=models.PROTECT,
+        related_name="favorites",
+    )
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Favorite"
+        verbose_name_plural = "Favorites"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("customer", "product"),
+                name="unique_customer_favorite",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=("customer", "is_active"),
+                name="favorite_customer_active_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.customer.username} - {self.product.sku}"
+
+    def delete(self, using=None, keep_parents=False):
+        """Hide the bookmark while preserving the customer's history."""
+        self.is_active = False
+        self.save(update_fields=("is_active", "updated_at"))

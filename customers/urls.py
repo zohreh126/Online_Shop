@@ -16,6 +16,7 @@ from .views import (
     AddressViewSet,
     CustomerProfileView,
     CustomerRegistrationView,
+    FavoriteViewSet,
 )
 
 
@@ -24,6 +25,11 @@ router.register(
     "addresses",
     AddressViewSet,
     basename="customer-address",
+)
+router.register(
+    "favorites",
+    FavoriteViewSet,
+    basename="customer-favorite",
 )
 
 
