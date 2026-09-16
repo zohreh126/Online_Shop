@@ -394,6 +394,30 @@ function renderFeaturedProducts() {
   updateCompareUI();
 }
 
+function renderDiscountProducts() {
+  const section = document.querySelector("#discounts");
+  const grid = document.querySelector("#discount-grid");
+  if (!section || !grid || !state.products.length) return;
+
+  const discounted = state.products
+    .filter((product) => Number(product.discount_amount || 0) > 0)
+    .sort((first, second) => {
+      const firstRatio = Number(first.price) ? Number(first.discount_amount) / Number(first.price) : 0;
+      const secondRatio = Number(second.price) ? Number(second.discount_amount) / Number(second.price) : 0;
+      return (secondRatio - firstRatio) || (Number(second.discount_amount) - Number(first.discount_amount));
+    })
+    .slice(0, 4);
+
+  section.hidden = false;
+  if (!discounted.length) {
+    grid.innerHTML = `<div class="state-card"><span class="state-icon">%</span><h3>${escapeHTML(t("discountsEmpty"))}</h3><p>${escapeHTML(t("discountsEmptyHint"))}</p></div>`;
+    return;
+  }
+  grid.innerHTML = discounted.map((product, index) => productCardMarkup(product, index)).join("");
+  bindProductActions(grid, discounted);
+  updateCompareUI();
+}
+
 function renderCart(cart) {
   const body = document.querySelector("#cart-body");
   const footer = document.querySelector("#cart-footer");
@@ -505,6 +529,7 @@ async function loadCatalog() {
     renderCategories(state.categories);
     renderCatalogFilters();
     renderProducts();
+    renderDiscountProducts();
     renderFeaturedProducts();
   } catch (error) {
     document.querySelector("#product-grid").innerHTML = `<div class="state-card"><span class="state-icon">!</span><h3>${t("storefrontConnectionFailed")}</h3><p>${t("serverCheck")}</p><button class="retry-button" onclick="loadCatalog()">${t("tryAgain")}</button></div>`;
@@ -525,6 +550,15 @@ document.querySelector("#price-filter")?.addEventListener("change", (event) => {
   renderProducts();
 });
 document.querySelector("#clear-catalog-filters")?.addEventListener("click", clearCatalogFilters);
+document.querySelector("#discounts-view-all")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  state.category = "";
+  state.onlyDiscounted = true;
+  renderCategories(state.categories);
+  renderCatalogFilters();
+  renderProducts();
+  document.querySelector("#catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 document.querySelector("#menu-toggle").addEventListener("click", () => document.querySelector("#mobile-nav").classList.toggle("open"));
 document.querySelector("#cart-toggle").addEventListener("click", openCart);
 document.querySelector("#cart-close").addEventListener("click", closeCart);
@@ -557,6 +591,7 @@ loadCatalog();
 window.addEventListener("nexora-language-changed", () => {
   renderCategories(state.categories);
   renderProducts();
+  renderDiscountProducts();
   renderFeaturedProducts();
   renderRecentlyViewed();
   refreshCart();

@@ -24,6 +24,8 @@ class StorefrontPageTests(TestCase):
         self.assertNotContains(response, 'href="#feedback"')
         self.assertContains(response, "/static/storefront/js/feedback.js")
         self.assertContains(response, 'id="featured-grid"')
+        self.assertContains(response, 'id="discounts"')
+        self.assertContains(response, 'id="discount-grid"')
         self.assertContains(response, 'id="editor-pick"')
         self.assertContains(response, 'id="shipping-progress"')
         self.assertContains(response, 'data-catalog-filter="discount"')

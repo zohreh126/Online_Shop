@@ -20,6 +20,7 @@
       <nav class="desktop-nav" aria-label="ناوبری اصلی">
         <a class="active" href="#catalog"><span class="nav-link-icon" aria-hidden="true">◈</span><span data-i18n="shop">فروشگاه</span></a>
         <a href="#featured"><span class="nav-link-icon" aria-hidden="true">✦</span><span data-i18n="specialOffers">پیشنهادهای ویژه</span></a>
+        <a href="#discounts"><span class="nav-link-icon" aria-hidden="true">%</span><span data-i18n="discounts">تخفیف‌ها</span></a>
         <a href="#why-us"><span class="nav-link-icon" aria-hidden="true">◎</span><span data-i18n="whyNexora">چرا نکستورا؟</span></a>
         <a href="/about/"><span class="nav-link-icon" aria-hidden="true">✧</span><span data-i18n="about">درباره ما</span></a>
         <a href="/contact/"><span class="nav-link-icon" aria-hidden="true">⌖</span><span data-i18n="contact">ارتباط با ما</span></a>
@@ -33,7 +34,7 @@
       </div>
     </div>
     <nav class="mobile-nav container" id="mobile-nav" aria-label="ناوبری موبایل">
-      <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a>
+      <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="#discounts" data-i18n="discounts">تخفیف‌ها</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a>
     </nav>
   </header>
 
@@ -67,6 +68,12 @@
     <section class="recently-viewed container" id="recently-viewed" hidden>
       <div class="section-heading"><div><p class="eyebrow"><span></span> <span data-i18n="recentlyViewed">آخرین بازدیدها</span></p><h2 data-i18n="welcomeBack">خوش برگشتی.</h2><p class="section-help" data-i18n="recentlyViewedHint">محصولاتی که اخیراً نگاه کردی، اینجا آماده‌اند.</p></div><button class="quiet-button" id="clear-recently-viewed" type="button" data-i18n="clearRecentlyViewed">پاک کردن</button></div>
       <div class="product-grid recent-products-grid" id="recently-viewed-grid"></div>
+    </section>
+
+    <section class="discount-shelf container" id="discounts" hidden>
+      <div class="section-heading discount-shelf-heading"><div><p class="eyebrow"><span></span> <span data-i18n="discountsEyebrow">انتخاب‌های به‌صرفه</span></p><h2 data-i18n="discountsTitle">تخفیف‌های امروز</h2><p class="section-help" data-i18n="discountsIntro">قیمت واقعی، تخفیف واقعی؛ این محصولات همین حالا با قیمت نهایی پایین‌تر آماده‌اند.</p></div><a class="discount-shelf-link" href="#catalog" id="discounts-view-all"><span data-i18n="viewAllDiscounts">مشاهده در ویترین</span><span aria-hidden="true">↗</span></a></div>
+      <div class="discount-shelf-signal"><span aria-hidden="true">%</span><strong data-i18n="discountsSignal">تا پایان موجودی، فرصت خرید بهتر</strong><small data-i18n="discountsSignalHint">قیمت قبلی خط‌خورده و میزان صرفه‌جویی روی هر محصول مشخص است.</small></div>
+      <div class="product-grid discount-grid" id="discount-grid" aria-live="polite"></div>
     </section>
 
     <section class="special-offers container" id="featured" aria-labelledby="special-offers-title">
