@@ -148,6 +148,28 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
             ).is_displayed(),
         )
 
+    def test_guest_sees_recently_viewed_product_on_return(self):
+        self.driver.get(f"{self.live_server_url}/products/{self.product.slug}/")
+        self.wait_for(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#product-detail-content h1")),
+        )
+
+        self.driver.get(f"{self.live_server_url}/")
+        recent_section = self.wait_for(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#recently-viewed:not([hidden])")),
+        )
+        self.wait_for(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#recently-viewed-grid .product-card")),
+        )
+
+        self.assertIn(self.product.name, recent_section.text)
+        self.assertTrue(
+            self.driver.find_element(
+                By.CSS_SELECTOR,
+                f"#recently-viewed-grid a[href='/products/{self.product.slug}/']",
+            ).is_displayed(),
+        )
+
     def test_authenticated_customer_sees_saved_product_from_nav(self):
         customer = Customer.objects.create_user(
             username="selenium-favorite-user",

@@ -18,6 +18,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="compare-bar"')
         self.assertContains(response, 'id="compare-modal"')
         self.assertContains(response, 'id="catalog-count"')
+        self.assertContains(response, 'id="recently-viewed"')
+        self.assertContains(response, 'id="clear-recently-viewed"')
         self.assertContains(response, "/about/")
         self.assertContains(response, "/contact/")
 

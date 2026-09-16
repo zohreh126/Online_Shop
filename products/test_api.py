@@ -98,6 +98,8 @@ class ProductCatalogAPITests(APITestCase):
         self.assertIsNone(response.data["image_url"])
         self.assertEqual(response.data["rating_average"], 0.0)
         self.assertEqual(response.data["rating_count"], 0)
+        self.assertIsNone(response.data["discount_type"])
+        self.assertIsNone(response.data["discount_value"])
 
     def test_product_reviews_are_public(self):
         customer = Customer.objects.create_user(
@@ -238,6 +240,24 @@ class ProductCatalogAPITests(APITestCase):
             [item["slug"] for item in response.data["results"]],
             [self.keyboard.slug],
         )
+
+    def test_product_discount_metadata_is_exposed_for_storefront_badges(self):
+        Discount.objects.create(
+            product=self.keyboard,
+            discount_type=Discount.DiscountType.PERCENTAGE,
+            value=Decimal("15.00"),
+        )
+
+        response = self.client.get(
+            reverse(
+                "product-detail",
+                kwargs={"slug": self.keyboard.slug},
+            )
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["discount_type"], Discount.DiscountType.PERCENTAGE)
+        self.assertEqual(Decimal(str(response.data["discount_value"])), Decimal("15.00"))
 
     def test_stock_range_filters_work(self):
         response = self.client.get(

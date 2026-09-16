@@ -5,9 +5,25 @@ const money = (value) => window.NexoraI18n?.current() === "en" ? `${new Intl.Num
 const format = (key, values) => Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, value), t(key));
 const escapeHTML = (value) => String(value ?? "").replace(/[&<>\'\"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
 const slug = window.location.pathname.split("/").filter(Boolean).pop();
+const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 let productReviews = [];
 let reviewUser = null;
 let reviewSummary = { average: 0, count: 0, loaded: false };
+
+function rememberProduct(product) {
+  try {
+    const entries = JSON.parse(localStorage.getItem(RECENT_STORAGE_KEY) || "[]");
+    const normalized = Array.isArray(entries) ? entries : [];
+    const current = normalized.filter((entry) => {
+      const id = typeof entry === "object" ? entry.id : entry;
+      return Number(id) !== Number(product.id);
+    });
+    current.unshift({ id: product.id, slug: product.slug });
+    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(current.slice(0, 8)));
+  } catch (error) {
+    // Recently viewed is an enhancement; private browsing must not break the page.
+  }
+}
 
 async function getJSON(path) {
   const response = await fetch(`${API_BASE}${path}`, { credentials: "same-origin" });
@@ -256,6 +272,7 @@ async function loadProduct() {
   try {
     const product = await getJSON(`products/${encodeURIComponent(slug)}/`);
     window.productDetail = product;
+    rememberProduct(product);
     await window.NexoraFavorites?.load();
     renderProduct(product);
     document.querySelector("#product-detail-state").hidden = true;

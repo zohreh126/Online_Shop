@@ -1,6 +1,7 @@
 const API_BASE = "/api/v1/";
 const state = { products: [], categories: [], category: "", search: "", sort: "newest" };
 const COMPARE_STORAGE_KEY = "nexora-compare";
+const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 const compareIds = new Set();
 
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
@@ -78,7 +79,8 @@ async function sendJSON(path, method, body) {
 
 function productImage(product) {
   if (product.image_url) {
-    return `<img src="${product.image_url}" alt="تصویر ${product.name}" loading="lazy" onerror="this.closest('.product-visual').classList.add('image-failed'); this.remove();">`;
+    const alt = formatMessage("productImageAlt", { name: productName(product) });
+    return `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(alt)}" loading="lazy" onerror="this.closest('.product-visual').classList.add('image-failed'); this.remove();">`;
   }
   const categorySlug = product.category?.slug || "accessories";
   return `<div class="product-placeholder placeholder-${categorySlug}"><span>${placeholderIcon(categorySlug)}</span><small>${categoryLabel(categorySlug)}</small></div>`;
@@ -108,6 +110,83 @@ function productRating(product) {
   const average = Number(product.rating_average || 0);
   const label = formatMessage("reviewCount", { count: localizedNumber(count) });
   return `<span class="product-rating-mini" title="${escapeHTML(label)}">★ ${escapeHTML(localizedNumber(average))} <small>(${escapeHTML(localizedNumber(count))})</small></span>`;
+}
+
+function discountLabel(product) {
+  const amount = Number(product.discount_amount || 0);
+  if (!amount) return "";
+  if (product.discount_type === "percentage" && product.discount_value !== null && product.discount_value !== undefined) {
+    return formatMessage("discountPercent", { percent: localizedNumber(Number(product.discount_value)) });
+  }
+  return formatMessage("discountAmount", { amount: money(amount) });
+}
+
+function productCardMarkup(product, index = 0, compact = false) {
+  const name = productName(product);
+  const url = `/products/${encodeURIComponent(product.slug)}/`;
+  const discount = discountLabel(product);
+  return `<article class="product-card${compact ? " recent-product-card" : ""}" style="--delay:${index * 60}ms"><div class="product-visual">${productImage(product)}${discount ? `<span class="discount-badge">${escapeHTML(discount)}</span>` : ""}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${escapeHTML(product.is_in_stock ? t("available") : t("unavailable"))}</span><button class="heart-button" aria-label="${escapeHTML(t("addToFavorites"))}" type="button">♡</button></div><div class="product-info"><div class="product-card-meta"><p class="product-category">${escapeHTML(product.category ? categoryName(product.category) : t("digitalAccessories"))}</p><div class="product-card-meta-actions">${productRating(product)}<button class="compare-button" data-compare-product="${product.id}" type="button" aria-pressed="false"><span aria-hidden="true">⇄</span><span>${escapeHTML(t("compare"))}</span></button></div></div><h3><a class="product-title-link" href="${url}">${escapeHTML(name)}</a></h3><div class="product-bottom"><div><strong>${escapeHTML(money(product.final_price))}</strong>${Number(product.discount_amount) > 0 ? `<del>${escapeHTML(money(product.price))}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${escapeHTML(t("addToCart"))}" type="button" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div></article>`;
+}
+
+function bindProductActions(container, products) {
+  container.querySelectorAll(".heart-button").forEach((button, index) => {
+    button.dataset.favoriteProduct = products[index].id;
+    button.setAttribute("aria-pressed", "false");
+  });
+  window.NexoraFavorites?.bindButtons(container);
+  container.querySelectorAll(".compare-button").forEach((button) => button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); toggleCompare(button.dataset.compareProduct); }));
+  container.querySelectorAll(".add-button").forEach((button) => button.addEventListener("click", async () => {
+    button.disabled = true;
+    button.classList.add("is-loading");
+    try {
+      await sendJSON("cart/items/", "POST", { product_id: button.dataset.product, quantity: 1 });
+      await refreshCart();
+      button.textContent = "✓";
+      showToast(t("addedToCart"));
+      setTimeout(() => { button.textContent = "+"; }, 900);
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      button.disabled = false;
+      button.classList.remove("is-loading");
+    }
+  }));
+  container.querySelectorAll(".product-card").forEach((card) => card.addEventListener("click", (event) => {
+    if (event.target.closest("button, a")) return;
+    window.location.href = card.querySelector(".product-title-link")?.getAttribute("href") || "/";
+  }));
+}
+
+function recentlyViewedEntries() {
+  try {
+    const entries = JSON.parse(localStorage.getItem(RECENT_STORAGE_KEY) || "[]");
+    return Array.isArray(entries) ? entries : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function renderRecentlyViewed() {
+  const section = document.querySelector("#recently-viewed");
+  const grid = document.querySelector("#recently-viewed-grid");
+  if (!section || !grid || !state.products.length) return;
+
+  const seen = new Set();
+  const products = recentlyViewedEntries().map((entry) => {
+    const id = typeof entry === "object" ? entry.id : entry;
+    const entrySlug = typeof entry === "object" ? entry.slug : "";
+    return state.products.find((product) => (id && Number(product.id) === Number(id)) || (entrySlug && product.slug === entrySlug));
+  }).filter((product) => {
+    if (!product || seen.has(product.id)) return false;
+    seen.add(product.id);
+    return true;
+  }).slice(0, 4);
+
+  section.hidden = !products.length;
+  if (!products.length) return;
+  grid.innerHTML = products.map((product, index) => productCardMarkup(product, index, true)).join("");
+  bindProductActions(grid, products);
+  updateCompareUI();
 }
 
 function persistCompareSelection() {
@@ -234,41 +313,14 @@ function renderProducts() {
   if (!sorted.length) {
     document.querySelector("#catalog-count").textContent = formatMessage("productCount", { count: localizedNumber(0) });
     grid.innerHTML = `<div class="state-card"><span class="state-icon">⌕</span><h3>${t("noProducts")}</h3><p>${t("changeFilter")}</p></div>`;
+    renderRecentlyViewed();
     updateCompareUI();
     return;
   }
   document.querySelector("#catalog-count").textContent = formatMessage("productCount", { count: localizedNumber(sorted.length) });
-  grid.innerHTML = sorted.map((product, index) => `
-    <article class="product-card" style="--delay:${index * 60}ms">
-      <div class="product-visual">${productImage(product)}${product.discount_amount > 0 ? `<span class="discount-badge">${t("specialOffer")}</span>` : ''}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${product.is_in_stock ? t("available") : t("unavailable")}</span><button class="heart-button" aria-label="${t("addToFavorites")}">♡</button></div>
-      <div class="product-info"><div class="product-card-meta"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><div class="product-card-meta-actions">${productRating(product)}<button class="compare-button" data-compare-product="${product.id}" type="button" aria-pressed="false"><span aria-hidden="true">⇄</span><span>${t("compare")}</span></button></div></div><h3><a class="product-title-link" href="/products/${product.slug}/">${productName(product)}</a></h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
-    </article>`).join("");
-  grid.querySelectorAll(".heart-button").forEach((button, index) => {
-    button.dataset.favoriteProduct = sorted[index].id;
-    button.setAttribute("aria-pressed", "false");
-  });
-  window.NexoraFavorites?.bindButtons(grid);
-  grid.querySelectorAll(".compare-button").forEach((button) => button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); toggleCompare(button.dataset.compareProduct); }));
-  grid.querySelectorAll(".add-button").forEach((button) => button.addEventListener("click", async () => {
-    button.disabled = true;
-    button.classList.add("is-loading");
-    try {
-      await sendJSON("cart/items/", "POST", { product_id: button.dataset.product, quantity: 1 });
-      await refreshCart();
-      button.textContent = "✓";
-      showToast(t("addedToCart"));
-      setTimeout(() => { button.textContent = "+"; }, 900);
-    } catch (error) {
-      showToast(error.message);
-    } finally {
-      button.disabled = false;
-      button.classList.remove("is-loading");
-    }
-  }));
-  grid.querySelectorAll(".product-card").forEach((card) => card.addEventListener("click", (event) => {
-    if (event.target.closest("button, a")) return;
-    window.location.href = `/products/${card.querySelector(".product-title-link")?.getAttribute("href")?.split("/").filter(Boolean).pop()}/`;
-  }));
+  grid.innerHTML = sorted.map((product, index) => productCardMarkup(product, index)).join("");
+  bindProductActions(grid, sorted);
+  renderRecentlyViewed();
   updateCompareUI();
 }
 
@@ -381,6 +433,10 @@ document.querySelector("#compare-open").addEventListener("click", openCompare);
 document.querySelector("#compare-clear").addEventListener("click", () => { compareIds.clear(); persistCompareSelection(); updateCompareUI(); });
 document.querySelector("#compare-close").addEventListener("click", closeCompare);
 document.querySelector("#compare-backdrop").addEventListener("click", closeCompare);
+document.querySelector("#clear-recently-viewed")?.addEventListener("click", () => {
+  localStorage.removeItem(RECENT_STORAGE_KEY);
+  renderRecentlyViewed();
+});
 document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeCompare(); });
 document.querySelector("#category-toggle").addEventListener("click", () => {
   const button = document.querySelector("#category-toggle");
@@ -400,6 +456,7 @@ loadCatalog();
 window.addEventListener("nexora-language-changed", () => {
   renderCategories(state.categories);
   renderProducts();
+  renderRecentlyViewed();
   refreshCart();
   loadAccountState();
   updateCompareUI();
