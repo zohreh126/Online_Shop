@@ -15,6 +15,9 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/static/storefront/css/app.css")
         self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/app.js")
+        self.assertContains(response, 'id="compare-bar"')
+        self.assertContains(response, 'id="compare-modal"')
+        self.assertContains(response, 'id="catalog-count"')
         self.assertContains(response, "/about/")
         self.assertContains(response, "/contact/")
 

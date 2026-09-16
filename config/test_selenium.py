@@ -60,10 +60,54 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
             stock_quantity=5,
         )
 
+    def test_guest_can_compare_two_products(self):
+        second_category = Category.objects.create(name="Selenium desk", slug="selenium-desk")
+        second_product = Product.objects.create(
+            name="Selenium Keyboard",
+            slug="selenium-keyboard",
+            sku="SEL-002",
+            category=second_category,
+            brand="Nexora",
+            price="950000.00",
+            stock_quantity=8,
+        )
+        self.driver.get(f"{self.live_server_url}/")
+        self.driver.execute_script("window.localStorage.clear();")
+        self.driver.get(f"{self.live_server_url}/")
+
+        compare_buttons = self.wait_for(
+            lambda driver: driver.find_elements(By.CSS_SELECTOR, ".compare-button")
+            if len(driver.find_elements(By.CSS_SELECTOR, ".compare-button")) >= 2
+            else False,
+        )
+        for button in compare_buttons[:2]:
+            product_id = button.get_attribute("data-compare-product")
+            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", button)
+            # Headless Chrome reports an incorrect off-screen click coordinate for this card action.
+            self.driver.execute_script("arguments[0].click();", button)
+            self.wait_for(
+                lambda driver, product_id=product_id: driver.find_element(
+                    By.CSS_SELECTOR,
+                    f".compare-button[data-compare-product='{product_id}']",
+                ).get_attribute("aria-pressed") == "true",
+            )
+        self.wait_for(EC.visibility_of_element_located((By.ID, "compare-bar")))
+        compare_open = self.wait_for(EC.element_to_be_clickable((By.ID, "compare-open")))
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", compare_open)
+        ActionChains(self.driver).move_to_element(compare_open).click().perform()
+        self.wait_for(EC.visibility_of_element_located((By.CSS_SELECTOR, ".compare-modal.open .compare-table")))
+        comparison = self.driver.find_element(By.CSS_SELECTOR, ".compare-modal.open").text
+        self.assertIn(self.product.name, comparison)
+        self.assertIn(second_product.name, comparison)
+        self.driver.find_element(By.ID, "compare-close").click()
+        self.wait_for(EC.invisibility_of_element_located((By.CSS_SELECTOR, ".compare-modal.open")))
+
     def wait_for(self, condition):
         return WebDriverWait(self.driver, 10).until(condition)
 
     def test_guest_can_add_product_update_cart_and_reach_checkout(self):
+        self.driver.get(f"{self.live_server_url}/")
+        self.driver.execute_script("window.localStorage.clear();")
         self.driver.get(f"{self.live_server_url}/")
 
         add_button = self.wait_for(
@@ -114,6 +158,7 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
         refresh = RefreshToken.for_user(customer)
 
         self.driver.get(f"{self.live_server_url}/")
+        self.driver.execute_script("window.localStorage.clear();")
         self.driver.add_cookie(
             {
                 "name": settings.AUTH_COOKIE_ACCESS,
