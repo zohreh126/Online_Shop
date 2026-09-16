@@ -229,6 +229,10 @@ translations.en.feedbackLoadFailed = "Customer voices are unavailable right now.
 translations.en.feedbackGuest = "Nexora guest";
 translations.en.feedbackNoComment = "A rating shared without a written note.";
 translations.en.feedbackReviewCount = "reviews";
+translations.fa.youSave = "صرفه‌جویی {amount}";
+translations.fa.cartIconLabel = "باز کردن سبد خرید";
+translations.en.youSave = "You save {amount}";
+translations.en.cartIconLabel = "Open cart";
 translations.fa.username = "نام کاربری";
 translations.fa.profileWelcome = "خوش آمدی؛ اینجا همه‌چیز درباره خریدهای توست.";
 translations.fa.profileHeroHint = "اطلاعات حساب، ارسال و امنیتت را یک‌جا مدیریت کن.";
@@ -445,6 +449,14 @@ function applyLanguage(language) {
   document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
     const value = translations[selected][element.dataset.i18nPlaceholder];
     if (value) element.placeholder = value;
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+    const value = translations[selected][element.dataset.i18nTitle];
+    if (value) element.title = value;
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    const value = translations[selected][element.dataset.i18nAriaLabel];
+    if (value) element.setAttribute("aria-label", value);
   });
   document.querySelectorAll("#product-sort option[data-i18n]").forEach((element) => {
     const value = translations[selected][element.dataset.i18n];

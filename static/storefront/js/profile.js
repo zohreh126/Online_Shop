@@ -25,6 +25,7 @@ function clearErrors(form) { form.querySelectorAll(".field-error").forEach((item
 function showErrors(form, data) { clearErrors(form); let shown = false; Object.entries(data || {}).forEach(([field, values]) => { const input = form.querySelector(`[name="${field}"]`); if (!input) return; input.setAttribute("aria-invalid", "true"); const error = document.createElement("small"); error.className = "field-error"; error.textContent = Array.isArray(values) ? values[0] : values; input.insertAdjacentElement("afterend", error); shown = true; }); return shown; }
 function escapeHTML(value) { return String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char])); }
 const favoriteProductName = (product) => window.NexoraI18n?.productName(product) || product.name || product.product_name || tr("product");
+const favoriteSavings = (product) => { const amount = Number(product.discount_amount || 0); return amount > 0 ? `<small class="product-savings"><span aria-hidden="true">✦</span>${escapeHTML(tr("youSave").replace("{amount}", money(amount)))}</small>` : ""; };
 function favoriteCard(product) {
   const name = favoriteProductName(product);
   const category = product.category ? (window.NexoraI18n?.category(product.category.slug, product.category.name) || product.category.name) : tr("digitalAccessories");
@@ -33,7 +34,7 @@ function favoriteCard(product) {
     ? "<img src=\"" + escapeHTML(product.image_url) + "\" alt=\"" + escapeHTML(name) + "\" loading=\"lazy\">"
     : "<span class=\"favorite-placeholder\">" + escapeHTML((product.brand || "N").slice(0, 1)) + "</span>";
   const discount = Number(product.discount_amount) > 0 ? "<del>" + money(product.price) + "</del>" : "";
-  return "<article class=\"favorite-card\"><a class=\"favorite-card-visual\" href=\"" + escapeHTML(href) + "\">" + image + "</a><div class=\"favorite-card-info\"><p class=\"product-category\">" + escapeHTML(category) + "</p><h3><a href=\"" + escapeHTML(href) + "\">" + escapeHTML(name) + "</a></h3><div class=\"favorite-card-bottom\"><div><strong>" + money(product.final_price) + "</strong>" + discount + "</div><button class=\"heart-button favorite-remove\" data-favorite-product=\"" + product.id + "\" type=\"button\" aria-label=\"" + tr("removeFromFavorites") + "\" aria-pressed=\"true\">♥</button></div></div></article>";
+  return "<article class=\"favorite-card\"><a class=\"favorite-card-visual\" href=\"" + escapeHTML(href) + "\">" + image + "</a><div class=\"favorite-card-info\"><p class=\"product-category\">" + escapeHTML(category) + "</p><h3><a href=\"" + escapeHTML(href) + "\">" + escapeHTML(name) + "</a></h3><div class=\"favorite-card-bottom\"><div class=\"price-stack\"><strong>" + money(product.final_price) + "</strong>" + discount + favoriteSavings(product) + "</div><button class=\"heart-button favorite-remove\" data-favorite-product=\"" + product.id + "\" type=\"button\" aria-label=\"" + tr("removeFromFavorites") + "\" aria-pressed=\"true\">♥</button></div></div></article>";
 }
 function renderFavorites() {
   const list = document.querySelector("#profile-favorites");

@@ -122,11 +122,19 @@ function discountLabel(product) {
   return formatMessage("discountAmount", { amount: money(amount) });
 }
 
+function discountSavingsMarkup(product) {
+  const amount = Number(product.discount_amount || 0);
+  if (!amount) return "";
+  return `<small class="product-savings"><span aria-hidden="true">✦</span>${escapeHTML(formatMessage("youSave", { amount: money(amount) }))}</small>`;
+}
+
 function productCardMarkup(product, index = 0, compact = false) {
   const name = productName(product);
   const url = `/products/${encodeURIComponent(product.slug)}/`;
   const discount = discountLabel(product);
-  return `<article class="product-card${compact ? " recent-product-card" : ""}" style="--delay:${index * 60}ms"><div class="product-visual">${productImage(product)}${discount ? `<span class="discount-badge">${escapeHTML(discount)}</span>` : ""}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${escapeHTML(product.is_in_stock ? t("available") : t("unavailable"))}</span><button class="heart-button" aria-label="${escapeHTML(t("addToFavorites"))}" type="button">♡</button></div><div class="product-info"><div class="product-card-meta"><p class="product-category">${escapeHTML(product.category ? categoryName(product.category) : t("digitalAccessories"))}</p><div class="product-card-meta-actions">${productRating(product)}<button class="compare-button" data-compare-product="${product.id}" type="button" aria-pressed="false"><span aria-hidden="true">⇄</span><span>${escapeHTML(t("compare"))}</span></button></div></div><h3><a class="product-title-link" href="${url}">${escapeHTML(name)}</a></h3><div class="product-bottom"><div><strong>${escapeHTML(money(product.final_price))}</strong>${Number(product.discount_amount) > 0 ? `<del>${escapeHTML(money(product.price))}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${escapeHTML(t("addToCart"))}" type="button" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div></article>`;
+  const discountAmount = Number(product.discount_amount || 0);
+  const addLabel = t("addToCart");
+  return `<article class="product-card${compact ? " recent-product-card" : ""}" style="--delay:${index * 60}ms"><div class="product-visual">${productImage(product)}${discount ? `<span class="discount-badge">${escapeHTML(discount)}</span>` : ""}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${escapeHTML(product.is_in_stock ? t("available") : t("unavailable"))}</span><button class="heart-button" aria-label="${escapeHTML(t("addToFavorites"))}" type="button">♡</button></div><div class="product-info"><div class="product-card-meta"><p class="product-category">${escapeHTML(product.category ? categoryName(product.category) : t("digitalAccessories"))}</p><div class="product-card-meta-actions">${productRating(product)}<button class="compare-button" data-compare-product="${product.id}" type="button" aria-pressed="false"><span aria-hidden="true">⇄</span><span>${escapeHTML(t("compare"))}</span></button></div></div><h3><a class="product-title-link" href="${url}">${escapeHTML(name)}</a></h3><div class="product-bottom"><div class="price-stack"><strong>${escapeHTML(money(product.final_price))}</strong>${discountAmount > 0 ? `<del>${escapeHTML(money(product.price))}</del>${discountSavingsMarkup(product)}` : ""}</div><button class="add-button cart-icon-button" data-product="${product.id}" aria-label="${escapeHTML(addLabel)}" title="${escapeHTML(addLabel)}" type="button" ${product.is_in_stock ? "" : "disabled"}><span data-cart-icon aria-hidden="true">${product.is_in_stock ? "🛒" : "−"}</span></button></div></div></article>`;
 }
 
 function bindProductActions(container, products) {
@@ -142,9 +150,10 @@ function bindProductActions(container, products) {
     try {
       await sendJSON("cart/items/", "POST", { product_id: button.dataset.product, quantity: 1 });
       await refreshCart();
-      button.textContent = "✓";
+      const icon = button.querySelector("[data-cart-icon]");
+      if (icon) icon.textContent = "✓";
       showToast(t("addedToCart"));
-      setTimeout(() => { button.textContent = "+"; }, 900);
+      setTimeout(() => { if (icon) icon.textContent = "🛒"; }, 900);
     } catch (error) {
       showToast(error.message);
     } finally {

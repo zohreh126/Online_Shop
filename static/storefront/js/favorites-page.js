@@ -16,6 +16,11 @@
     return window.NexoraI18n?.category(product.category.slug, product.category.name) || product.category.name;
   }
 
+  function productSavings(product) {
+    const amount = Number(product.discount_amount || 0);
+    return amount > 0 ? `<small class="product-savings"><span aria-hidden="true">✦</span>${escapeHTML(tr("youSave").replace("{amount}", money(amount)))}</small>` : "";
+  }
+
   function favoriteCard(product) {
     const name = productName(product);
     const href = "/products/" + encodeURIComponent(product.slug) + "/";
@@ -29,7 +34,7 @@
         <p class="product-category">${escapeHTML(productCategory(product))}</p>
         <h3><a href="${escapeHTML(href)}">${escapeHTML(name)}</a></h3>
         <div class="favorite-card-bottom">
-          <div><strong>${money(product.final_price)}</strong>${discount}</div>
+          <div class="price-stack"><strong>${money(product.final_price)}</strong>${discount}${productSavings(product)}</div>
           <button class="heart-button favorite-remove" data-favorite-product="${product.id}" type="button" aria-label="${escapeHTML(tr("removeFromFavorites"))}" aria-pressed="true">♥</button>
         </div>
       </div>
