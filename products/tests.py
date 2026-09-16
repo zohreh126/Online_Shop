@@ -5,7 +5,9 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 
-from .models import Category, Discount, DiscountCode, Product
+from customers.models import Customer
+
+from .models import Category, Discount, DiscountCode, Product, ProductReview
 
 
 class CategoryModelTests(TestCase):
@@ -115,6 +117,48 @@ class ProductModelTests(TestCase):
         product.refresh_from_db()
 
         self.assertFalse(product.is_active)
+
+
+class ProductReviewModelTests(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name="Electronics")
+        self.product = Product.objects.create(
+            name="Reviewable Product",
+            sku="REVIEW-001",
+            category=self.category,
+            price=Decimal("100.00"),
+            stock_quantity=4,
+        )
+        self.customer = Customer.objects.create_user(
+            username="reviewer",
+            email="reviewer@example.com",
+            password="Strong-password-123",
+        )
+
+    def test_rating_must_be_between_one_and_five(self):
+        for rating in (0, 6):
+            review = ProductReview(
+                product=self.product,
+                customer=self.customer,
+                rating=rating,
+                body="A useful review.",
+            )
+
+            with self.assertRaises(ValidationError):
+                review.full_clean()
+
+    def test_delete_soft_deactivates_review(self):
+        review = ProductReview.objects.create(
+            product=self.product,
+            customer=self.customer,
+            rating=5,
+            body="A useful review.",
+        )
+
+        review.delete()
+        review.refresh_from_db()
+
+        self.assertFalse(review.is_active)
 
 
 class DiscountModelTests(TestCase):

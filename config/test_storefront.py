@@ -43,6 +43,7 @@ class StorefrontPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "product-detail")
+        self.assertContains(response, 'id="product-reviews"')
         self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/product-detail.js")
 

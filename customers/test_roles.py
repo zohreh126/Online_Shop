@@ -30,6 +30,16 @@ class NexoraRolesTests(TestCase):
                 codename="change_address"
             ).exists()
         )
+        self.assertTrue(
+            supervisor.permissions.filter(
+                codename="change_productreview"
+            ).exists()
+        )
+        self.assertTrue(
+            operator.permissions.filter(
+                codename="view_productreview"
+            ).exists()
+        )
 
     def test_seed_roles_syncs_customer_role_to_group(self):
         customer = Customer.objects.create_user(

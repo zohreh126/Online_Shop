@@ -18,8 +18,13 @@
   </header>
   <main class="product-detail-page container" id="product-detail">
     <a class="back-link" href="/">← <span data-i18n="backToStore">بازگشت به فروشگاه</span></a>
-    <div id="product-detail-state" class="state-card"><span class="loader"></span><p>در حال بارگذاری محصول...</p></div>
+    <div id="product-detail-state" class="state-card"><span class="loader"></span><p data-i18n="loadingProduct">در حال بارگذاری محصول...</p></div>
     <section id="product-detail-content" class="product-detail-layout" hidden></section>
+    <section id="product-reviews" class="product-reviews-section" hidden>
+      <div class="section-title-row"><div><p class="eyebrow"><span></span> <span data-i18n="customerVoices">صدای مشتریان</span></p><h2 data-i18n="reviews">نظر و امتیاز کاربران</h2></div><div id="review-rating-summary" class="review-rating-summary"></div></div>
+      <div id="review-composer" class="review-composer"></div>
+      <div id="reviews-list" class="reviews-list"></div>
+    </section>
   </main>
   <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span>support@nexora.example</span><span dir="ltr">+98 21 0000 0000</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© ۲۰۲۶ Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
   <script src="{% static 'storefront/js/i18n.js' %}" defer></script>

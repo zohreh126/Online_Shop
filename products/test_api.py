@@ -5,7 +5,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Category, Discount, Product
+from customers.models import Customer
+
+from .models import Category, Discount, Product, ProductReview
 
 
 class ProductCatalogAPITests(APITestCase):
@@ -94,6 +96,87 @@ class ProductCatalogAPITests(APITestCase):
         self.assertEqual(response.data["brand"], "Nexora")
         self.assertEqual(response.data["specifications"]["layout"], "US")
         self.assertIsNone(response.data["image_url"])
+        self.assertEqual(response.data["rating_average"], 0.0)
+        self.assertEqual(response.data["rating_count"], 0)
+
+    def test_product_reviews_are_public(self):
+        customer = Customer.objects.create_user(
+            username="public-reviewer",
+            email="public-reviewer@example.com",
+            password="Strong-password-123",
+        )
+        ProductReview.objects.create(
+            product=self.keyboard,
+            customer=customer,
+            rating=4,
+            title="Solid choice",
+            body="The keyboard feels reliable.",
+        )
+
+        response = self.client.get(
+            reverse("product-reviews", kwargs={"slug": self.keyboard.slug})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["average"], 4.0)
+        self.assertEqual(response.data["results"][0]["customer_name"], "public-reviewer")
+        self.assertFalse(response.data["results"][0]["is_mine"])
+
+    def test_writing_product_review_requires_authentication(self):
+        response = self.client.post(
+            reverse("product-reviews", kwargs={"slug": self.keyboard.slug}),
+            {"rating": 5, "body": "Great keyboard."},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_customer_can_create_and_update_one_review(self):
+        customer = Customer.objects.create_user(
+            username="review-writer",
+            email="review-writer@example.com",
+            password="Strong-password-123",
+        )
+        self.client.force_authenticate(user=customer)
+        url = reverse("product-reviews", kwargs={"slug": self.keyboard.slug})
+
+        create_response = self.client.post(
+            url,
+            {
+                "rating": 5,
+                "title": "Excellent",
+                "body": "This is a very good keyboard.",
+            },
+            format="json",
+        )
+
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(create_response.data["review"]["is_mine"])
+        self.assertEqual(create_response.data["count"], 1)
+        self.assertEqual(create_response.data["average"], 5.0)
+
+        update_response = self.client.post(
+            url,
+            {
+                "rating": 3,
+                "title": "Updated",
+                "body": "It is good, but not perfect.",
+            },
+            format="json",
+        )
+
+        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(update_response.data["review"]["rating"], 3)
+        self.assertEqual(update_response.data["count"], 1)
+        self.assertEqual(update_response.data["average"], 3.0)
+        self.assertEqual(
+            ProductReview.objects.filter(
+                product=self.keyboard,
+                customer=customer,
+            ).count(),
+            1,
+        )
 
     def test_product_image_url_is_returned_as_absolute_url(self):
         self.keyboard.image = SimpleUploadedFile(

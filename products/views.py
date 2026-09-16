@@ -1,11 +1,13 @@
 import django_filters
-from django.db.models import Q
+from django.db.models import Avg, Count, Q
 from django.utils import timezone
 from rest_framework import filters as drf_filters
 from rest_framework import permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from .models import Category, Product
-from .serializers import CategorySerializer, ProductSerializer
+from .models import Category, Product, ProductReview
+from .serializers import CategorySerializer, ProductReviewSerializer, ProductSerializer
 
 
 class CategoryFilter(django_filters.FilterSet):
@@ -148,5 +150,78 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         return (
             Product.objects.active()
             .select_related("category", "discount")
+            .annotate(
+                rating_average_value=Avg(
+                    "reviews__rating",
+                    filter=Q(reviews__is_active=True, reviews__is_approved=True),
+                ),
+                rating_count_value=Count(
+                    "reviews",
+                    filter=Q(reviews__is_active=True, reviews__is_approved=True),
+                ),
+            )
             .order_by("-created_at")
+        )
+
+    @action(detail=True, methods=("get", "post"), url_path="reviews")
+    def reviews(self, request, slug=None):
+        product = self.get_object()
+        if request.method == "GET":
+            reviews = ProductReview.objects.filter(
+                product=product,
+                is_active=True,
+                is_approved=True,
+            ).select_related("customer").order_by("-created_at")
+            data = ProductReviewSerializer(
+                reviews,
+                many=True,
+                context={"request": request},
+            ).data
+            ratings = list(reviews.values_list("rating", flat=True))
+            average = round(sum(ratings) / len(ratings), 1) if ratings else 0.0
+            return Response({"results": data, "count": len(ratings), "average": average})
+
+        if not request.user.is_authenticated:
+            return Response(
+                {"detail": "Authentication is required to write a review."},
+                status=401,
+            )
+
+        review = ProductReview.objects.filter(
+            product=product,
+            customer=request.user,
+        ).first()
+        if review and not review.is_active:
+            review.is_active = True
+        serializer = ProductReviewSerializer(
+            review,
+            data=request.data,
+            partial=review is not None,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        saved_review = serializer.save(
+            product=product,
+            customer=request.user,
+            is_active=True,
+            is_approved=True,
+        )
+        visible_ratings = list(
+            ProductReview.objects.filter(
+                product=product,
+                is_active=True,
+                is_approved=True,
+            ).values_list("rating", flat=True)
+        )
+        average = round(sum(visible_ratings) / len(visible_ratings), 1) if visible_ratings else 0.0
+        return Response(
+            {
+                "review": ProductReviewSerializer(
+                    saved_review,
+                    context={"request": request},
+                ).data,
+                "count": len(visible_ratings),
+                "average": average,
+            },
+            status=200 if review else 201,
         )

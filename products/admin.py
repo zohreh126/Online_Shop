@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from core.admin_permissions import RolePermissionAdminMixin
 
-from .models import Category, Discount, DiscountCode, Product
+from .models import Category, Discount, DiscountCode, Product, ProductReview
 
 
 @admin.register(Category)
@@ -37,6 +37,24 @@ class ProductAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
         ("Pricing and inventory", {"fields": ("price", "stock_quantity", "is_active")}),
         ("Dates", {"fields": ("created_at", "updated_at")}),
     )
+
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = (
+        "product",
+        "customer",
+        "rating",
+        "title",
+        "is_approved",
+        "is_active",
+        "created_at",
+    )
+    list_filter = ("rating", "is_approved", "is_active")
+    search_fields = ("product__name", "product__sku", "customer__username", "body")
+    autocomplete_fields = ("product", "customer")
+    ordering = ("-created_at",)
+    readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(Discount)

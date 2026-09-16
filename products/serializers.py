@@ -1,10 +1,11 @@
 from decimal import Decimal
 
+from django.db.models import Avg
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from .models import Category, Discount, Product
+from .models import Category, Discount, Product, ProductReview
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -42,6 +43,8 @@ class ProductSerializer(serializers.ModelSerializer):
     discount_amount = serializers.SerializerMethodField()
     final_price = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
+    rating_average = serializers.SerializerMethodField()
+    rating_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -61,6 +64,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "is_in_stock",
             "image",
             "image_url",
+            "rating_average",
+            "rating_count",
         )
         read_only_fields = fields
 
@@ -103,3 +108,67 @@ class ProductSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(image_url)
 
         return image_url
+
+    @extend_schema_field(OpenApiTypes.NUMBER)
+    def get_rating_average(self, product):
+        if hasattr(product, "rating_average_value"):
+            average = product.rating_average_value
+        else:
+            average = product.reviews.filter(
+                is_active=True,
+                is_approved=True,
+            ).aggregate(average=Avg("rating"))["average"]
+        return round(float(average), 1) if average is not None else 0.0
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def get_rating_count(self, product):
+        if hasattr(product, "rating_count_value"):
+            count = product.rating_count_value
+        else:
+            count = product.reviews.filter(
+                is_active=True,
+                is_approved=True,
+            ).count()
+        return int(count or 0)
+
+
+class ProductReviewSerializer(serializers.ModelSerializer):
+    customer_name = serializers.SerializerMethodField()
+    is_mine = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductReview
+        fields = (
+            "id",
+            "customer_name",
+            "is_mine",
+            "rating",
+            "title",
+            "body",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = (
+            "id",
+            "customer_name",
+            "is_mine",
+            "created_at",
+            "updated_at",
+        )
+
+    def get_customer_name(self, review):
+        full_name = f"{review.customer.first_name} {review.customer.last_name}".strip()
+        return full_name or review.customer.username
+
+    def get_is_mine(self, review):
+        request = self.context.get("request")
+        return bool(request and request.user.is_authenticated and review.customer_id == request.user.id)
+
+    def validate_title(self, value):
+        return " ".join(value.strip().split())
+
+    def validate_body(self, value):
+        value = " ".join(value.strip().split())
+        if not value:
+            raise serializers.ValidationError("Review text cannot be empty.")
+        return value

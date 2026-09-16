@@ -102,6 +102,14 @@ function productName(product) {
   return window.NexoraI18n?.productName(product) || product.name;
 }
 
+function productRating(product) {
+  const count = Number(product.rating_count || 0);
+  if (!count) return "";
+  const average = Number(product.rating_average || 0);
+  const label = formatMessage("reviewCount", { count: localizedNumber(count) });
+  return `<span class="product-rating-mini" title="${escapeHTML(label)}">★ ${escapeHTML(localizedNumber(average))} <small>(${escapeHTML(localizedNumber(count))})</small></span>`;
+}
+
 function persistCompareSelection() {
   try { localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify([...compareIds])); } catch (error) { /* best effort */ }
 }
@@ -233,7 +241,7 @@ function renderProducts() {
   grid.innerHTML = sorted.map((product, index) => `
     <article class="product-card" style="--delay:${index * 60}ms">
       <div class="product-visual">${productImage(product)}${product.discount_amount > 0 ? `<span class="discount-badge">${t("specialOffer")}</span>` : ''}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${product.is_in_stock ? t("available") : t("unavailable")}</span><button class="heart-button" aria-label="${t("addToFavorites")}">♡</button></div>
-      <div class="product-info"><div class="product-card-meta"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><button class="compare-button" data-compare-product="${product.id}" type="button" aria-pressed="false"><span aria-hidden="true">⇄</span><span>${t("compare")}</span></button></div><h3><a class="product-title-link" href="/products/${product.slug}/">${productName(product)}</a></h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
+      <div class="product-info"><div class="product-card-meta"><p class="product-category">${product.category ? categoryName(product.category) : t("digitalAccessories")}</p><div class="product-card-meta-actions">${productRating(product)}<button class="compare-button" data-compare-product="${product.id}" type="button" aria-pressed="false"><span aria-hidden="true">⇄</span><span>${t("compare")}</span></button></div></div><h3><a class="product-title-link" href="/products/${product.slug}/">${productName(product)}</a></h3><div class="product-bottom"><div><strong>${money(product.final_price)}</strong>${product.discount_amount > 0 ? `<del>${money(product.price)}</del>` : ""}</div><button class="add-button" data-product="${product.id}" aria-label="${t("addToCart")}" ${product.is_in_stock ? "" : "disabled"}>${product.is_in_stock ? "+" : "−"}</button></div></div>
     </article>`).join("");
   grid.querySelectorAll(".heart-button").forEach((button, index) => {
     button.dataset.favoriteProduct = sorted[index].id;

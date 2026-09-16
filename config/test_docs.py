@@ -10,6 +10,7 @@ class APIDocumentationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("paths", response.data)
         self.assertIn("/api/v1/products/", response.data["paths"])
+        self.assertIn("/api/v1/products/{slug}/reviews/", response.data["paths"])
         self.assertIn("/api/v1/orders/", response.data["paths"])
         self.assertIn(
             "/api/v1/orders/{order_number}/mock-payment/",
