@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from products.serializers import ProductSerializer
 
-from .models import Address, Customer, Favorite
+from .models import Address, Customer, Favorite, SiteFeedback
 
 
 class CustomerRegistrationSerializer(serializers.ModelSerializer):
@@ -267,3 +267,23 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 class FavoriteToggleSerializer(serializers.Serializer):
     product_id = serializers.IntegerField(min_value=1)
+
+
+class SiteFeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteFeedback
+        fields = ("id", "rating", "comment", "page", "created_at")
+        read_only_fields = ("id", "created_at")
+        extra_kwargs = {
+            "comment": {"required": False, "allow_blank": True},
+            "page": {"required": False, "allow_blank": True, "max_length": 120},
+        }
+
+    def validate_comment(self, value):
+        return " ".join(value.strip().split())
+
+    def validate_page(self, value):
+        value = value.strip()
+        if not value.startswith("/"):
+            return ""
+        return value[:120]

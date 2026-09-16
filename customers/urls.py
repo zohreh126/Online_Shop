@@ -17,6 +17,7 @@ from .views import (
     CustomerProfileView,
     CustomerRegistrationView,
     FavoriteViewSet,
+    SiteFeedbackCreateView,
 )
 
 
@@ -73,4 +74,5 @@ urlpatterns = router.urls + [
     ),
     path("otp/request/", OTPRequestView.as_view(), name="otp-request"),
     path("otp/verify/", OTPVerifyView.as_view(), name="otp-verify"),
+    path("feedback/", SiteFeedbackCreateView.as_view(), name="site-feedback"),
 ]

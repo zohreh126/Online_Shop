@@ -13,7 +13,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from customers.models import Customer, Favorite
+from customers.models import Customer, Favorite, SiteFeedback
 from products.models import Category, Product
 
 
@@ -169,6 +169,30 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
                 f"#recently-viewed-grid a[href='/products/{self.product.slug}/']",
             ).is_displayed(),
         )
+
+    def test_guest_can_submit_site_feedback(self):
+        self.driver.get(f"{self.live_server_url}/")
+        self.driver.execute_script("window.localStorage.removeItem('nexora-feedback-submitted');")
+        self.driver.refresh()
+
+        rating = self.wait_for(
+            EC.presence_of_element_located((By.ID, "feedback-5")),
+        )
+        self.driver.execute_script("arguments[0].click();", rating)
+        self.driver.find_element(By.CSS_SELECTOR, "#feedback-form textarea").send_keys("A clear and pleasant shopping experience.")
+        submit = self.driver.find_element(By.CSS_SELECTOR, "#feedback-form button[type='submit']")
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", submit)
+        self.driver.execute_script("arguments[0].click();", submit)
+        self.wait_for(
+            EC.text_to_be_present_in_element(
+                (By.ID, "feedback-message"),
+                "بازخوردت ثبت شد",
+            ),
+        )
+
+        feedback = SiteFeedback.objects.latest("created_at")
+        self.assertEqual(feedback.rating, 5)
+        self.assertEqual(feedback.page, "/")
 
     def test_authenticated_customer_sees_saved_product_from_nav(self):
         customer = Customer.objects.create_user(

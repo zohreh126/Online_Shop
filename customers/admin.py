@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from core.admin_permissions import RolePermissionAdminMixin
 
 from .management.commands.seed_roles import ROLE_PERMISSIONS
-from .models import Address, Customer
+from .models import Address, Customer, SiteFeedback
 
 
 class AddressInline(admin.TabularInline):
@@ -195,3 +195,19 @@ class AddressAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
 
     def delete_queryset(self, request, queryset):
         queryset.update(is_active=False, is_default=False)
+
+
+@admin.register(SiteFeedback)
+class SiteFeedbackAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = ("rating", "customer", "page", "is_active", "created_at")
+    list_filter = ("rating", "is_active")
+    search_fields = ("customer__username", "customer__email", "comment", "page")
+    autocomplete_fields = ("customer",)
+    ordering = ("-created_at",)
+    readonly_fields = ("created_at", "updated_at", "session_key")
+
+    def delete_model(self, request, obj):
+        obj.delete()
+
+    def delete_queryset(self, request, queryset):
+        queryset.update(is_active=False)

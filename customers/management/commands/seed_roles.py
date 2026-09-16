@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from customers.models import Address, Customer
+from customers.models import Address, Customer, SiteFeedback
 from orders.models import Order, OrderItem
 from products.models import Category, Discount, DiscountCode, Product, ProductReview
 
@@ -15,6 +15,7 @@ ROLE_PERMISSIONS = {
         Discount: ("view", "add", "change", "delete"),
         DiscountCode: ("view", "add", "change", "delete"),
         ProductReview: ("view", "change"),
+        SiteFeedback: ("view",),
     },
     Customer.Role.SUPERVISOR: {
         Customer: ("view",),
@@ -24,6 +25,7 @@ ROLE_PERMISSIONS = {
         Discount: ("view",),
         DiscountCode: ("view",),
         ProductReview: ("view", "change", "delete"),
+        SiteFeedback: ("view", "change", "delete"),
         Order: ("view",),
         OrderItem: ("view",),
     },
@@ -33,6 +35,7 @@ ROLE_PERMISSIONS = {
         Order: ("view", "change"),
         OrderItem: ("view", "change"),
         ProductReview: ("view",),
+        SiteFeedback: ("view",),
     },
 }
 

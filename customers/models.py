@@ -183,3 +183,43 @@ class Favorite(TimeStampedModel):
         """Hide the bookmark while preserving the customer's history."""
         self.is_active = False
         self.save(update_fields=("is_active", "updated_at"))
+
+
+class SiteFeedback(TimeStampedModel):
+    class Rating(models.IntegerChoices):
+        VERY_BAD = 1, "Very bad"
+        BAD = 2, "Bad"
+        AVERAGE = 3, "Average"
+        GOOD = 4, "Good"
+        EXCELLENT = 5, "Excellent"
+
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="site_feedback",
+    )
+    session_key = models.CharField(max_length=40, blank=True)
+    rating = models.PositiveSmallIntegerField(choices=Rating.choices)
+    comment = models.TextField(max_length=500, blank=True)
+    page = models.CharField(max_length=120, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Site feedback"
+        verbose_name_plural = "Site feedback"
+        indexes = [
+            models.Index(fields=("rating", "created_at"), name="feedback_rating_date_idx"),
+            models.Index(fields=("customer", "is_active"), name="feedback_customer_active_idx"),
+        ]
+
+    def __str__(self):
+        owner = self.customer.username if self.customer_id else "guest"
+        return f"{owner} - {self.rating}/5"
+
+    def delete(self, using=None, keep_parents=False):
+        """Hide feedback while retaining it for product and service insights."""
+        self.is_active = False
+        self.save(update_fields=("is_active", "updated_at"))

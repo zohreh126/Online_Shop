@@ -6,13 +6,14 @@ from rest_framework.response import Response
 
 from products.models import Product
 
-from .models import Address, Favorite
+from .models import Address, Favorite, SiteFeedback
 from .serializers import (
     AddressSerializer,
     CustomerProfileSerializer,
     CustomerRegistrationSerializer,
     FavoriteSerializer,
     FavoriteToggleSerializer,
+    SiteFeedbackSerializer,
 )
 
 
@@ -32,6 +33,26 @@ class CustomerProfileView(generics.RetrieveUpdateAPIView):
             from .serializers import CustomerProfileUpdateSerializer
             return CustomerProfileUpdateSerializer
         return CustomerProfileSerializer
+
+
+class SiteFeedbackCreateView(generics.CreateAPIView):
+    serializer_class = SiteFeedbackSerializer
+    permission_classes = (permissions.AllowAny,)
+
+    def perform_create(self, serializer):
+        if not self.request.session.session_key:
+            self.request.session.save()
+
+        page = serializer.validated_data.get("page") or self.request.path
+        if not page.startswith("/"):
+            page = self.request.path
+
+        customer = self.request.user if self.request.user.is_authenticated else None
+        serializer.save(
+            customer=customer,
+            session_key=self.request.session.session_key or "",
+            page=page[:120],
+        )
 
 
 class AddressViewSet(viewsets.ModelViewSet):

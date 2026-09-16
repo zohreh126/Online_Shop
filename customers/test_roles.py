@@ -40,6 +40,11 @@ class NexoraRolesTests(TestCase):
                 codename="view_productreview"
             ).exists()
         )
+        self.assertTrue(
+            supervisor.permissions.filter(
+                codename="view_sitefeedback"
+            ).exists()
+        )
 
     def test_seed_roles_syncs_customer_role_to_group(self):
         customer = Customer.objects.create_user(

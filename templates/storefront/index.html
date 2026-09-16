@@ -20,6 +20,7 @@
       <nav class="desktop-nav" aria-label="ناوبری اصلی">
         <a class="active" href="#catalog" data-i18n="shop">فروشگاه</a>
         <a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a>
+        <a href="#feedback" data-i18n="feedback">نظر شما</a>
         <a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a>
         <a href="/about/" data-i18n="about">درباره ما</a>
         <a href="/contact/" data-i18n="contact">ارتباط با ما</a>
@@ -33,7 +34,7 @@
       </div>
     </div>
     <nav class="mobile-nav container" id="mobile-nav" aria-label="ناوبری موبایل">
-      <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a>
+      <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="#feedback" data-i18n="feedback">نظر شما</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a>
     </nav>
   </header>
 
@@ -71,6 +72,16 @@
     <section class="feature-banner container" id="featured"><div><p class="eyebrow light"><span></span> <span data-i18n="editorsPick">انتخاب سردبیر</span></p><h2 data-i18n="lessBetter">کمتر، اما بهتر.</h2><p data-i18n="editorText">محصولاتی که برای ماندن ساخته شده‌اند؛ ساده، کاربردی و بدون شلوغی اضافه.</p><a class="light-button" href="#catalog"><span data-i18n="discoverCollection">کشف مجموعه</span> <span>←</span></a></div><div class="banner-orbit"><div class="mini-device"></div><span>01</span></div></section>
 
     <section class="why-us container" id="why-us"><div><p class="eyebrow"><span></span> <span data-i18n="nexoraExperience">تجربه نکستورا</span></p><h2 data-i18n-html="bigDifference">جزئیات کوچک،<br><em>تفاوت بزرگ.</em></h2></div><div class="benefit-grid"><article><div class="benefit-title"><b>01</b><h3 data-i18n="carefulChoice">انتخاب دقیق</h3></div><p data-i18n="carefulChoiceText">هر محصول قبل از رسیدن به ویترین ما با وسواس بررسی می‌شود.</p></article><article><div class="benefit-title"><b>02</b><h3 data-i18n="simpleClear">شفاف و ساده</h3></div><p data-i18n="simpleClearText">قیمت واقعی، توضیحات روشن و خریدی بدون پیچیدگی.</p></article><article><div class="benefit-title"><b>03</b><h3 data-i18n="alwaysWithYou">همراه همیشگی</h3></div><p data-i18n="alwaysWithYouText">بعد از خرید هم کنارت هستیم؛ از راه‌اندازی تا پشتیبانی.</p></article></div></section>
+
+    <section class="feedback-section container" id="feedback">
+      <div class="feedback-copy"><p class="eyebrow"><span></span> <span data-i18n="feedback">نظر شما</span></p><h2 data-i18n-html="feedbackHeading">با نظر تو،<br><em>بهتر می‌شویم.</em></h2><p data-i18n="feedbackIntro">یک امتیاز کوتاه به تجربهٔ نکستورا بده؛ همین بازخوردهای کوچک مسیر فروشگاه را بهتر می‌کنند.</p><small data-i18n="feedbackPrivacy">این فرم اطلاعات حساسی نمی‌گیرد و پاسخ تو فقط برای بهبود تجربهٔ فروشگاه استفاده می‌شود.</small></div>
+      <form class="feedback-form" id="feedback-form">
+        <fieldset><legend data-i18n="feedbackQuestion">تجربهٔ خریدت از نکستورا چطور بود؟</legend><div class="feedback-rating" role="radiogroup" aria-label="امتیاز تجربهٔ خرید"><label><input id="feedback-1" type="radio" name="rating" value="1" required><span>۱</span><small data-i18n="feedbackVeryBad">خیلی ضعیف</small></label><label><input id="feedback-2" type="radio" name="rating" value="2"><span>۲</span><small data-i18n="feedbackBad">ضعیف</small></label><label><input id="feedback-3" type="radio" name="rating" value="3"><span>۳</span><small data-i18n="feedbackAverage">متوسط</small></label><label><input id="feedback-4" type="radio" name="rating" value="4"><span>۴</span><small data-i18n="feedbackGood">خوب</small></label><label><input id="feedback-5" type="radio" name="rating" value="5"><span>۵</span><small data-i18n="feedbackExcellent">عالی</small></label></div></fieldset>
+        <label class="feedback-comment"><span data-i18n="feedbackComment">اگر پیشنهادی داری، برایمان بنویس</span><textarea name="comment" maxlength="500" rows="4" data-i18n-placeholder="feedbackCommentPlaceholder" placeholder="چه چیزی را بهتر کنیم؟"></textarea></label>
+        <input type="hidden" name="page" value="/">
+        <div class="feedback-actions"><button class="primary-button" type="submit"><span data-i18n="feedbackSubmit">ثبت بازخورد</span><span>←</span></button><small id="feedback-message" role="status" aria-live="polite"></small></div>
+      </form>
+    </section>
   </main>
 
   <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
@@ -95,6 +106,6 @@
   </aside>
 
   <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column"><h3 data-i18n="supportColumn">پشتیبانی</h3><a href="/account/" data-i18n="account">حساب کاربری</a><a href="/checkout/" data-i18n="checkoutTitle">تکمیل سفارش</a><a href="/contact/" data-i18n="faqLink">سؤالات متداول و راهنمای خرید</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span>support@nexora.example</span><span dir="ltr">+98 21 0000 0000</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© ۲۰۲۶ Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
-  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/app.js' %}" defer></script>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/feedback.js' %}" defer></script><script src="{% static 'storefront/js/app.js' %}" defer></script>
 </body>
 </html>
