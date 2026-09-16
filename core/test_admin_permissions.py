@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
+from django.urls import reverse
 
 from customers.models import Address, Customer
 from orders.models import Order
@@ -111,3 +112,25 @@ class AdminPermissionTests(TestCase):
         customer_admin.save_model(request, self.product_manager, form=None, change=True)
         self.product_manager.refresh_from_db()
         self.assertFalse(self.product_manager.is_staff)
+
+    def test_admin_dashboard_uses_nexora_control_center(self):
+        self.client.force_login(self.superuser)
+
+        response = self.client.get(reverse("admin:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "nexora-admin-hero")
+        self.assertContains(response, "مرکز فرماندهی فروشگاه")
+        self.assertContains(response, "نظرات کاربران")
+
+    def test_customer_admin_delete_action_deactivates_account(self):
+        customer_admin = self.admin_for(Customer)
+        request = self.request_for(self.superuser)
+
+        customer_admin.delete_queryset(
+            request,
+            Customer.objects.filter(pk=self.product_manager.pk),
+        )
+        self.product_manager.refresh_from_db()
+
+        self.assertFalse(self.product_manager.is_active)

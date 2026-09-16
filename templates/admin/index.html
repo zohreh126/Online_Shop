@@ -1,0 +1,110 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static log %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}">
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard nexora-dashboard{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+
+{% block content %}
+  <section class="nexora-admin-hero" aria-labelledby="nexora-dashboard-title">
+    <div class="nexora-admin-hero-copy">
+      <span class="nexora-admin-kicker">✦ NEXORA CONTROL CENTER</span>
+      <h1 id="nexora-dashboard-title">مرکز فرماندهی فروشگاه</h1>
+      <p>ویترین، سفارش‌ها، مشتری‌ها و تجربه‌ی خرید را از یک فضای منظم مدیریت کن.</p>
+      <div class="nexora-admin-hero-meta">
+        <span>● عملیات روزانه</span>
+        <span>◌ داده‌های زنده‌ی فروشگاه</span>
+      </div>
+    </div>
+    <div class="nexora-admin-hero-art" aria-hidden="true">
+      <span class="hero-art-orbit orbit-a"></span>
+      <span class="hero-art-orbit orbit-b"></span>
+      <span class="hero-art-core">N</span>
+      <span class="hero-art-spark spark-a">✦</span>
+      <span class="hero-art-spark spark-b">✧</span>
+    </div>
+  </section>
+
+  <section class="nexora-stat-grid" aria-label="دسترسی سریع">
+    {% if perms.products.view_product or perms.products.change_product %}
+      <a class="nexora-stat-card" href="{% url 'admin:products_product_changelist' %}">
+        <span class="nexora-stat-icon">◈</span>
+        <span><strong>ویترین محصولات</strong><small>مدیریت موجودی و قیمت</small></span>
+        <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
+      </a>
+    {% endif %}
+    {% if perms.products.view_category or perms.products.change_category %}
+      <a class="nexora-stat-card" href="{% url 'admin:products_category_changelist' %}">
+        <span class="nexora-stat-icon">⌘</span>
+        <span><strong>دسته‌بندی‌ها</strong><small>ساختار درختی ویترین</small></span>
+        <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
+      </a>
+    {% endif %}
+    {% if perms.orders.view_order or perms.orders.change_order %}
+      <a class="nexora-stat-card" href="{% url 'admin:orders_order_changelist' %}">
+        <span class="nexora-stat-icon">▣</span>
+        <span><strong>سفارش‌ها</strong><small>پیگیری و تغییر وضعیت</small></span>
+        <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
+      </a>
+    {% endif %}
+    {% if perms.customers.view_customer or perms.customers.change_customer %}
+      <a class="nexora-stat-card" href="{% url 'admin:customers_customer_changelist' %}">
+        <span class="nexora-stat-icon">♙</span>
+        <span><strong>مشتری‌ها</strong><small>حساب‌ها و نقش‌ها</small></span>
+        <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
+      </a>
+    {% endif %}
+    {% if perms.products.view_discount or perms.products.change_discount %}
+      <a class="nexora-stat-card" href="{% url 'admin:products_discount_changelist' %}">
+        <span class="nexora-stat-icon">%</span>
+        <span><strong>تخفیف‌ها</strong><small>کمپین‌های محصولی</small></span>
+        <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
+      </a>
+    {% endif %}
+    {% if perms.products.view_productreview or perms.products.change_productreview %}
+      <a class="nexora-stat-card" href="{% url 'admin:products_productreview_changelist' %}">
+        <span class="nexora-stat-icon">★</span>
+        <span><strong>نظرات کاربران</strong><small>بررسی کیفیت تجربه</small></span>
+        <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
+      </a>
+    {% endif %}
+  </section>
+
+  <div id="content-main">
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+  </div>
+{% endblock %}
+
+{% block sidebar %}
+  <div id="content-related" class="nexora-recent-actions">
+    <div class="module" id="recent-actions-module">
+      <h2>آخرین فعالیت‌ها</h2>
+      <h3>فعالیت‌های من</h3>
+      {% get_admin_log 10 as admin_log for_user user %}
+      {% if not admin_log %}
+        <p class="nexora-empty-actions">هنوز فعالیتی ثبت نشده است.</p>
+      {% else %}
+        <ul class="actionlist">
+          {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+              <span class="visually-hidden">{% if entry.is_addition %}افزوده شد:{% elif entry.is_change %}تغییر کرد:{% elif entry.is_deletion %}حذف شد:{% endif %}</span>
+              {% if entry.is_deletion or not entry.get_admin_url %}
+                {{ entry.object_repr }}
+              {% else %}
+                <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+              {% endif %}
+              <br>
+              <span class="mini quiet">{% if entry.content_type %}{{ entry.content_type.name|capfirst }}{% else %}مورد نامشخص{% endif %}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
