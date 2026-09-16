@@ -12,6 +12,25 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "cart-drawer")
         self.assertContains(response, "/static/storefront/css/app.css")
         self.assertContains(response, "/static/storefront/js/app.js")
+        self.assertContains(response, "/about/")
+        self.assertContains(response, "/contact/")
+
+    def test_about_page_is_available(self):
+        response = self.client.get(reverse("storefront-about"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "about-page")
+        self.assertContains(response, "داستان ما")
+        self.assertContains(response, "/static/storefront/js/site.js")
+
+    def test_contact_page_contains_contact_details_and_map(self):
+        response = self.client.get(reverse("storefront-contact"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "contact-page")
+        self.assertContains(response, "support@nexora.example")
+        self.assertContains(response, "openstreetmap.org/export/embed.html")
+        self.assertContains(response, "/static/storefront/js/site.js")
 
     def test_product_detail_page_is_available(self):
         response = self.client.get(reverse("storefront-product-detail", kwargs={"slug": "sample-product"}))

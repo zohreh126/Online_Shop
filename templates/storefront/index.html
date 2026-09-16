@@ -21,6 +21,8 @@
         <a class="active" href="#catalog" data-i18n="shop">فروشگاه</a>
         <a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a>
         <a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a>
+        <a href="/about/" data-i18n="about">درباره ما</a>
+        <a href="/contact/" data-i18n="contact">ارتباط با ما</a>
       </nav>
       <div class="nav-actions">
         <button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☼</button><button class="language-button" data-language-toggle type="button">English</button>
@@ -30,7 +32,7 @@
       </div>
     </div>
     <nav class="mobile-nav container" id="mobile-nav" aria-label="ناوبری موبایل">
-      <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a>
+      <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a>
     </nav>
   </header>
 
@@ -72,7 +74,7 @@
     <div class="drawer-footer" id="cart-footer" hidden><form class="coupon-form" id="coupon-form"><label for="coupon-code" data-i18n="couponCode">کد تخفیف</label><div><input id="coupon-code" name="code" type="text" autocomplete="off" data-i18n-placeholder="couponPlaceholder" placeholder="کد تخفیف را وارد کن"><button id="coupon-submit" type="submit" data-i18n="applyCoupon">اعمال</button><button id="coupon-remove" type="button" data-i18n="removeCoupon" hidden>حذف کد</button></div><small id="coupon-message" aria-live="polite"></small></form><div class="drawer-total"><span data-i18n="cartSubtotal">جمع کالاها</span><strong id="cart-subtotal">۰ تومان</strong></div><div class="drawer-total coupon-total" id="coupon-total" hidden><span data-i18n="couponDiscount">تخفیف کد</span><strong id="cart-coupon-discount">۰ تومان</strong></div><div class="drawer-total"><span data-i18n="cartTotal">جمع نهایی</span><strong id="cart-total">۰ تومان</strong></div><a class="drawer-checkout" href="/checkout/"><span data-i18n="continueCheckout">ادامه و تسویه</span> <span>←</span></a></div>
   </aside>
 
-  <footer class="site-footer"><div class="container footer-wrap"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p><span>© ۲۰۲۶ Nexora</span></div></footer>
+  <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column"><h3 data-i18n="supportColumn">پشتیبانی</h3><a href="/account/" data-i18n="account">حساب کاربری</a><a href="/checkout/" data-i18n="checkoutTitle">تکمیل سفارش</a><a href="/contact/" data-i18n="faqLink">سؤالات متداول و راهنمای خرید</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span>support@nexora.example</span><span dir="ltr">+98 21 0000 0000</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© ۲۰۲۶ Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
   <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/app.js' %}" defer></script>
 </body>
 </html>

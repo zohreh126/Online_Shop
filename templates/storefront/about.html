@@ -1,0 +1,48 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="داستان، ارزش‌ها و نگاه نکستورا به زندگی دیجیتال.">
+  <title data-i18n="aboutTitle">درباره نکستورا | Nexora</title>
+  <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
+</head>
+<body>
+  <div class="announcement"><span data-i18n="freeShipping">ارسال رایگان برای سفارش‌های بالای ۲ میلیون تومان</span><b>✦</b><span data-i18n="securePayment">پرداخت امن و پشتیبانی واقعی</span></div>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/" aria-label="صفحه اصلی Nexora"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
+      <nav class="desktop-nav" aria-label="ناوبری اصلی">
+        <a href="/" data-i18n="shop">فروشگاه</a>
+        <a href="/#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a>
+        <a href="/#why-us" data-i18n="whyNexora">چرا نکستورا؟</a>
+        <a class="active" href="/about/" data-i18n="about">درباره ما</a>
+        <a href="/contact/" data-i18n="contact">ارتباط با ما</a>
+      </nav>
+      <div class="nav-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button><a class="account-link" href="/account/" data-i18n="login">ورود</a><a class="cart-button" href="/" data-i18n="cart">سبد خرید</a><button class="menu-button" id="menu-toggle" type="button" aria-label="باز کردن منو">☰</button></div>
+    </div>
+    <nav class="mobile-nav container" id="mobile-nav" aria-label="ناوبری موبایل"><a href="/" data-i18n="shop">فروشگاه</a><a href="/#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="/#why-us" data-i18n="whyNexora">چرا نکستورا؟</a><a class="active" href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></nav>
+  </header>
+
+  <main class="about-page">
+    <section class="about-hero container">
+      <div class="about-hero-copy"><p class="eyebrow"><span></span><span data-i18n="aboutEyebrow">نگاهی از نزدیک</span></p><h1 data-i18n-html="aboutHeading">تکنولوژی،<br><em>با فکر انتخاب شده.</em></h1><p data-i18n="aboutIntro">نکستورا برای آدم‌هایی ساخته شده که از ابزارهای روزمره‌شان بیشتر می‌خواهند؛ طراحی خوب، کیفیت قابل اعتماد و تجربه‌ای که بی‌دردسر کار می‌کند.</p><div class="about-hero-actions"><a class="primary-button" href="/#catalog"><span data-i18n="exploreProducts">دیدن محصولات</span><span>←</span></a><a class="quiet-link" href="/contact/" data-i18n="talkToUs">با ما صحبت کن</a></div></div>
+      <div class="about-hero-art" aria-hidden="true"><span class="about-orbit orbit-one"></span><span class="about-orbit orbit-two"></span><div class="about-monogram">N<span>+</span></div><small>EST. 2026</small></div>
+    </section>
+
+    <section class="about-stats container" aria-label="آمار نکستورا"><article><strong data-i18n="aboutStatProducts">+۲۵</strong><span data-i18n="aboutStatProductsLabel">محصول انتخاب‌شده</span></article><article><strong data-i18n="aboutStatCustomers">۲۵۰۰+</strong><span data-i18n="aboutStatCustomersLabel">مشتری خوشحال</span></article><article><strong data-i18n="aboutStatSupport">۷ روز</strong><span data-i18n="aboutStatSupportLabel">پشتیبانی در هفته</span></article><article><strong data-i18n="aboutStatPromise">۱۰۰٪</strong><span data-i18n="aboutStatPromiseLabel">شفافیت در خرید</span></article></section>
+
+    <section class="story-section container"><div class="story-label"><p class="eyebrow"><span></span><span data-i18n="ourStory">داستان ما</span></p><span class="story-index">01 / 03</span></div><div class="story-grid"><div><h2 data-i18n-html="storyHeading">خرید خوب،<br><em>نباید پیچیده باشد.</em></h2></div><div><p data-i18n="storyText">ما نکستورا را از یک سؤال ساده شروع کردیم: چرا پیدا کردن یک وسیله‌ی دیجیتال خوب باید بین صدها انتخاب شبیه به هم سخت باشد؟ پاسخ ما، ویترینی کوچک‌تر و انتخاب‌هایی دقیق‌تر است.</p><p data-i18n="storyTextTwo">هر محصول با نگاه به دوام، کاربرد و حس استفاده انتخاب می‌شود؛ تا چیزی که وارد خانه‌ات می‌شود، واقعاً جایی در زندگی‌ات داشته باشد.</p></div></div></section>
+
+    <section class="mission-section container"><article><span class="mission-icon">✦</span><p class="eyebrow" data-i18n="ourMission">ماموریت ما</p><h2 data-i18n="missionHeading">کمک به انتخاب‌های بهتر، هر روز.</h2><p data-i18n="missionText">کمتر جست‌وجو کن، آگاهانه‌تر انتخاب کن و از محصولی که می‌خری بیشتر لذت ببر.</p></article><article><span class="mission-icon">◈</span><p class="eyebrow" data-i18n="ourStandard">استاندارد ما</p><h2 data-i18n="standardHeading">شفافیت قبل از فروش.</h2><p data-i18n="standardText">قیمت، مشخصات، موجودی و شرایط خرید را روشن می‌گوییم تا تصمیم نهایی همیشه دست خودت باشد.</p></article></section>
+
+    <section class="values-section container"><div class="section-heading"><div><p class="eyebrow"><span></span><span data-i18n="ourValues">ارزش‌های نکستورا</span></p><h2 data-i18n="valuesHeading">چیزهایی که کوتاه نمی‌آییم.</h2></div></div><div class="values-grid"><article><b>01</b><h3 data-i18n="valueCurated">انتخاب‌گری</h3><p data-i18n="valueCuratedText">هر چیزی شایسته‌ی حضور در ویترین ما نیست.</p></article><article><b>02</b><h3 data-i18n="valueClarity">شفافیت</h3><p data-i18n="valueClarityText">جزئیات خوب، بخشی از احترام به مشتری است.</p></article><article><b>03</b><h3 data-i18n="valueHuman">انسانی‌بودن</h3><p data-i18n="valueHumanText">پشت هر سفارش، یک آدم واقعی منتظر تجربه‌ای خوب است.</p></article></div></section>
+
+    <section class="about-cta container"><p class="eyebrow light"><span></span><span data-i18n="readyToExplore">آماده‌ای؟</span></p><h2 data-i18n-html="aboutCtaHeading">چیزهای خوب،<br><em>از انتخاب شروع می‌شوند.</em></h2><a class="light-button" href="/contact/"><span data-i18n="contactUs">ارتباط با ما</span><span>←</span></a></section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column"><h3 data-i18n="supportColumn">پشتیبانی</h3><a href="/account/" data-i18n="account">حساب کاربری</a><a href="/checkout/" data-i18n="checkoutTitle">تکمیل سفارش</a><a href="/contact/" data-i18n="faqLink">سؤالات متداول و راهنمای خرید</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span>support@nexora.example</span><span dir="ltr">+98 21 0000 0000</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© ۲۰۲۶ Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/site.js' %}" defer></script>
+</body>
+</html>
