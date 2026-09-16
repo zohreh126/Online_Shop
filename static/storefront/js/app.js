@@ -356,6 +356,35 @@ function renderProducts() {
   updateCompareUI();
 }
 
+function featuredScore(product) {
+  const price = Number(product.price || 0);
+  const discount = Number(product.discount_amount || 0);
+  const discountRatio = price > 0 ? discount / price : 0;
+  const rating = Number(product.rating_average || 0);
+  const stock = Math.min(Number(product.stock_quantity || 0), 50);
+  const freshness = product.created_at ? new Date(product.created_at).getTime() / 1e12 : 0;
+  return (discount > 0 ? 100 : 0) + discountRatio * 160 + rating * 12 + stock * 0.15 + freshness;
+}
+
+function renderFeaturedProducts() {
+  const grid = document.querySelector("#featured-grid");
+  if (!grid || !state.products.length) return;
+
+  const candidates = state.products
+    .filter((product) => product.is_in_stock)
+    .sort((a, b) => featuredScore(b) - featuredScore(a))
+    .slice(0, 4);
+
+  if (!candidates.length) {
+    grid.innerHTML = `<div class="state-card"><span class="state-icon">✦</span><h3>${escapeHTML(t("featuredEmpty"))}</h3><p>${escapeHTML(t("featuredFallback"))}</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = candidates.map((product, index) => productCardMarkup(product, index)).join("");
+  bindProductActions(grid, candidates);
+  updateCompareUI();
+}
+
 function renderCart(cart) {
   const body = document.querySelector("#cart-body");
   const footer = document.querySelector("#cart-footer");
@@ -467,6 +496,7 @@ async function loadCatalog() {
     renderCategories(state.categories);
     renderCatalogFilters();
     renderProducts();
+    renderFeaturedProducts();
   } catch (error) {
     document.querySelector("#product-grid").innerHTML = `<div class="state-card"><span class="state-icon">!</span><h3>${t("storefrontConnectionFailed")}</h3><p>${t("serverCheck")}</p><button class="retry-button" onclick="loadCatalog()">${t("tryAgain")}</button></div>`;
   }
@@ -518,6 +548,7 @@ loadCatalog();
 window.addEventListener("nexora-language-changed", () => {
   renderCategories(state.categories);
   renderProducts();
+  renderFeaturedProducts();
   renderRecentlyViewed();
   refreshCart();
   loadAccountState();

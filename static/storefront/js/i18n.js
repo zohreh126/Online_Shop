@@ -14,6 +14,21 @@ const translations = {
   },
 };
 
+translations.fa.specialOffersEyebrow = "انتخاب‌های هوشمند";
+translations.fa.specialOffersTitle = "پیشنهادهای ویژه برای تو";
+translations.fa.specialOffersIntro = "محصولات این بخش با ترکیب تخفیف، امتیاز کاربران، موجودی و تازگی انتخاب می‌شوند.";
+translations.fa.specialOffersSignal = "تخفیف + امتیاز + انتخاب دقیق";
+translations.fa.featuredEmpty = "فعلاً پیشنهاد ویژه‌ای پیدا نشد.";
+translations.fa.featuredFallback = "پیشنهادهای منتخب بر اساس موجودی و تازگی ویترین.";
+translations.fa.selectedForYou = "منتخب برای تو";
+translations.en.specialOffersEyebrow = "Smart selection";
+translations.en.specialOffersTitle = "Special offers for you";
+translations.en.specialOffersIntro = "This section blends discount depth, customer ratings, stock, and freshness to surface better picks.";
+translations.en.specialOffersSignal = "Discount + rating + curation";
+translations.en.featuredEmpty = "No special offer is available yet.";
+translations.en.featuredFallback = "Selected from the freshest, best-stocked products in the showcase.";
+translations.en.selectedForYou = "Picked for you";
+
 const categoryTranslations = {
   fa: {
     "keyboards-mice": "کیبورد و ماوس", "کیبورد و ماوس": "کیبورد و ماوس", "کیبورد": "کیبورد", "ماوس": "ماوس", "keyboards-mice-کیبورد": "کیبورد", "keyboards-mice-ماوس": "ماوس",
