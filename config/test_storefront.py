@@ -45,7 +45,7 @@ class StorefrontPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "contact-page")
-        self.assertContains(response, "support@nexora.example")
+        self.assertContains(response, "nexorastore.zp@gmail.com")
         self.assertContains(response, "openstreetmap.org/export/embed.html")
         self.assertContains(response, 'id="faq"')
         self.assertContains(response, 'class="faq-question"')
