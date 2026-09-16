@@ -31,6 +31,25 @@
     </div>
   </section>
 
+  <section class="nexora-quick-actions" aria-labelledby="nexora-quick-actions-title">
+    <div class="nexora-quick-copy">
+      <span class="nexora-panel-kicker">NEXORA WORKBENCH</span>
+      <h2 id="nexora-quick-actions-title">عملیات سریع</h2>
+      <p>کارهای پرتکرار را بدون جست‌وجو در منوها شروع کن.</p>
+    </div>
+    <div class="nexora-quick-grid">
+      {% for action in nexora_quick_actions %}
+        <a class="nexora-quick-card tone-{{ action.tone }}" href="{% url action.url %}">
+          <span class="nexora-quick-icon" aria-hidden="true">{{ action.icon }}</span>
+          <span class="nexora-quick-card-copy"><strong>{{ action.label }}</strong><small>{{ action.hint }}</small></span>
+          <b aria-hidden="true">↗</b>
+        </a>
+      {% empty %}
+        <p class="nexora-panel-empty">عملیات قابل دسترسی برای این نقش وجود ندارد.</p>
+      {% endfor %}
+    </div>
+  </section>
+
   <section class="nexora-kpi-grid" aria-label="شاخص‌های زنده فروشگاه">
     {% for metric in nexora_metrics %}
       <a class="nexora-kpi-card tone-{{ metric.tone }}" href="{% url metric.url %}">

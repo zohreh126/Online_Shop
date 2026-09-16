@@ -123,6 +123,8 @@ class AdminPermissionTests(TestCase):
         self.assertContains(response, "مرکز فرماندهی فروشگاه")
         self.assertContains(response, "نظرات کاربران")
         self.assertContains(response, "nexora-kpi-grid")
+        self.assertContains(response, "nexora-quick-actions")
+        self.assertContains(response, "عملیات سریع")
         self.assertContains(response, "آخرین سفارش‌ها")
         self.assertContains(response, "آخرین نظرها")
         self.assertContains(response, "/static/admin/css/nexora-admin.css")

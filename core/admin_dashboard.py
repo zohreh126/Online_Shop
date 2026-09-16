@@ -26,6 +26,10 @@ def _can_access(user, app_label, model_name):
     )
 
 
+def _can_add(user, app_label, model_name):
+    return user.is_superuser or user.has_perm(f"{app_label}.add_{model_name}")
+
+
 @staff_member_required
 def nexora_admin_index(request):
     """Render a data-rich home for the existing Django admin site."""
@@ -36,6 +40,7 @@ def nexora_admin_index(request):
             "subtitle": None,
             "app_list": admin.site.get_app_list(request),
             "nexora_metrics": [],
+            "nexora_quick_actions": [],
             "nexora_recent_orders": [],
             "nexora_recent_reviews": [],
         }
@@ -43,6 +48,62 @@ def nexora_admin_index(request):
 
     user = request.user
     metrics = []
+    quick_actions = []
+
+    if _can_add(user, "products", "product"):
+        quick_actions.append(
+            {
+                "icon": "+",
+                "label": "افزودن محصول",
+                "hint": "ساخت محصول جدید در ویترین",
+                "url": "admin:products_product_add",
+                "tone": "purple",
+            }
+        )
+
+    if _can_add(user, "products", "category"):
+        quick_actions.append(
+            {
+                "icon": "⌘",
+                "label": "افزودن دسته‌بندی",
+                "hint": "ساختار درختی ویترین",
+                "url": "admin:products_category_add",
+                "tone": "coral",
+            }
+        )
+
+    if _can_add(user, "products", "discount"):
+        quick_actions.append(
+            {
+                "icon": "%",
+                "label": "ساخت تخفیف",
+                "hint": "قیمت‌گذاری ویژه برای محصول",
+                "url": "admin:products_discount_add",
+                "tone": "gold",
+            }
+        )
+
+    if _can_access(user, "orders", "order"):
+        quick_actions.append(
+            {
+                "icon": "▣",
+                "label": "بررسی سفارش‌ها",
+                "hint": "پیگیری وضعیت خریدها",
+                "url": "admin:orders_order_changelist",
+                "tone": "green",
+            }
+        )
+
+    if _can_access(user, "products", "productreview"):
+        quick_actions.append(
+            {
+                "icon": "★",
+                "label": "بررسی نظرات",
+                "hint": "مدیریت صدای مشتریان",
+                "url": "admin:products_productreview_changelist",
+                "tone": "blue",
+            }
+        )
 
     if _can_access(user, "products", "product"):
         metrics.append(
@@ -153,4 +214,5 @@ def nexora_admin_index(request):
         )
 
     context["nexora_metrics"] = metrics
+    context["nexora_quick_actions"] = quick_actions
     return render(request, "admin/index.html", context)
