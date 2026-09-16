@@ -49,7 +49,7 @@ def request_otp(email):
                 "Your Nexora verification code is: "
                 f"{code}\n\nThis code expires in 5 minutes."
             ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
             fail_silently=False,
         )

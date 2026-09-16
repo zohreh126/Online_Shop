@@ -80,7 +80,6 @@ STATICFILES_DIRS = [PROJECT_ROOT / "static"]
 STATIC_ROOT = PROJECT_ROOT / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = PROJECT_ROOT / "media"
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@nexora.local")
 
 CACHES = {
     "default": {
@@ -100,6 +99,10 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=20)
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL",
+    default=EMAIL_HOST_USER or "no-reply@nexora.local",
+)
 
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=env("REDIS_URL", default="redis://127.0.0.1:6379/1"))
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default=CELERY_BROKER_URL)

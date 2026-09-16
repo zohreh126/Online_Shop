@@ -73,6 +73,15 @@ class OTPAPITests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
+    @override_settings(
+        EMAIL_HOST_USER="store@example.com",
+        DEFAULT_FROM_EMAIL="no-reply@nexora.local",
+    )
+    def test_otp_uses_authenticated_email_account_as_sender(self):
+        self.request_code()
+
+        self.assertEqual(mail.outbox[-1].from_email, "store@example.com")
+
     @patch("customers.otp.send_mail", side_effect=OSError("SMTP unavailable"))
     def test_email_delivery_failure_is_reported_and_code_is_removed(self, _send_mail):
         response = self.client.post(
