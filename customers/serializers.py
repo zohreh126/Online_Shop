@@ -1,12 +1,16 @@
+from decimal import Decimal
+
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from unicodedata import normalize
 from rest_framework import serializers
 
+from products.models import Product
+from products.pricing import get_current_product_price
 from products.serializers import ProductSerializer
 
-from .models import Address, Customer, Favorite, SiteFeedback
+from .models import Address, Customer, Favorite, ProductWatch, SiteFeedback
 
 
 class CustomerRegistrationSerializer(serializers.ModelSerializer):
@@ -267,6 +271,133 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 class FavoriteToggleSerializer(serializers.Serializer):
     product_id = serializers.IntegerField(min_value=1)
+
+
+class ProductWatchSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        source="product",
+        queryset=Product.objects.active(),
+        write_only=True,
+        required=False,
+    )
+    current_price = serializers.SerializerMethodField()
+    is_in_stock = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductWatch
+        fields = (
+            "id",
+            "product",
+            "product_id",
+            "notify_price_drop",
+            "notify_restock",
+            "target_price",
+            "current_price",
+            "is_in_stock",
+            "last_seen_price",
+            "last_seen_stock_quantity",
+            "last_price_notified_at",
+            "last_restock_notified_at",
+            "is_active",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = (
+            "id",
+            "product",
+            "current_price",
+            "is_in_stock",
+            "last_seen_price",
+            "last_seen_stock_quantity",
+            "last_price_notified_at",
+            "last_restock_notified_at",
+            "is_active",
+            "created_at",
+            "updated_at",
+        )
+        extra_kwargs = {
+            "notify_price_drop": {"required": False},
+            "notify_restock": {"required": False},
+            "target_price": {"required": False, "allow_null": True},
+        }
+
+    def validate(self, attrs):
+        product = attrs.get("product")
+
+        if self.instance is None and product is None:
+            raise serializers.ValidationError(
+                {"product_id": "A product is required."}
+            )
+
+        if (
+            self.instance is not None
+            and product is not None
+            and product.pk != self.instance.product_id
+        ):
+            raise serializers.ValidationError(
+                {"product_id": "The watched product cannot be changed."}
+            )
+
+        target_price = attrs.get(
+            "target_price",
+            self.instance.target_price if self.instance else None,
+        )
+        if target_price is not None and target_price <= Decimal("0.00"):
+            raise serializers.ValidationError(
+                {"target_price": "Target price must be greater than zero."}
+            )
+
+        return attrs
+
+    def create(self, validated_data):
+        customer = self.context["request"].user
+        product = validated_data.pop("product")
+        current_price = get_current_product_price(product)
+        defaults = {
+            **validated_data,
+            "last_seen_price": current_price,
+            "last_seen_stock_quantity": product.stock_quantity,
+            "last_price_notified_at": None,
+            "last_restock_notified_at": None,
+            "is_active": True,
+        }
+        watch, created = ProductWatch.objects.get_or_create(
+            customer=customer,
+            product=product,
+            defaults=defaults,
+        )
+
+        if not created:
+            for field in ("notify_price_drop", "notify_restock", "target_price"):
+                if field in validated_data:
+                    setattr(watch, field, validated_data[field])
+            watch.is_active = True
+            watch.last_seen_price = current_price
+            watch.last_seen_stock_quantity = product.stock_quantity
+            watch.last_price_notified_at = None
+            watch.last_restock_notified_at = None
+            watch.save(
+                update_fields=(
+                    "notify_price_drop",
+                    "notify_restock",
+                    "target_price",
+                    "is_active",
+                    "last_seen_price",
+                    "last_seen_stock_quantity",
+                    "last_price_notified_at",
+                    "last_restock_notified_at",
+                    "updated_at",
+                )
+            )
+
+        return watch
+
+    def get_current_price(self, watch):
+        return get_current_product_price(watch.product)
+
+    def get_is_in_stock(self, watch):
+        return watch.product.stock_quantity > 0
 
 
 class SiteFeedbackSerializer(serializers.ModelSerializer):

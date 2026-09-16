@@ -112,6 +112,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "customers.tasks.deactivate_unverified_customers",
         "schedule": 60 * 60,
     },
+    "send-product-watch-notifications": {
+        "task": "customers.tasks.send_product_watch_notifications",
+        "schedule": 15 * 60,
+    },
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

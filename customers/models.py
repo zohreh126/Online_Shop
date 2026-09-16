@@ -1,5 +1,8 @@
+from decimal import Decimal
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -181,6 +184,70 @@ class Favorite(TimeStampedModel):
 
     def delete(self, using=None, keep_parents=False):
         """Hide the bookmark while preserving the customer's history."""
+        self.is_active = False
+        self.save(update_fields=("is_active", "updated_at"))
+
+
+class ProductWatch(TimeStampedModel):
+    """A customer's subscription to product price and availability changes."""
+
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="product_watches",
+    )
+    product = models.ForeignKey(
+        "products.Product",
+        on_delete=models.PROTECT,
+        related_name="product_watches",
+    )
+    notify_price_drop = models.BooleanField(default=True)
+    notify_restock = models.BooleanField(default=True)
+    target_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0.00"))],
+        help_text="Optional threshold for price-drop notifications.",
+    )
+    last_seen_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    last_seen_stock_quantity = models.PositiveIntegerField(default=0)
+    last_price_notified_at = models.DateTimeField(null=True, blank=True)
+    last_restock_notified_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Product watch"
+        verbose_name_plural = "Product watches"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("customer", "product"),
+                name="unique_customer_product_watch",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=("customer", "is_active"),
+                name="watch_customer_active_idx",
+            ),
+            models.Index(
+                fields=("product", "is_active"),
+                name="watch_product_active_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.customer.username} - {self.product.sku}"
+
+    def delete(self, using=None, keep_parents=False):
+        """Pause the subscription while keeping its notification history."""
         self.is_active = False
         self.save(update_fields=("is_active", "updated_at"))
 

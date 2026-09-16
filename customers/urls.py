@@ -17,6 +17,7 @@ from .views import (
     CustomerProfileView,
     CustomerRegistrationView,
     FavoriteViewSet,
+    ProductWatchViewSet,
     SiteFeedbackListCreateView,
 )
 
@@ -31,6 +32,11 @@ router.register(
     "favorites",
     FavoriteViewSet,
     basename="customer-favorite",
+)
+router.register(
+    "product-watches",
+    ProductWatchViewSet,
+    basename="customer-product-watch",
 )
 
 

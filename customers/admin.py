@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from core.admin_permissions import RolePermissionAdminMixin
 
 from .management.commands.seed_roles import ROLE_PERMISSIONS
-from .models import Address, Customer, SiteFeedback
+from .models import Address, Customer, ProductWatch, SiteFeedback
 
 
 class AddressInline(admin.TabularInline):
@@ -205,6 +205,43 @@ class SiteFeedbackAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
     autocomplete_fields = ("customer",)
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at", "session_key")
+
+    def delete_model(self, request, obj):
+        obj.delete()
+
+    def delete_queryset(self, request, queryset):
+        queryset.update(is_active=False)
+
+
+@admin.register(ProductWatch)
+class ProductWatchAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = (
+        "customer",
+        "product",
+        "notify_price_drop",
+        "notify_restock",
+        "target_price",
+        "is_active",
+        "last_price_notified_at",
+        "last_restock_notified_at",
+    )
+    list_filter = ("notify_price_drop", "notify_restock", "is_active")
+    search_fields = (
+        "customer__username",
+        "customer__email",
+        "product__name",
+        "product__sku",
+    )
+    autocomplete_fields = ("customer", "product")
+    readonly_fields = (
+        "last_seen_price",
+        "last_seen_stock_quantity",
+        "last_price_notified_at",
+        "last_restock_notified_at",
+        "created_at",
+        "updated_at",
+    )
+    ordering = ("-created_at",)
 
     def delete_model(self, request, obj):
         obj.delete()

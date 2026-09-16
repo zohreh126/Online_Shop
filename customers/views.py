@@ -6,13 +6,14 @@ from rest_framework.response import Response
 
 from products.models import Product
 
-from .models import Address, Favorite, SiteFeedback
+from .models import Address, Favorite, ProductWatch, SiteFeedback
 from .serializers import (
     AddressSerializer,
     CustomerProfileSerializer,
     CustomerRegistrationSerializer,
     FavoriteSerializer,
     FavoriteToggleSerializer,
+    ProductWatchSerializer,
     SiteFeedbackSerializer,
 )
 
@@ -150,3 +151,26 @@ class FavoriteViewSet(
             },
             status=status.HTTP_200_OK,
         )
+
+
+class ProductWatchViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductWatchSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ProductWatch.objects.none()
+
+        return (
+            ProductWatch.objects.filter(
+                customer=self.request.user,
+                is_active=True,
+                product__is_active=True,
+            )
+            .select_related("product", "product__category", "product__discount")
+            .prefetch_related("product__category__children")
+            .order_by("-created_at")
+        )
+
+    def perform_destroy(self, instance):
+        instance.delete()
