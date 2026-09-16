@@ -416,6 +416,39 @@ translations.en.ratingAverage = "Average";
 translations.en.ratingWeak = "Weak";
 translations.en.ratingBad = "Very weak";
 
+translations.fa.watchProduct = "خبرم کن";
+translations.fa.watchingProduct = "در حال پیگیری";
+translations.fa.stopWatching = "لغو اعلان";
+translations.fa.watchAdded = "اعلان محصول فعال شد.";
+translations.fa.watchRemoved = "اعلان محصول غیرفعال شد.";
+translations.fa.watchHint = "با تغییر قیمت یا موجودی، از طریق ایمیل باخبر می‌شوی.";
+translations.fa.watchLoading = "در حال بررسی وضعیت اعلان...";
+translations.fa.myAlerts = "اعلان‌های من";
+translations.fa.myAlertsHint = "محصولاتی که تغییر قیمت یا موجودی آن‌ها را دنبال می‌کنی.";
+translations.fa.noProductWatches = "هنوز محصولی را برای اعلان ذخیره نکرده‌ای.";
+translations.fa.productWatchLoadFailed = "نمایش اعلان‌های محصول ممکن نیست.";
+translations.fa.priceDropAlert = "کاهش قیمت";
+translations.fa.restockAlert = "برگشت موجودی";
+translations.fa.watchCurrentPrice = "قیمت فعلی";
+translations.fa.watchTargetPrice = "هدف قیمت";
+translations.fa.watchDeleteConfirm = "اعلان محصول «{name}» لغو شود؟";
+translations.en.watchProduct = "Notify me";
+translations.en.watchingProduct = "Following";
+translations.en.stopWatching = "Stop alerts";
+translations.en.watchAdded = "Product alerts are now active.";
+translations.en.watchRemoved = "Product alerts are turned off.";
+translations.en.watchHint = "We’ll email you when the price changes or the product is back in stock.";
+translations.en.watchLoading = "Checking alert status...";
+translations.en.myAlerts = "My alerts";
+translations.en.myAlertsHint = "Products you follow for price and availability changes.";
+translations.en.noProductWatches = "You are not following any products yet.";
+translations.en.productWatchLoadFailed = "Product alerts could not be loaded.";
+translations.en.priceDropAlert = "Price drop";
+translations.en.restockAlert = "Back in stock";
+translations.en.watchCurrentPrice = "Current price";
+translations.en.watchTargetPrice = "Target price";
+translations.en.watchDeleteConfirm = "Stop alerts for “{name}”?";
+
 const pageTranslations = {
   fa: {
     about: "درباره ما", contact: "ارتباط با ما", aboutTitle: "درباره نکستورا | Nexora", contactTitle: "ارتباط با نکستورا | Nexora",

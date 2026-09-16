@@ -1045,3 +1045,38 @@ html[dir="ltr"] .hero-copy .eyebrow,html[dir="ltr"] .section-heading .eyebrow { 
   .footer-grid { grid-template-columns:1fr; }
   .footer-intro { grid-column:auto; }
 }
+
+.detail-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:24px; }
+.detail-actions .detail-add { margin-top:0; }
+.watch-button { min-height:48px; gap:9px; border:1px solid rgba(113,80,180,.24); cursor:pointer; }
+.watch-button.is-active { color:#3f7651; border-color:rgba(77,138,92,.3); background:#edf8ef; }
+.watch-button.is-loading { opacity:.72; cursor:wait; }
+.watch-button:disabled { cursor:not-allowed; }
+.watch-hint { max-width:480px; margin:10px 0 0; color:var(--muted); font-size:11px; line-height:1.9; }
+.profile-stats { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.profile-watches { display:grid; gap:11px; margin-top:24px; }
+.profile-watch-card { display:grid; grid-template-columns:40px minmax(0,1fr) auto; align-items:center; gap:12px; padding:15px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(135deg,var(--soft),var(--card)); }
+.profile-watch-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:12px; color:var(--accent-strong); background:var(--card); font-size:18px; }
+.profile-watch-info { min-width:0; }
+.profile-watch-info a { color:var(--ink); }
+.profile-watch-info strong,.profile-watch-info small { display:block; }
+.profile-watch-info strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
+.profile-watch-info small { margin-top:5px; color:var(--muted); font-size:10px; line-height:1.7; }
+.profile-watch-side { display:flex; align-items:center; gap:12px; text-align:end; }
+.profile-watch-side > strong { color:var(--accent-strong); font-size:12px; white-space:nowrap; }
+.profile-watch-side .address-action { margin:0; }
+.dark .watch-button { color:#dfd1ec; border-color:#554a64; background:#403451; }
+.dark .watch-button.is-active { color:#bde5c5; border-color:#4f7c59; background:#294533; }
+.dark .profile-watch-card { background:linear-gradient(135deg,#3b304a,#302a3b); }
+.dark .profile-watch-icon { background:#3a3048; }
+@media (max-width:880px) {
+  .profile-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:560px) {
+  .detail-actions { align-items:stretch; flex-direction:column; }
+  .detail-actions .detail-add,.detail-actions .watch-button { width:100%; }
+  .profile-stats { grid-template-columns:1fr; }
+  .profile-watch-card { grid-template-columns:35px minmax(0,1fr); }
+  .profile-watch-icon { width:35px; height:35px; }
+  .profile-watch-side { grid-column:2; justify-content:space-between; text-align:start; }
+}

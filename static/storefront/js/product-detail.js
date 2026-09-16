@@ -10,6 +10,8 @@ let productReviews = [];
 let reviewUser = null;
 let reviewSummary = { average: 0, count: 0, loaded: false };
 let productRecommendations = [];
+let productWatch = null;
+let productWatchLoaded = false;
 
 function rememberProduct(product) {
   try {
@@ -116,6 +118,94 @@ async function addToCart(product) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.detail || data.product_id?.[0] || t("operationFailed"));
   showToast(t("productAdded"));
+}
+
+function updateProductWatchButton(product) {
+  const button = document.querySelector("#product-watch-button");
+  const hint = document.querySelector("#product-watch-hint");
+  if (!button) return;
+
+  const active = Boolean(productWatch?.is_active);
+  const label = button.querySelector("[data-watch-label]");
+  button.disabled = !productWatchLoaded;
+  button.classList.toggle("is-active", active);
+  button.classList.toggle("is-loading", !productWatchLoaded);
+  button.setAttribute("aria-pressed", String(active));
+  button.setAttribute("aria-label", t(active ? "stopWatching" : "watchProduct"));
+  button.title = t(active ? "stopWatching" : "watchProduct");
+  if (label) label.textContent = t(active ? "stopWatching" : "watchProduct");
+  if (hint) hint.textContent = t("watchHint");
+  if (!productWatchLoaded && label) label.textContent = t("watchLoading");
+  if (productWatchLoaded && product) button.dataset.productId = product.id;
+}
+
+async function loadProductWatch(product) {
+  const button = document.querySelector("#product-watch-button");
+  if (!button) return;
+
+  productWatchLoaded = false;
+  updateProductWatchButton(product);
+  try {
+    const response = await fetch(`${API_BASE}auth/product-watches/?page_size=100`, { credentials: "same-origin" });
+    if (response.status === 401 || response.status === 403) {
+      productWatch = null;
+      return;
+    }
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || t("productWatchLoadFailed"));
+    const watches = data.results || data || [];
+    productWatch = watches.find((watch) => Number(watch.product?.id) === Number(product.id)) || null;
+  } catch (error) {
+    productWatch = null;
+  } finally {
+    productWatchLoaded = true;
+    updateProductWatchButton(product);
+  }
+}
+
+async function toggleProductWatch(product) {
+  const button = document.querySelector("#product-watch-button");
+  if (!button) return;
+  button.disabled = true;
+  try {
+    if (productWatch?.id) {
+      const response = await fetch(`${API_BASE}auth/product-watches/${productWatch.id}/`, {
+        method: "DELETE",
+        credentials: "same-origin",
+        headers: { "X-CSRFToken": await csrf() },
+      });
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+      if (!response.ok) throw new Error(t("operationFailed"));
+      productWatch = null;
+      showToast(t("watchRemoved"));
+    } else {
+      const response = await fetch(`${API_BASE}auth/product-watches/`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": await csrf() },
+        body: JSON.stringify({ product_id: product.id, notify_price_drop: true, notify_restock: true }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+      if (!response.ok) {
+        const detail = Object.values(data).flatMap((value) => Array.isArray(value) ? value : [value]).find((value) => typeof value === "string");
+        throw new Error(detail || t("operationFailed"));
+      }
+      productWatch = data;
+      showToast(t("watchAdded"));
+    }
+    productWatchLoaded = true;
+    updateProductWatchButton(product);
+  } catch (error) {
+    showToast(error.message || t("operationFailed"));
+    button.disabled = false;
+  }
 }
 
 function showToast(message) {
@@ -321,6 +411,25 @@ function renderProduct(product) {
   const detailPrice = `<div class="product-detail-price"><div class="price-stack"><strong>${escapeHTML(money(product.final_price))}</strong>${detailDiscount > 0 ? `<del>${escapeHTML(money(product.price))}</del><small class="product-savings"><span aria-hidden="true">✦</span>${escapeHTML(format("youSave", { amount: money(detailDiscount) }))}</small>` : ""}</div></div>`;
   document.querySelector("#product-detail-content").innerHTML = `<div class="product-detail-visual">${image}${detailDiscount > 0 ? `<span class="detail-discount-mark">✦ ${escapeHTML(t("specialOffer"))}</span>` : ""}<span class="detail-badge">${escapeHTML(product.category?.name || t("digitalAccessories"))}</span></div><div class="product-detail-copy"><p class="eyebrow"><span></span><span data-i18n="productDetails">${escapeHTML(t("productDetails"))}</span></p><h1>${escapeHTML(displayName)}</h1><p class="product-detail-brand">${escapeHTML(product.brand || "Nexora")} · ${escapeHTML(t("sku"))}: ${escapeHTML(product.sku)}</p><div class="product-rating-inline"><span class="rating-stars" id="product-rating-stars" aria-hidden="true">☆☆☆☆☆</span><strong id="product-rating-value">—</strong><span id="product-rating-count"></span></div><p class="product-detail-description">${escapeHTML(displayDescription)}</p>${detailPrice}<p class="product-stock ${product.is_in_stock ? "in-stock" : "out-of-stock"}">${product.is_in_stock ? escapeHTML(format("stockCount", { count: number(product.stock_quantity) })) : escapeHTML(t("unavailable"))}</p><button class="primary-button detail-add" type="button" ${product.is_in_stock ? "" : "disabled"}><span class="button-icon" aria-hidden="true">🛒</span><span>${escapeHTML(product.is_in_stock ? t("addToCart") : t("unavailable"))}</span><span>←</span></button><div class="specification-panel"><h2>${escapeHTML(t("specifications"))}</h2>${specsMarkup}</div></div>`;
   const detailContent = document.querySelector("#product-detail-content");
+  const addButton = detailContent.querySelector(".detail-add");
+  const actionRow = document.createElement("div");
+  actionRow.className = "detail-actions";
+  const watchButton = document.createElement("button");
+  watchButton.className = "secondary-button watch-button";
+  watchButton.id = "product-watch-button";
+  watchButton.type = "button";
+  watchButton.setAttribute("aria-pressed", "false");
+  watchButton.innerHTML = `<span class="button-icon" aria-hidden="true">◉</span><span data-watch-label>${escapeHTML(t("watchLoading"))}</span>`;
+  if (addButton?.parentNode) {
+    addButton.parentNode.insertBefore(actionRow, addButton);
+    actionRow.appendChild(addButton);
+    actionRow.appendChild(watchButton);
+    const watchHint = document.createElement("p");
+    watchHint.className = "watch-hint";
+    watchHint.id = "product-watch-hint";
+    watchHint.textContent = t("watchHint");
+    actionRow.insertAdjacentElement("afterend", watchHint);
+  }
   const favoriteButton = document.createElement("button");
   favoriteButton.className = "heart-button detail-heart";
   favoriteButton.dataset.favoriteProduct = product.id;
@@ -336,6 +445,8 @@ function renderProduct(product) {
   detailContent.querySelectorAll(".specification-panel dd").forEach((element, index) => { const value = specs[index][1]; element.textContent = Array.isArray(value) ? value.join(", ") : value === true ? t("yes") : value === false ? t("no") : value; });
   updateProductRating(product);
   document.querySelector(".detail-add")?.addEventListener("click", async (event) => { event.currentTarget.disabled = true; try { await addToCart(product); } catch (error) { showToast(error.message); } finally { event.currentTarget.disabled = false; } });
+  document.querySelector("#product-watch-button")?.addEventListener("click", () => toggleProductWatch(product));
+  updateProductWatchButton(product);
 }
 
 async function loadProduct() {
@@ -349,6 +460,7 @@ async function loadProduct() {
     document.querySelector("#product-detail-content").hidden = false;
     document.querySelector("#product-reviews").hidden = false;
     renderReviewSection(product);
+    loadProductWatch(product);
     loadReviews(product);
     loadRecommendations(product);
     document.title = `${window.NexoraI18n?.productName(product) || product.name} | Nexora`;
