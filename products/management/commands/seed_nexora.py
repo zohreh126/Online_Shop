@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils.text import slugify
 
-from products.models import Category, Product
+from products.models import Category, Discount, DiscountCode, Product
 
 
 CATALOG = {
@@ -203,6 +203,51 @@ PRODUCT_IMAGES = {
     "NX-ECHO-MIC-001": "products/2026/09/nexora-echo-microphone.png",
 }
 
+SEED_PRODUCT_DISCOUNTS = {
+    "NX-FLUX-KB-001": {
+        "discount_type": Discount.DiscountType.PERCENTAGE,
+        "value": Decimal("12.00"),
+        "max_amount": Decimal("600000.00"),
+    },
+    "NX-PULSE-ANC-001": {
+        "discount_type": Discount.DiscountType.FIXED,
+        "value": Decimal("750000.00"),
+        "max_amount": None,
+    },
+    "NX-LINK-C100-001": {
+        "discount_type": Discount.DiscountType.PERCENTAGE,
+        "value": Decimal("18.00"),
+        "max_amount": Decimal("180000.00"),
+    },
+    "NX-SHIFT-RGB-001": {
+        "discount_type": Discount.DiscountType.PERCENTAGE,
+        "value": Decimal("10.00"),
+        "max_amount": Decimal("250000.00"),
+    },
+    "NX-STUDIO-HEADSET-001": {
+        "discount_type": Discount.DiscountType.FIXED,
+        "value": Decimal("500000.00"),
+        "max_amount": None,
+    },
+}
+
+SEED_DISCOUNT_CODES = {
+    "NEXORA10": {
+        "discount_type": Discount.DiscountType.PERCENTAGE,
+        "value": Decimal("10.00"),
+        "max_amount": Decimal("500000.00"),
+        "minimum_order_amount": Decimal("1500000.00"),
+        "usage_limit": 250,
+    },
+    "WELCOME200": {
+        "discount_type": Discount.DiscountType.FIXED,
+        "value": Decimal("200000.00"),
+        "max_amount": None,
+        "minimum_order_amount": Decimal("2000000.00"),
+        "usage_limit": 100,
+    },
+}
+
 
 class Command(BaseCommand):
     help = "Seed the Nexora catalog with realistic demo categories and products."
@@ -211,6 +256,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         category_count = 0
         product_count = 0
+        product_discounts = 0
+        discount_codes = 0
+        products_by_sku = {}
 
         for category_name, category_data in CATALOG.items():
             category, category_created = Category.objects.update_or_create(
@@ -223,7 +271,7 @@ class Command(BaseCommand):
             category_count += int(category_created)
 
             for product_data in category_data["products"]:
-                Product.objects.update_or_create(
+                product, _ = Product.objects.update_or_create(
                     sku=product_data["sku"],
                     defaults={
                         **product_data,
@@ -232,6 +280,7 @@ class Command(BaseCommand):
                         "is_active": True,
                     },
                 )
+                products_by_sku[product_data["sku"]] = product
                 product_count += 1
 
             for child_name, child_products in EXTRA_CATEGORIES.get(category_name, {}).get("children", {}).items():
@@ -242,7 +291,7 @@ class Command(BaseCommand):
                 )
                 category_count += int(child_created)
                 for name, sku, price, stock in child_products:
-                    Product.objects.update_or_create(
+                    product, _ = Product.objects.update_or_create(
                         sku=sku,
                         defaults={
                             "name": name,
@@ -256,11 +305,38 @@ class Command(BaseCommand):
                             "is_active": True,
                         },
                     )
+                    products_by_sku[sku] = product
                     product_count += 1
+
+        for sku, discount_data in SEED_PRODUCT_DISCOUNTS.items():
+            product = products_by_sku[sku]
+            Discount.objects.update_or_create(
+                product=product,
+                defaults={
+                    **discount_data,
+                    "starts_at": None,
+                    "ends_at": None,
+                    "is_active": True,
+                },
+            )
+            product_discounts += 1
+
+        for code, discount_data in SEED_DISCOUNT_CODES.items():
+            DiscountCode.objects.update_or_create(
+                code=code,
+                defaults={
+                    **discount_data,
+                    "starts_at": None,
+                    "ends_at": None,
+                    "is_active": True,
+                },
+            )
+            discount_codes += 1
 
         self.stdout.write(
             self.style.SUCCESS(
                 f"Nexora catalog ready: {category_count} new categories, "
-                f"{product_count} products synchronized."
+                f"{product_count} products, {product_discounts} product discounts, "
+                f"and {discount_codes} coupon codes synchronized."
             )
         )
