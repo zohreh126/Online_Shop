@@ -430,8 +430,9 @@ html[dir="ltr"] .contact-note .primary-button { margin-left:auto; margin-right:0
 .profile-hero-side strong { max-width:260px; color:#fff; font-size:13px; line-height:1.8; }
 .profile-hero-side small { max-width:260px; color:#d9cde5; font-size:10px; line-height:1.8; }
 .profile-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:18px; }
-.profile-stat-card { display:grid; grid-template-columns:42px minmax(0,1fr) auto; align-items:center; gap:12px; min-height:74px; padding:13px 16px; border:1px solid var(--line); border-radius:15px; background:var(--card); box-shadow:0 10px 24px rgba(75,55,100,.05); transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+.profile-stat-card { display:grid; grid-template-columns:42px minmax(0,1fr) auto; align-items:center; gap:12px; min-height:74px; padding:13px 16px; border:1px solid var(--line); border-radius:15px; background:var(--card); color:var(--ink); font:inherit; text-align:start; cursor:pointer; box-shadow:0 10px 24px rgba(75,55,100,.05); transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
 .profile-stat-card:hover { transform:translateY(-3px); border-color:rgba(113,80,180,.36); box-shadow:0 16px 30px rgba(75,55,100,.1); }
+.profile-stat-card:focus-visible { outline:3px solid rgba(239,156,131,.55); outline-offset:3px; }
 .profile-stat-icon { display:grid; place-items:center; width:42px; height:42px; border-radius:13px; color:var(--accent-strong); background:var(--soft); font-size:19px; }
 .profile-stat-card:nth-child(2) .profile-stat-icon { color:#b86e62; background:#fff0ea; }
 .profile-stat-card:nth-child(3) .profile-stat-icon { color:#4d8a5c; background:#eaf6ed; }

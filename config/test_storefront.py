@@ -124,6 +124,7 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'data-panel="watches"')
         self.assertContains(response, 'data-panel="rewards"')
         self.assertContains(response, 'data-panel="orders"')
+        self.assertContains(response, 'data-profile-shortcut="orders"')
         self.assertContains(response, 'id="profile-orders"')
         self.assertContains(response, 'id="profile-orders-count"')
         self.assertContains(response, 'id="profile-watches-count"')
