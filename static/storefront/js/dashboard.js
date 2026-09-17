@@ -9,6 +9,7 @@ const statusLabels = { pending: "pending", confirmed: "confirmed", processing: "
 const paymentLabels = { unpaid: "unpaid", pending: "pending", paid: "paid", failed: "failed", refunded: "refunded" };
 const roleLabels = { product_manager: "roleProductManager", supervisor: "roleSupervisor", operator: "roleOperator" };
 let dashboardOrders = [];
+let dashboardSnapshot = null;
 function setupTheme() { const root = document.documentElement; const button = document.querySelector("#theme-toggle"); if (localStorage.getItem("nexora-theme") === "dark") root.classList.add("dark"); const update = () => { if (button) button.textContent = root.classList.contains("dark") ? "☼" : "☾"; }; button?.addEventListener("click", () => { root.classList.toggle("dark"); localStorage.setItem("nexora-theme", root.classList.contains("dark") ? "dark" : "light"); update(); }); update(); }
 
 async function request(path) {
@@ -46,6 +47,31 @@ function renderOrders(orders) {
   list.querySelectorAll(".order-reorder").forEach((button) => button.addEventListener("click", () => reorderOrder(button.dataset.reorder, button)));
 }
 
+function collectionCount(value) {
+  if (Number.isFinite(Number(value?.count))) return Number(value.count);
+  const items = value?.results || value;
+  return Array.isArray(items) ? items.length : 0;
+}
+
+function renderDashboardOverview(snapshot) {
+  const counts = {
+    orders: snapshot.orders.length,
+    addresses: collectionCount(snapshot.addresses),
+    favorites: collectionCount(snapshot.favorites),
+    rewards: Number(snapshot.rewards?.balance || 0),
+  };
+  const values = {
+    "dashboard-stat-orders": counts.orders,
+    "dashboard-stat-addresses": counts.addresses,
+    "dashboard-stat-favorites": counts.favorites,
+    "dashboard-stat-rewards": counts.rewards,
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const element = document.querySelector(`#${id}`);
+    if (element) element.textContent = localizedNumber(value);
+  });
+}
+
 async function reorderOrder(orderNumber, button) {
   button.disabled = true;
   try {
@@ -73,17 +99,25 @@ async function reorderOrder(orderNumber, button) {
 
 async function loadDashboard() {
   try {
-    const [profile, orders] = await Promise.all([request("auth/profile/"), request("orders/?page_size=100")]);
+    const [profile, orders, addresses, favorites, rewards] = await Promise.all([
+      request("auth/profile/"),
+      request("orders/?page_size=100"),
+      request("auth/addresses/?page_size=100"),
+      request("auth/favorites/?page_size=100"),
+      request("auth/rewards/"),
+    ]);
     document.querySelector("#dashboard-profile").textContent = `${profile.first_name || profile.username} · ${profile.email}`;
     document.querySelector("#dashboard-role").textContent = roleLabels[profile.role] ? tr(roleLabels[profile.role]) : tr("normalCustomer");
     document.querySelector("#dashboard-content").hidden = false;
     dashboardOrders = orders.results || orders;
+    dashboardSnapshot = { profile, orders: dashboardOrders, addresses, favorites, rewards };
+    renderDashboardOverview(dashboardSnapshot);
     renderOrders(dashboardOrders);
   } catch (error) {
     showAlert(error.status === 401 ? tr("loginToDashboard") : error.message);
   }
 }
 
-window.addEventListener("nexora-language-changed", () => { if (dashboardOrders.length) renderOrders(dashboardOrders); });
+window.addEventListener("nexora-language-changed", () => { if (dashboardSnapshot) renderDashboardOverview(dashboardSnapshot); if (dashboardSnapshot) renderOrders(dashboardOrders); });
 loadDashboard();
 setupTheme();

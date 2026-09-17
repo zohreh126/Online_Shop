@@ -690,6 +690,31 @@ const pageTranslations = {
 Object.entries(pageTranslations.fa).forEach(([key, value]) => { translations.fa[key] = value; });
 Object.entries(pageTranslations.en).forEach(([key, value]) => { translations.en[key] = value; });
 
+translations.fa.dashboardOverviewTitle = "خریدهای بهتر از اینجا شروع می‌شوند.";
+translations.fa.dashboardOverviewHint = "وضعیت سفارش‌ها، انتخاب‌های ذخیره‌شده و امتیاز باشگاهت را یک‌جا ببین.";
+translations.fa.dashboardSecureNote = "حساب امن و شخصی";
+translations.fa.dashboardClubNote = "عضو باشگاه نکستورا";
+translations.fa.dashboardOrdersStat = "سفارش‌ها";
+translations.fa.dashboardOrdersHint = "خریدهای ثبت‌شده";
+translations.fa.dashboardAddressesStat = "آدرس‌ها";
+translations.fa.dashboardAddressesHint = "مقصدهای ذخیره‌شده";
+translations.fa.dashboardFavoritesStat = "علاقه‌مندی‌ها";
+translations.fa.dashboardFavoritesHint = "انتخاب‌های بعدی";
+translations.fa.dashboardRewardsStat = "امتیاز باشگاه";
+translations.fa.dashboardRewardsHint = "امتیاز قابل استفاده";
+translations.en.dashboardOverviewTitle = "Better shopping starts here.";
+translations.en.dashboardOverviewHint = "See your orders, saved picks, and Nexora Club points in one place.";
+translations.en.dashboardSecureNote = "Private and secure account";
+translations.en.dashboardClubNote = "Nexora Club member";
+translations.en.dashboardOrdersStat = "Orders";
+translations.en.dashboardOrdersHint = "Placed purchases";
+translations.en.dashboardAddressesStat = "Addresses";
+translations.en.dashboardAddressesHint = "Saved destinations";
+translations.en.dashboardFavoritesStat = "Favorites";
+translations.en.dashboardFavoritesHint = "Saved for later";
+translations.en.dashboardRewardsStat = "Club points";
+translations.en.dashboardRewardsHint = "Available to use";
+
 function applyLanguage(language) {
   const selected = language === "en" ? "en" : "fa";
   document.documentElement.lang = selected;

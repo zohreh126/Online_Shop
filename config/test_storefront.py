@@ -151,6 +151,11 @@ class StorefrontPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "داشبورد مشتری")
         self.assertContains(response, 'href="/favorites/"')
+        self.assertContains(response, 'class="dashboard-overview"')
+        self.assertContains(response, 'id="dashboard-stat-orders"')
+        self.assertContains(response, 'id="dashboard-stat-addresses"')
+        self.assertContains(response, 'id="dashboard-stat-favorites"')
+        self.assertContains(response, 'id="dashboard-stat-rewards"')
         self.assertContains(response, "/static/storefront/js/dashboard.js")
 
     def test_favorites_page_is_available(self):
