@@ -7,6 +7,14 @@ const money = (value) => `${localizedNumber(Math.round(Number(value)))} ${tr("to
 const digits = (value) => String(value ?? "").replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
 const normalizeText = (value) => String(value ?? "").normalize("NFC").replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/\s+/g, " ").trim();
 const state = { profile: null, addresses: [], orders: [], favorites: [], watches: [], watchesLoaded: false, rewards: null, rewardsLoaded: false };
+const PROFILE_ORDER_STEPS = [
+  { key: "pending", label: "profileOrderPlaced", icon: "1" },
+  { key: "confirmed", label: "profileOrderConfirmed", icon: "2" },
+  { key: "processing", label: "profileOrderProcessing", icon: "3" },
+  { key: "shipped", label: "profileOrderShipped", icon: "4" },
+  { key: "delivered", label: "profileOrderDelivered", icon: "5" },
+];
+const PROFILE_ORDER_STATUS_INDEX = { pending: 0, confirmed: 1, processing: 2, shipped: 3, delivered: 4 };
 
 const roleTranslationKey = { product_manager: "roleProductManager", supervisor: "roleSupervisor", operator: "roleOperator" };
 
@@ -187,7 +195,64 @@ function renderAddresses() { const list = document.querySelector("#profile-addre
 function beginAddressEdit(address) { const form = document.querySelector("#profile-address-form"); form.hidden = false; form.dataset.addressId = address.id; form.classList.add("editing"); document.querySelector("#profile-address-title").textContent = tr("editAddress"); Object.entries(address).forEach(([key, value]) => { const input = form.querySelector(`[name="${key}"]`); if (input) input.value = value || ""; }); form.scrollIntoView({ behavior: "smooth", block: "center" }); }
 async function deleteAddress(address) { if (!window.confirm(formatMessage("addressDeleteConfirm", { title: address.title }))) return; try { await request(`auth/addresses/${address.id}/`, { method: "DELETE" }); state.addresses = state.addresses.filter((item) => item.id !== address.id); renderAddresses(); message(tr("addressRemoved"), true); } catch (error) { message(error.message); } }
 async function loadAddresses() { try { const data = await request("auth/addresses/"); state.addresses = data.results || data; renderAddresses(); updateProfileStats(); } catch (error) { if (error.status === 401) window.location.href = "/account/?next=/profile/"; else message(error.message); } }
-function renderOrders() { const list = document.querySelector("#profile-orders"); if (!state.orders.length) { list.innerHTML = `<div class="empty-inline">${tr("noOrders")}</div>`; return; } list.innerHTML = state.orders.map((order) => `<article class="profile-order"><div><strong>${formatMessage("orderLabel", { number: escapeHTML(String(order.order_number).slice(0, 8).toUpperCase()) })}</strong><small>${new Date(order.created_at).toLocaleDateString(document.documentElement.lang === "en" ? "en-US" : "fa-IR")}</small></div><div><strong>${money(order.total_amount)}</strong><small>${tr(order.status || "")}</small></div></article>`).join(""); }
+function formatOrderDate(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? "—" : new Intl.DateTimeFormat(document.documentElement.lang === "en" ? "en-US" : "fa-IR", { year: "numeric", month: "short", day: "numeric" }).format(date); }
+function orderItemCount(order) { return (order.items || []).reduce((total, item) => total + Number(item.quantity || 0), 0); }
+function orderItemName(item) { return window.NexoraI18n?.productName({ sku: item.product_sku, product_name: item.product_name }) || item.product_name || tr("product"); }
+function orderStatusLabel(status) { return tr(status || "pending"); }
+function orderTimelineMarkup(order) {
+  const status = order.status || "pending";
+  if (status === "cancelled" || status === "refunded") return `<div class="profile-order-special-status status-${escapeHTML(status)}"><span aria-hidden="true">!</span><strong>${escapeHTML(tr(status === "cancelled" ? "profileOrderCancelled" : "profileOrderRefunded"))}</strong></div>`;
+  const activeIndex = PROFILE_ORDER_STATUS_INDEX[status] ?? 0;
+  return `<div class="profile-order-timeline" role="list" aria-label="${escapeHTML(tr("profileOrderTimeline"))}">${PROFILE_ORDER_STEPS.map((step, index) => `<div class="profile-order-step ${index < activeIndex ? "is-complete" : ""} ${index === activeIndex ? "is-current" : ""}" role="listitem"><span aria-hidden="true">${index < activeIndex ? "✓" : step.icon}</span><small>${escapeHTML(tr(step.label))}</small></div>`).join("")}</div>`;
+}
+function renderProfileOrderDetail(container, order) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  const itemMarkup = items.length ? items.map((item) => `<div class="profile-order-item"><div><strong>${escapeHTML(orderItemName(item))}</strong><small>${escapeHTML(item.product_sku || "")} · ${escapeHTML(formatMessage("profileOrderItems", { count: localizedNumber(item.quantity) }))}</small></div><strong>${escapeHTML(money(item.line_total))}</strong></div>`).join("") : `<div class="empty-inline">${escapeHTML(tr("profileOrderEmptyItems"))}</div>`;
+  const productDiscount = Number(order.product_discount_amount || 0);
+  const couponDiscount = Number(order.coupon_discount_amount || 0);
+  const discountRows = [
+    productDiscount > 0 ? `<div class="profile-order-summary-row is-discount"><span>${escapeHTML(tr("discountPerUnit"))}</span><strong>−${escapeHTML(money(productDiscount))}</strong></div>` : "",
+    couponDiscount > 0 ? `<div class="profile-order-summary-row is-discount"><span>${escapeHTML(tr("couponDiscount"))}</span><strong>−${escapeHTML(money(couponDiscount))}</strong></div>` : "",
+  ].join("");
+  container.innerHTML = `<div class="profile-order-detail-inner"><div class="profile-order-detail-heading"><strong>${escapeHTML(tr("profileOrderDetails"))}</strong><small>${escapeHTML(formatMessage("profileOrderDate", { date: formatOrderDate(order.created_at) }))}</small></div><div class="profile-order-detail-grid"><div class="profile-order-detail-panel"><h3><span aria-hidden="true">▣</span>${escapeHTML(tr("profileOrderItemsHeading"))}</h3><div class="profile-order-items">${itemMarkup}</div></div><div class="profile-order-detail-panel"><h3><span aria-hidden="true">✦</span>${escapeHTML(tr("profileOrderSummary"))}</h3><div class="profile-order-summary-row"><span>${escapeHTML(tr("cartSubtotal"))}</span><strong>${escapeHTML(money(order.subtotal))}</strong></div>${discountRows}<div class="profile-order-summary-row is-total"><span>${escapeHTML(tr("profileOrderTotal"))}</span><strong>${escapeHTML(money(order.total_amount))}</strong></div></div></div><div class="profile-order-delivery"><h3><span aria-hidden="true">⌖</span>${escapeHTML(tr("shippingAddressLabel"))}</h3><p>${escapeHTML([order.shipping_province, order.shipping_city, order.shipping_address_line].filter(Boolean).join("، "))}</p><small>${escapeHTML(order.shipping_recipient_name || "")} · ${escapeHTML(order.shipping_recipient_phone || "")}</small></div></div>`;
+}
+function renderOrders() {
+  const list = document.querySelector("#profile-orders");
+  if (!state.orders.length) { list.innerHTML = `<div class="empty-inline">${escapeHTML(tr("noOrders"))}</div>`; return; }
+  list.innerHTML = state.orders.map((order) => {
+    const status = order.status || "pending";
+    const itemCount = orderItemCount(order);
+    const previewItems = (order.items || []).slice(0, 2).map((item) => escapeHTML(orderItemName(item))).join(" · ");
+    const extraItems = Math.max(0, (order.items || []).length - 2);
+    const savings = Number(order.product_discount_amount || 0) + Number(order.coupon_discount_amount || 0);
+    return `<article class="profile-order-card"><header class="profile-order-header"><div class="profile-order-number"><span class="profile-order-icon" aria-hidden="true">▣</span><div><strong>${escapeHTML(formatMessage("orderLabel", { number: String(order.order_number).slice(0, 8).toUpperCase() }))}</strong><small>${escapeHTML(formatMessage("profileOrderDate", { date: formatOrderDate(order.created_at) }))}</small></div></div><span class="profile-order-status status-${escapeHTML(status)}"><span aria-hidden="true">●</span>${escapeHTML(orderStatusLabel(status))}</span></header><div class="profile-order-overview"><div class="profile-order-preview"><small>${escapeHTML(formatMessage("profileOrderItems", { count: localizedNumber(itemCount) }))}</small><strong>${previewItems || escapeHTML(tr("profileOrderEmptyItems"))}${extraItems ? ` <span>+${escapeHTML(localizedNumber(extraItems))}</span>` : ""}</strong></div><div class="profile-order-metric"><small>${escapeHTML(tr("profileOrderPayment"))}</small><strong>${escapeHTML(tr(order.payment_status || "unpaid"))}</strong></div><div class="profile-order-metric profile-order-total"><small>${escapeHTML(tr("profileOrderTotal"))}</small><strong>${escapeHTML(money(order.total_amount))}</strong></div></div>${orderTimelineMarkup(order)}<footer class="profile-order-footer"><span class="profile-order-saving" ${savings > 0 ? "" : "hidden"}><span aria-hidden="true">✦</span>${escapeHTML(tr("profileOrderSaved"))}: ${escapeHTML(money(savings))}</span><div class="profile-order-actions"><button class="profile-order-detail-button" data-profile-order-details="${escapeHTML(String(order.order_number))}" type="button" aria-expanded="false"><span aria-hidden="true">⌄</span><span class="profile-order-detail-label">${escapeHTML(tr("profileOrderDetails"))}</span></button><button class="order-reorder profile-order-reorder" data-profile-reorder="${escapeHTML(String(order.order_number))}" type="button" title="${escapeHTML(tr("reorderHint"))}"><span aria-hidden="true">↻</span><span>${escapeHTML(tr("reorder"))}</span></button></div></footer><div class="profile-order-detail-slot" hidden></div></article>`;
+  }).join("");
+  list.querySelectorAll("[data-profile-order-details]").forEach((button) => button.addEventListener("click", async () => {
+    const card = button.closest(".profile-order-card");
+    const slot = card.querySelector(".profile-order-detail-slot");
+    const label = button.querySelector(".profile-order-detail-label");
+    if (!slot.hidden) { slot.hidden = true; button.setAttribute("aria-expanded", "false"); label.textContent = tr("profileOrderDetails"); return; }
+    slot.hidden = false;
+    slot.innerHTML = `<div class="drawer-loading"><span class="loader"></span></div>`;
+    button.disabled = true;
+    try { renderProfileOrderDetail(slot, await request(`orders/${encodeURIComponent(button.dataset.profileOrderDetails)}/`)); button.setAttribute("aria-expanded", "true"); label.textContent = tr("hideDetails"); } catch (error) { slot.innerHTML = `<p class="field-error">${escapeHTML(error.message || tr("operationFailed"))}</p>`; } finally { button.disabled = false; }
+  }));
+  list.querySelectorAll("[data-profile-reorder]").forEach((button) => button.addEventListener("click", () => reorderProfileOrder(button.dataset.profileReorder, button)));
+}
+async function reorderProfileOrder(orderNumber, button) {
+  button.disabled = true;
+  try {
+    const response = await fetch(`${API_BASE}orders/${encodeURIComponent(orderNumber)}/reorder/`, { method: "POST", credentials: "same-origin", headers: { "X-CSRFToken": await csrf() } });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401) { window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`; return; }
+    if (!response.ok) throw Object.assign(new Error(data.detail || tr("reorderFailed")), { status: response.status });
+    const addedCount = (data.added || []).reduce((total, item) => total + Number(item.quantity || 0), 0);
+    const skippedCount = (data.skipped || []).length;
+    const notice = skippedCount ? formatMessage("reorderPartial", { added: localizedNumber(addedCount), skipped: localizedNumber(skippedCount) }) : formatMessage("reorderSuccess", { count: localizedNumber(addedCount) });
+    sessionStorage.setItem("nexora-toast", notice);
+    window.location.href = "/?cart=open";
+  } catch (error) { message(error.message || tr("reorderFailed")); button.disabled = false; }
+}
 async function loadOrders() { try { const data = await request("orders/?page_size=100"); state.orders = data.results || data; renderOrders(); updateProfileStats(); } catch (error) { message(error.message); } }
 
 document.querySelectorAll(".profile-nav button").forEach((button) => button.addEventListener("click", () => openSection(button.dataset.section)));

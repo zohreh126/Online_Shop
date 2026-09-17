@@ -120,6 +120,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'data-panel="favorites"')
         self.assertContains(response, 'data-panel="watches"')
         self.assertContains(response, 'data-panel="rewards"')
+        self.assertContains(response, 'data-panel="orders"')
+        self.assertContains(response, 'id="profile-orders"')
         self.assertContains(response, 'id="profile-orders-count"')
         self.assertContains(response, 'id="profile-watches-count"')
         self.assertContains(response, 'id="profile-reward-points"')
