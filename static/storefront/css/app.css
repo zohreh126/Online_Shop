@@ -767,6 +767,10 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
 .reviews-public-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding-bottom:14px; border-bottom:1px solid var(--line); }
 .reviews-public-heading > div { display:grid; gap:5px; }
 .reviews-public-heading > span { color:var(--coral); font-size:19px; }
+.reviews-public-tools { display:flex !important; align-items:center; gap:7px; margin-inline-start:auto; }
+.review-sort-label { color:var(--muted); font-size:9px; white-space:nowrap; }
+.reviews-public-tools select { min-width:112px; padding:7px 9px; border:1px solid var(--line); border-radius:8px; outline:0; background:var(--card); color:var(--ink); font:inherit; font-size:9px; }
+.reviews-public-tools select:focus { border-color:var(--accent-strong); }
 .reviews-public-kicker { color:var(--accent-strong); font-size:9px; font-weight:800; letter-spacing:.7px; }
 .reviews-public-heading strong { color:var(--ink); font-size:13px; }
 .review-login-callout { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:18px 20px; border:1px solid var(--line); background:var(--soft); color:var(--muted); }
@@ -798,6 +802,7 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
 .review-form select,.review-form input,.review-form textarea { border-radius:8px; }
 .dark .review-login-callout,.dark .review-form,.dark .review-card { background:#302a3b; }
 .dark .review-list-column { background:linear-gradient(135deg,#3b304a,#302a3b); }
+.dark .reviews-public-tools select { border-color:#554a64; background:#302a3b; color:#eee7fb; }
 
 .recently-viewed { padding:5px 0 90px; }
 .recently-viewed .section-heading { align-items:end; margin-bottom:25px; }

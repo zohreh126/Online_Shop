@@ -143,6 +143,60 @@ class ProductCatalogAPITests(APITestCase):
         self.assertEqual(response.data["results"][0]["helpful_count"], 0)
         self.assertFalse(response.data["results"][0]["helpful_by_me"])
 
+    def test_product_reviews_support_public_sorting(self):
+        low_review = ProductReview.objects.create(
+            product=self.keyboard,
+            customer=Customer.objects.create_user(
+                username="sort-low",
+                email="sort-low@example.com",
+                password="Strong-password-123",
+            ),
+            rating=2,
+            body="A low rating review.",
+        )
+        high_review = ProductReview.objects.create(
+            product=self.keyboard,
+            customer=Customer.objects.create_user(
+                username="sort-high",
+                email="sort-high@example.com",
+                password="Strong-password-123",
+            ),
+            rating=5,
+            body="A high rating review.",
+        )
+        useful_review = ProductReview.objects.create(
+            product=self.keyboard,
+            customer=Customer.objects.create_user(
+                username="sort-useful",
+                email="sort-useful@example.com",
+                password="Strong-password-123",
+            ),
+            rating=4,
+            body="A useful review.",
+        )
+        for index in range(2):
+            ProductReviewHelpfulVote.objects.create(
+                review=useful_review,
+                customer=Customer.objects.create_user(
+                    username=f"sort-voter-{index}",
+                    email=f"sort-voter-{index}@example.com",
+                    password="Strong-password-123",
+                ),
+            )
+
+        highest_response = self.client.get(
+            reverse("product-reviews", kwargs={"slug": self.keyboard.slug}),
+            {"sort": "highest"},
+        )
+        helpful_response = self.client.get(
+            reverse("product-reviews", kwargs={"slug": self.keyboard.slug}),
+            {"sort": "helpful"},
+        )
+
+        self.assertEqual(highest_response.data["results"][0]["id"], high_review.pk)
+        self.assertEqual(helpful_response.data["results"][0]["id"], useful_review.pk)
+        self.assertIn(low_review.pk, [item["id"] for item in highest_response.data["results"]])
+
     def test_writing_product_review_requires_authentication(self):
         response = self.client.post(
             reverse("product-reviews", kwargs={"slug": self.keyboard.slug}),

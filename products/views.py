@@ -211,7 +211,13 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
                         order__payment_status=Order.PaymentStatus.PAID,
                     )
                 ),
-            ).order_by("-created_at")
+            )
+            review_sort = request.query_params.get("sort", "newest").strip().lower()
+            review_ordering = {
+                "highest": ("-rating", "-created_at"),
+                "helpful": ("-helpful_count_value", "-rating", "-created_at"),
+            }.get(review_sort, ("-created_at",))
+            reviews = reviews.order_by(*review_ordering)
             if request.user.is_authenticated:
                 reviews = reviews.annotate(
                     helpful_by_me_value=Exists(

@@ -63,6 +63,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="product-reviews"')
         self.assertContains(response, 'class="reviews-layout"')
         self.assertContains(response, 'id="reviews-list"')
+        self.assertContains(response, 'id="review-sort"')
+        self.assertContains(response, 'value="helpful"')
         self.assertContains(response, 'id="product-questions"')
         self.assertContains(response, 'id="questions-list"')
         self.assertContains(response, 'id="question-composer"')

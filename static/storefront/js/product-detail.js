@@ -9,6 +9,7 @@ const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 let productReviews = [];
 let reviewUser = null;
 let reviewSummary = { average: 0, count: 0, distribution: {}, loaded: false };
+let reviewSort = "newest";
 let productQuestions = [];
 let questionUser = null;
 let productRecommendations = [];
@@ -304,6 +305,14 @@ function renderReviewSummary(product) {
   summaryNode.innerHTML = `<div class="review-summary-main"><span class="rating-stars" aria-hidden="true">${summary.count ? reviewStars(summary.average) : "☆☆☆☆☆"}</span><strong>${summary.count ? escapeHTML(number(summary.average)) : "—"}</strong><small>${escapeHTML(summary.count ? format("reviewCount", { count: number(summary.count) }) : t("noReviews"))}</small></div><div class="review-distribution">${distributionMarkup}</div>`;
 }
 
+function sortReviewsForDisplay(reviews) {
+  return [...reviews].sort((first, second) => {
+    if (reviewSort === "highest") return (Number(second.rating || 0) - Number(first.rating || 0)) || (Date.parse(second.created_at || "") - Date.parse(first.created_at || ""));
+    if (reviewSort === "helpful") return (Number(second.helpful_count || 0) - Number(first.helpful_count || 0)) || (Number(second.rating || 0) - Number(first.rating || 0));
+    return Date.parse(second.created_at || "") - Date.parse(first.created_at || "");
+  });
+}
+
 function renderReviewsList() {
   const list = document.querySelector("#reviews-list");
   if (!list) return;
@@ -313,7 +322,7 @@ function renderReviewsList() {
     return;
   }
 
-  list.innerHTML = productReviews.map((review) => {
+  list.innerHTML = sortReviewsForDisplay(productReviews).map((review) => {
     const title = review.title ? `<h3>${escapeHTML(review.title)}</h3>` : "";
     const helpfulCount = Number(review.helpful_count || 0);
     const helpfulLabel = review.helpful_by_me ? t("helpfulMarked") : t("markHelpful");
@@ -494,7 +503,7 @@ async function loadReviews(product) {
 
   try {
     const [data, user] = await Promise.all([
-      getJSON(`products/${encodeURIComponent(slug)}/reviews/`),
+      getJSON(`products/${encodeURIComponent(slug)}/reviews/?sort=${encodeURIComponent(reviewSort)}`),
       loadReviewUser(),
     ]);
     productReviews = Array.isArray(data.results) ? data.results : [];
@@ -647,6 +656,7 @@ async function loadProduct() {
 
 function updateThemeButton() { document.querySelector("#theme-toggle").textContent = document.documentElement.classList.contains("dark") ? "☼" : "☾"; }
 document.querySelector("#theme-toggle").addEventListener("click", () => { document.documentElement.classList.toggle("dark"); localStorage.setItem("nexora-theme", document.documentElement.classList.contains("dark") ? "dark" : "light"); updateThemeButton(); });
+document.querySelector("#review-sort")?.addEventListener("change", (event) => { reviewSort = event.target.value; if (window.productDetail) loadReviews(window.productDetail); });
 if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.classList.add("dark");
 updateThemeButton();
 window.setInterval(updateDiscountCountdowns, 1000);
