@@ -5,6 +5,7 @@ const COMPARE_STORAGE_KEY = "nexora-compare";
 const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 const FREE_SHIPPING_THRESHOLD = 2000000;
 const compareIds = new Set();
+let searchSuggestionIndex = -1;
 
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const localizedNumber = (value) => new Intl.NumberFormat(window.NexoraI18n?.current() === "en" ? "en-US" : "fa-IR").format(value);
@@ -104,6 +105,113 @@ function categoryName(category) {
 
 function productName(product) {
   return window.NexoraI18n?.productName(product) || product.name;
+}
+
+function normalizeSearch(value) {
+  return String(value ?? "")
+    .normalize("NFKC")
+    .replace(/[يى]/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/[ةۀ]/g, "ه")
+    .replace(/[‌ـ]/g, "")
+    .replace(/[\u064B-\u065F\u0670]/g, "")
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+    .replace(/\s+/g, " ")
+    .toLocaleLowerCase("fa-IR")
+    .trim();
+}
+
+function selectedCategorySlugs() {
+  const slugs = new Set();
+  const selectedCategory = state.categories.find((category) => category.slug === state.category);
+  const collect = (category) => {
+    slugs.add(category.slug);
+    (category.children || []).forEach(collect);
+  };
+  if (selectedCategory) collect(selectedCategory);
+  return slugs;
+}
+
+function productSearchText(product) {
+  return [
+    productName(product),
+    product.name,
+    product.brand,
+    product.sku,
+    product.category ? categoryName(product.category) : "",
+  ].filter(Boolean).join(" ");
+}
+
+function searchCandidates(query) {
+  const normalizedQuery = normalizeSearch(query);
+  if (!normalizedQuery) return [];
+  const categorySlugs = selectedCategorySlugs();
+  return state.products
+    .filter((product) => {
+      const inCategory = !state.category || categorySlugs.has(product.category?.slug);
+      return inCategory && normalizeSearch(productSearchText(product)).includes(normalizedQuery);
+    })
+    .sort((first, second) => {
+      const firstName = normalizeSearch(productName(first));
+      const secondName = normalizeSearch(productName(second));
+      const firstScore = (firstName.startsWith(normalizedQuery) ? 100 : 0) + (Number(first.discount_amount || 0) > 0 ? 5 : 0) + Number(first.rating_average || 0);
+      const secondScore = (secondName.startsWith(normalizedQuery) ? 100 : 0) + (Number(second.discount_amount || 0) > 0 ? 5 : 0) + Number(second.rating_average || 0);
+      return (secondScore - firstScore) || firstName.localeCompare(secondName, window.NexoraI18n?.current() === "en" ? "en" : "fa");
+    })
+    .slice(0, 6);
+}
+
+function searchSuggestionImage(product) {
+  const name = productName(product);
+  if (product.image_url) return '<img src="' + escapeHTML(product.image_url) + '" alt="' + escapeHTML(name) + '" loading="lazy">';
+  return '<span class="search-suggestion-placeholder" aria-hidden="true">' + escapeHTML((product.brand || "N").slice(0, 1)) + "</span>";
+}
+
+function renderSearchSuggestions() {
+  const input = document.querySelector("#product-search");
+  const panel = document.querySelector("#search-suggestions");
+  if (!input || !panel) return;
+  const query = input.value.trim();
+  const candidates = searchCandidates(query);
+  searchSuggestionIndex = -1;
+  if (!query || !state.products.length) {
+    panel.hidden = true;
+    input.removeAttribute("aria-activedescendant");
+    return;
+  }
+  if (!candidates.length) {
+    panel.innerHTML = '<div class="search-suggestions-empty" role="status"><span aria-hidden="true">⌕</span><span>' + escapeHTML(t("searchNoResults")) + "</span></div>";
+    panel.hidden = false;
+    input.removeAttribute("aria-activedescendant");
+    return;
+  }
+  panel.innerHTML = candidates.map((product) => {
+    const name = productName(product);
+    const category = product.category ? categoryName(product.category) : t("digitalAccessories");
+    const discount = Number(product.discount_amount || 0) > 0 ? '<span class="search-suggestion-discount">' + escapeHTML(discountLabel(product)) + "</span>" : "";
+    return '<button class="search-suggestion" id="search-suggestion-' + product.id + '" data-search-product="' + escapeHTML(product.slug) + '" type="button" role="option" aria-selected="false"><span class="search-suggestion-image">' + searchSuggestionImage(product) + '</span><span class="search-suggestion-copy"><strong>' + escapeHTML(name) + '</strong><small>' + escapeHTML(category) + '</small></span><span class="search-suggestion-price"><strong>' + escapeHTML(money(product.final_price)) + '</strong>' + discount + "</span></button>";
+  }).join("");
+  panel.hidden = false;
+}
+
+function setSearchSuggestionIndex(nextIndex) {
+  const panel = document.querySelector("#search-suggestions");
+  const input = document.querySelector("#product-search");
+  const options = panel ? [...panel.querySelectorAll("[data-search-product]")] : [];
+  if (!options.length) return;
+  searchSuggestionIndex = (nextIndex + options.length) % options.length;
+  options.forEach((option, index) => {
+    const active = index === searchSuggestionIndex;
+    option.classList.toggle("is-active", active);
+    option.setAttribute("aria-selected", String(active));
+  });
+  if (input) input.setAttribute("aria-activedescendant", options[searchSuggestionIndex].id);
+}
+
+function goToSearchSuggestion(slug) {
+  if (!slug) return;
+  window.location.href = "/products/" + encodeURIComponent(slug) + "/";
 }
 
 function productRating(product) {
@@ -371,14 +479,11 @@ function clearCatalogFilters() {
 function renderProducts() {
   const grid = document.querySelector("#product-grid");
   syncCompareSelection();
-  const categorySlugs = new Set();
-  const collectCategorySlugs = (category) => { categorySlugs.add(category.slug); (category.children || []).forEach(collectCategorySlugs); };
-  const selectedCategory = state.categories.find((category) => category.slug === state.category);
-  if (selectedCategory) collectCategorySlugs(selectedCategory);
+  const categorySlugs = selectedCategorySlugs();
   const filtered = state.products.filter((product) => {
     const matchesCategory = !state.category || categorySlugs.has(product.category?.slug);
-    const query = state.search.trim().toLowerCase();
-    const matchesSearch = !query || `${productName(product)} ${product.name} ${product.brand || ""}`.toLowerCase().includes(query);
+    const query = normalizeSearch(state.search);
+    const matchesSearch = !query || normalizeSearch(productSearchText(product)).includes(query);
     const matchesDiscount = !state.onlyDiscounted || Number(product.discount_amount || 0) > 0;
     const matchesStock = !state.onlyInStock || product.is_in_stock;
     return matchesCategory && matchesSearch && matchesDiscount && matchesStock && matchesPriceBand(product);
@@ -571,6 +676,7 @@ function renderCategories(categories) {
     if (state.category) expandedCategorySlugs.add(state.category);
     renderCategories(categories);
     renderProducts();
+    renderSearchSuggestions();
   }));
   document.querySelectorAll("#category-tabs [data-category-expand]").forEach((button) => button.addEventListener("click", (event) => {
     event.preventDefault();
@@ -594,12 +700,43 @@ async function loadCatalog() {
     renderProducts();
     renderDiscountProducts();
     renderFeaturedProducts();
+    renderSearchSuggestions();
   } catch (error) {
     document.querySelector("#product-grid").innerHTML = `<div class="state-card"><span class="state-icon">!</span><h3>${t("storefrontConnectionFailed")}</h3><p>${t("serverCheck")}</p><button class="retry-button" onclick="loadCatalog()">${t("tryAgain")}</button></div>`;
   }
 }
 
-document.querySelector("#product-search").addEventListener("input", (event) => { state.search = event.target.value; renderProducts(); });
+const searchInput = document.querySelector("#product-search");
+const searchSuggestions = document.querySelector("#search-suggestions");
+searchInput.addEventListener("input", (event) => { state.search = event.target.value; renderSearchSuggestions(); renderProducts(); });
+searchInput.addEventListener("focus", renderSearchSuggestions);
+searchInput.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    if (searchSuggestions.hidden) renderSearchSuggestions();
+    setSearchSuggestionIndex(searchSuggestionIndex + (event.key === "ArrowDown" ? 1 : -1));
+  }
+  if (event.key === "Enter" && searchSuggestionIndex >= 0) {
+    const option = searchSuggestions.querySelectorAll("[data-search-product]")[searchSuggestionIndex];
+    if (option) { event.preventDefault(); goToSearchSuggestion(option.dataset.searchProduct); }
+  }
+  if (event.key === "Escape") {
+    searchSuggestions.hidden = true;
+    searchSuggestionIndex = -1;
+    searchInput.removeAttribute("aria-activedescendant");
+  }
+});
+searchSuggestions.addEventListener("click", (event) => {
+  const option = event.target.closest("[data-search-product]");
+  if (option) goToSearchSuggestion(option.dataset.searchProduct);
+});
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".search-box-wrap")) {
+    searchSuggestions.hidden = true;
+    searchSuggestionIndex = -1;
+    searchInput.removeAttribute("aria-activedescendant");
+  }
+});
 document.querySelector("#product-sort").addEventListener("change", (event) => { state.sort = event.target.value; renderProducts(); });
 document.querySelectorAll("[data-catalog-filter]").forEach((button) => button.addEventListener("click", () => {
   if (button.dataset.catalogFilter === "discount") state.onlyDiscounted = !state.onlyDiscounted;
@@ -669,6 +806,7 @@ window.addEventListener("nexora-language-changed", () => {
   refreshCart();
   loadAccountState();
   renderCatalogFilters();
+  renderSearchSuggestions();
   updateDiscountCountdowns();
   updateCompareUI();
 });

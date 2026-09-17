@@ -108,7 +108,7 @@ const categoryTranslations = {
   }
 };
 
-const productTranslations = {
+const productNames = {
   fa: {
     "NX-FLUX-KB-001": "کیبورد مکانیکال Nexora Flux",
     "NX-ARC-MOUSE-001": "ماوس بی‌سیم Nexora Arc",
@@ -137,6 +137,10 @@ const productTranslations = {
     "NX-VOLT-GAN-100-001": "شارژر GaN Nexora Volt 100W",
     "NX-RESERVE-PB-001": "پاوربانک Nexora Reserve 20000"
   },
+  en: {}
+};
+
+const productDescriptions = {
   en: {
     "NX-FLUX-KB-001": "A minimalist mechanical keyboard with adjustable lighting for work and play.",
     "NX-ARC-MOUSE-001": "A lightweight wireless mouse with a precise sensor and ergonomic design.",
@@ -210,11 +214,13 @@ translations.en.couponDiscount = "Code discount";
 translations.en.couponApplied = "Discount code applied.";
 translations.en.couponRemoved = "Discount code removed.";
 translations.fa.sortBy = "مرتب‌سازی";
+translations.fa.searchNoResults = "محصولی با این عبارت پیدا نشد.";
 translations.fa.sortNewest = "جدیدترین";
 translations.fa.sortPriceLow = "ارزان‌ترین";
 translations.fa.sortPriceHigh = "گران‌ترین";
 translations.fa.sortName = "نام محصول";
 translations.en.sortBy = "Sort by";
+translations.en.searchNoResults = "No product matches this search.";
 translations.en.sortNewest = "Newest";
 translations.en.sortPriceLow = "Price: low to high";
 translations.en.sortPriceHigh = "Price: high to low";
@@ -754,8 +760,8 @@ window.NexoraI18n = {
   current: () => document.documentElement.lang === "en" ? "en" : "fa",
   t: (key) => translations[document.documentElement.lang === "en" ? "en" : "fa"][key] || key,
   category: (slug, fallback) => categoryTranslations[document.documentElement.lang === "en" ? "en" : "fa"][slug] || fallback,
-  productName: (product) => productTranslations[document.documentElement.lang === "en" ? "en" : "fa"]?.[product.sku] || product.name || product.product_name,
-  productDescription: (product) => document.documentElement.lang === "en" ? (productTranslations.en?.[product.sku] || (/[\u0600-\u06ff]/.test(product.description || "") ? "A carefully selected Nexora essential for everyday digital life." : product.description)) : product.description,
+  productName: (product) => productNames[document.documentElement.lang === "en" ? "en" : "fa"]?.[product.sku] || product.name || product.product_name,
+  productDescription: (product) => document.documentElement.lang === "en" ? (productDescriptions.en?.[product.sku] || (/[\u0600-\u06ff]/.test(product.description || "") ? "A carefully selected Nexora essential for everyday digital life." : product.description)) : product.description,
   specificationLabel: (key) => specificationTranslations[document.documentElement.lang === "en" ? "en" : "fa"]?.[key] || key
 };
 

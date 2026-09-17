@@ -38,8 +38,22 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'data-catalog-filter="discount"')
         self.assertContains(response, 'data-catalog-filter="stock"')
         self.assertContains(response, 'id="price-filter"')
+        self.assertContains(response, 'id="search-suggestions"')
+        self.assertContains(response, 'aria-autocomplete="list"')
         self.assertContains(response, "/about/")
         self.assertContains(response, "/contact/")
+
+    def test_catalog_search_has_localized_suggestions_and_keyboard_navigation(self):
+        project_root = Path(__file__).resolve().parents[1]
+        app_source = (project_root / "static/storefront/js/app.js").read_text()
+        i18n_source = (project_root / "static/storefront/js/i18n.js").read_text()
+
+        self.assertIn("function normalizeSearch", app_source)
+        self.assertIn("function renderSearchSuggestions", app_source)
+        self.assertIn("data-search-product", app_source)
+        self.assertIn("ArrowDown", app_source)
+        self.assertIn("searchNoResults", i18n_source)
+        self.assertIn("const productDescriptions", i18n_source)
 
     def test_public_feedback_wall_loads_all_api_pages(self):
         source = (Path(__file__).resolve().parents[1] / "static/storefront/js/feedback.js").read_text()
