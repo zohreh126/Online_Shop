@@ -10,7 +10,7 @@
 <body>
   <header class="site-header"><div class="container nav-wrap">
     <a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
-    <div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button>{% include "storefront/favorites-nav.html" %}<a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a></div>
+    <div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button>{% include "storefront/favorites-nav.html" %}<a class="cart-button icon-action-button" href="/?cart=open" data-i18n-aria-label="cartIconLabel" data-i18n-title="cartIconLabel" aria-label="باز کردن سبد خرید" title="باز کردن سبد خرید"><span class="cart-icon" aria-hidden="true">🛒</span><span class="cart-label sr-only" data-i18n="cart">سبد خرید</span><b data-cart-count>۰</b></a><a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a></div>
   </div></header>
   <main class="dashboard-page container">
     <div id="dashboard-alert" class="state-card" hidden></div>
@@ -20,6 +20,6 @@
       <section class="dashboard-panel"><div class="panel-heading"><h2 data-i18n="myOrders">سفارش‌های من</h2><span id="order-count"></span></div><div id="orders-list"></div></section>
     </section>
   </main>
-  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/dashboard.js' %}" defer></script>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/cart-nav.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/dashboard.js' %}" defer></script>
 </body>
 </html>

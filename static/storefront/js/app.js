@@ -463,6 +463,7 @@ function renderCart(cart) {
   const body = document.querySelector("#cart-body");
   const footer = document.querySelector("#cart-footer");
   document.querySelector("#cart-count").textContent = localizedNumber(cart.item_count || 0);
+  window.NexoraCartNav?.renderCount(cart.item_count || 0);
   document.querySelector("#cart-subtotal").textContent = money(cart.subtotal ?? 0);
   document.querySelector("#cart-total").textContent = money(cart.total_amount ?? cart.subtotal ?? 0);
   const shippingProgress = document.querySelector("#shipping-progress");

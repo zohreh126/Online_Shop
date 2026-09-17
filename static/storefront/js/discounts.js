@@ -192,6 +192,7 @@ async function loadCartCount() {
   try {
     const cart = await getJSON("cart/");
     document.querySelector("#discount-cart-count").textContent = number(cart.item_count || 0);
+    window.NexoraCartNav?.renderCount(cart.item_count || 0);
   } catch (error) {
     // The discount shelf remains usable when cart state is temporarily unavailable.
   }

@@ -26,7 +26,7 @@
         <button class="language-button" data-language-toggle type="button">English</button>
         {% include "storefront/favorites-nav.html" %}
         <a class="account-link" href="/account/" data-i18n="login">ورود</a>
-        <a class="cart-button icon-action-button" href="/?cart=open" data-i18n-aria-label="cartIconLabel" data-i18n-title="cartIconLabel" aria-label="باز کردن سبد خرید" title="باز کردن سبد خرید"><span class="cart-icon" aria-hidden="true">🛒</span><span class="cart-label sr-only" data-i18n="cart">سبد خرید</span><b id="discount-cart-count">۰</b></a>
+        <a class="cart-button icon-action-button" href="/?cart=open" data-i18n-aria-label="cartIconLabel" data-i18n-title="cartIconLabel" aria-label="باز کردن سبد خرید" title="باز کردن سبد خرید"><span class="cart-icon" aria-hidden="true">🛒</span><span class="cart-label sr-only" data-i18n="cart">سبد خرید</span><b id="discount-cart-count" data-cart-count>۰</b></a>
         <button class="menu-button" id="menu-toggle" type="button" aria-label="باز کردن منو">☰</button>
       </div>
     </div>
@@ -65,6 +65,7 @@
   <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/discounts/" data-i18n="discounts">تخفیف‌ها</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column"><h3 data-i18n="supportColumn">پشتیبانی</h3><a href="/account/" data-i18n="account">حساب کاربری</a><a href="/checkout/" data-i18n="checkoutTitle">تکمیل سفارش</a><a href="/contact/#faq" data-i18n="faqLink">سؤالات متداول و راهنمای خرید</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span>nexorastore.zp@gmail.com</span><span dir="ltr">+98 21 0000 0000</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© ۲۰۲۶ Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
 
   <script src="{% static 'storefront/js/i18n.js' %}" defer></script>
+  <script src="{% static 'storefront/js/cart-nav.js' %}" defer></script>
   <script src="{% static 'storefront/js/favorites.js' %}" defer></script>
   <script src="{% static 'storefront/js/discounts.js' %}" defer></script>
   <script src="{% static 'storefront/js/site.js' %}" defer></script>

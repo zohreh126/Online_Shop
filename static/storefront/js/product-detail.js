@@ -157,6 +157,7 @@ async function addToCart(product) {
   const response = await fetch(`${API_BASE}cart/items/`, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-CSRFToken": await csrf() }, body: JSON.stringify({ product_id: product.id, quantity: 1 }) });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.detail || data.product_id?.[0] || t("operationFailed"));
+  await window.NexoraCartNav?.refresh();
   showToast(t("productAdded"));
 }
 

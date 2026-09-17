@@ -14,6 +14,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'data-favorite-count')
         self.assertContains(response, 'class="cart-button icon-action-button"')
         self.assertContains(response, 'class="cart-label sr-only"')
+        self.assertContains(response, 'data-cart-count')
+        self.assertContains(response, "/static/storefront/js/cart-nav.js")
         self.assertContains(response, "/static/storefront/css/app.css")
         self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/app.js")
@@ -65,6 +67,27 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="discount-sort"')
         self.assertContains(response, 'id="discounts-best-saving"')
         self.assertContains(response, "/static/storefront/js/discounts.js")
+
+    def test_storefront_pages_expose_shared_cart_navigation(self):
+        pages = (
+            ("storefront-about", {}),
+            ("storefront-contact", {}),
+            ("storefront-discounts", {}),
+            ("storefront-product-detail", {"slug": "sample-product"}),
+            ("storefront-checkout", {}),
+            ("storefront-order-result", {}),
+            ("storefront-account", {}),
+            ("storefront-dashboard", {}),
+            ("storefront-favorites", {}),
+            ("storefront-profile", {}),
+        )
+        for name, kwargs in pages:
+            with self.subTest(page=name):
+                response = self.client.get(reverse(name, kwargs=kwargs))
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, 'class="cart-button icon-action-button"')
+                self.assertContains(response, 'data-cart-count')
+                self.assertContains(response, "/static/storefront/js/cart-nav.js")
 
     def test_product_detail_page_is_available(self):
         response = self.client.get(reverse("storefront-product-detail", kwargs={"slug": "sample-product"}))
