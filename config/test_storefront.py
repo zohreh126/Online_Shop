@@ -12,6 +12,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "cart-drawer")
         self.assertContains(response, 'class="favorite-nav-link"')
         self.assertContains(response, 'data-favorite-count')
+        self.assertContains(response, 'class="cart-button icon-action-button"')
+        self.assertContains(response, 'class="cart-label sr-only"')
         self.assertContains(response, "/static/storefront/css/app.css")
         self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/app.js")

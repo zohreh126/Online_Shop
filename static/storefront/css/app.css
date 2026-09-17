@@ -1501,3 +1501,17 @@ html[dir="ltr"] .discount-overview-mark { margin-inline-start:auto; }
   .discounts-promise { padding:25px 22px; }
   .discounts-promise-icon { flex-basis:45px; width:45px; height:45px; }
 }
+
+/* Icon-first actions keep the storefront calm while preserving accessible labels. */
+.sr-only { position:absolute !important; width:1px !important; height:1px !important; padding:0 !important; margin:-1px !important; overflow:hidden !important; clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important; }
+.icon-action-button { position:relative; justify-content:center; gap:0; width:43px; min-width:43px; height:40px; padding:0; border-radius:13px; }
+.icon-action-button .cart-icon { font-size:19px; line-height:1; }
+.icon-action-button b { position:absolute; top:-5px; inset-inline-end:-5px; margin:0; }
+.icon-action-button:focus-visible,.remove-item:focus-visible { outline:3px solid rgba(239,156,131,.38); outline-offset:3px; }
+.quantity-control .remove-item { display:grid; place-items:center; flex:0 0 29px; width:29px; height:29px; margin-inline-start:auto; margin-right:0; padding:0; border:1px solid rgba(179,91,100,.22); border-radius:9px; background:transparent; color:#b35b64; font-size:19px; line-height:1; }
+.quantity-control .remove-item:hover { background:rgba(179,91,100,.1); }
+html[dir="ltr"] .quantity-control .remove-item { margin-inline-start:auto; margin-right:0; }
+@media (max-width:520px) {
+  .icon-action-button { width:39px; min-width:39px; height:36px; }
+  .icon-action-button .cart-icon { font-size:17px; }
+}
