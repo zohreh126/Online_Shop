@@ -8,6 +8,7 @@ erDiagram
     CUSTOMER ||--o{ CART : owns
     CUSTOMER ||--o{ ORDER : places
     CUSTOMER ||--o{ REWARD_TRANSACTION : earns
+    CUSTOMER ||--o{ PRODUCT_QUESTION : asks
     CATEGORY ||--o{ CATEGORY : contains
     CATEGORY ||--o{ PRODUCT : classifies
     PRODUCT ||--o| DISCOUNT : has
@@ -18,6 +19,7 @@ erDiagram
     ORDER ||--o{ ORDER_ITEM : contains
     ORDER ||--o| REWARD_TRANSACTION : grants
     PRODUCT ||--o{ ORDER_ITEM : snapshot_source
+    PRODUCT ||--o{ PRODUCT_QUESTION : receives
 
     CUSTOMER {
         bigint id PK
@@ -107,6 +109,16 @@ erDiagram
         bigint order_id UK FK
         integer points
         string reason
+    }
+    PRODUCT_QUESTION {
+        bigint id PK
+        bigint product_id FK
+        bigint customer_id FK
+        string question
+        string answer
+        datetime answered_at
+        boolean is_approved
+        boolean is_active
     }
 ```
 

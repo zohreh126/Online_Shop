@@ -18,6 +18,7 @@
 - خرید مجدد سریع از تاریخچه سفارش با کنترل دوباره‌ی موجودی و وضعیت محصول
 - داشبورد مشتری، تاریخچه سفارش و پنل Admin سفارشی
 - امتیازدهی و نقد محصول، رأی مفید بودن نقدها، نظرسنجی تجربه خرید و بخش پرسش‌های متداول تعاملی
+- پرسش‌وپاسخ عمومی برای هر محصول با امکان پاسخ‌گویی تیم از پنل Admin
 - مقایسه محصولات، علاقه‌مندی‌ها، محصولات اخیراً دیده‌شده و نوار پیشرفت ارسال رایگان
 - فیلتر هوشمند کاتالوگ برای محصولات تخفیف‌دار، موجودی و بازه قیمت به‌همراه مرتب‌سازی
 - پیشنهادهای مرتبط در صفحه محصول بر اساس دسته‌بندی و سیگنال‌های امتیاز/تخفیف
@@ -51,7 +52,7 @@ python manage.py runserver
 |---|---|
 | محصولات و دسته‌بندی‌ها | `/api/v1/products/` و `/api/v1/categories/` |
 | احراز هویت و پروفایل | `/api/v1/auth/` |
-| علاقه‌مندی، اعلان محصول، نظر و بازخورد مشتری | `/api/v1/auth/favorites/`، `/api/v1/auth/product-watches/`، `/api/v1/products/{slug}/reviews/`، `/api/v1/products/{slug}/reviews/{review_id}/helpful/` و `/api/v1/auth/feedback/` |
+| علاقه‌مندی، اعلان محصول، نظر، پرسش‌وپاسخ و بازخورد مشتری | `/api/v1/auth/favorites/`، `/api/v1/auth/product-watches/`، `/api/v1/products/{slug}/reviews/`، `/api/v1/products/{slug}/reviews/{review_id}/helpful/`، `/api/v1/products/{slug}/questions/`، `/api/v1/products/{slug}/questions/{question_id}/answer/` و `/api/v1/auth/feedback/` |
 | سبد خرید | `/api/v1/cart/` |
 | سفارش‌های مشتری و خرید مجدد | `/api/v1/orders/` و `/api/v1/orders/{order_number}/reorder/` |
 | باشگاه امتیازی مشتری | `/api/v1/auth/rewards/` |
