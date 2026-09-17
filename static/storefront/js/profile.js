@@ -17,6 +17,7 @@ const PROFILE_ORDER_STEPS = [
 const PROFILE_ORDER_STATUS_INDEX = { pending: 0, confirmed: 1, processing: 2, shipped: 3, delivered: 4 };
 
 const roleTranslationKey = { product_manager: "roleProductManager", supervisor: "roleSupervisor", operator: "roleOperator" };
+const PROFILE_SECTIONS = ["personal", "addresses", "orders", "favorites", "watches", "rewards", "security"];
 
 function getCookie(name) { const cookie = (document.cookie ? document.cookie.split("; ") : []).find((value) => value.startsWith(`${name}=`)); return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : null; }
 async function csrf() { let token = getCookie("csrftoken"); if (token) return token; await fetch(`${API_BASE}auth/csrf/`, { credentials: "same-origin" }); return getCookie("csrftoken"); }
@@ -188,7 +189,26 @@ async function loadFavorites() {
     renderFavorites();
   } catch (error) { message(error.message); }
 }
-function openSection(name) { document.querySelectorAll(".profile-nav button").forEach((button) => button.classList.toggle("selected", button.dataset.section === name)); document.querySelectorAll(".profile-section").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === name)); if (name === "addresses") loadAddresses(); if (name === "orders") loadOrders(); if (name === "favorites") loadFavorites(); if (name === "watches") loadWatches(); if (name === "rewards") loadRewards(); }
+function openSection(name, { persist = true } = {}) {
+  const selectedSection = PROFILE_SECTIONS.includes(name) ? name : "personal";
+  document.querySelectorAll(".profile-nav button").forEach((button) => {
+    const active = button.dataset.section === selectedSection;
+    button.classList.toggle("selected", active);
+    button.setAttribute("aria-current", active ? "page" : "false");
+    button.tabIndex = active ? 0 : -1;
+  });
+  document.querySelectorAll(".profile-section").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === selectedSection));
+  if (persist) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("section", selectedSection);
+    window.history.replaceState({ section: selectedSection }, "", url);
+  }
+  if (selectedSection === "addresses") loadAddresses();
+  if (selectedSection === "orders") loadOrders();
+  if (selectedSection === "favorites") loadFavorites();
+  if (selectedSection === "watches") loadWatches();
+  if (selectedSection === "rewards") loadRewards();
+}
 function renderProfile(profile) { Object.entries(profile).forEach(([key, value]) => { const input = document.querySelector(`[name="${key}"]`); if (input) input.value = value || ""; }); const name = `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || profile.username; const roleKey = roleTranslationKey[profile.role] || "normalCustomer"; const roleLabel = tr(roleKey); const profileName = document.querySelector("#profile-name"); const profileEmail = document.querySelector("#profile-email"); const avatar = document.querySelector("#profile-avatar"); const role = document.querySelector("#profile-role"); const roleHint = document.querySelector("#profile-role-hint"); const verified = document.querySelector("#profile-verified"); const emailHint = document.querySelector("#profile-email-hint"); if (profileName) profileName.textContent = name; if (profileEmail) profileEmail.textContent = profile.email || ""; if (avatar) avatar.textContent = (name || "N").slice(0, 1).toUpperCase(); if (role) { role.textContent = roleLabel; role.classList.toggle("is-staff", Boolean(profile.role)); } if (roleHint) roleHint.textContent = roleLabel; if (verified) { verified.textContent = profile.email_verified ? `✓ ${tr("emailVerified")}` : `! ${tr("emailNotVerified")}`; verified.classList.toggle("is-warning", !profile.email_verified); } if (emailHint) emailHint.textContent = profile.email_verified ? tr("emailVerified") : tr("emailNotVerified"); renderProfileCompletion(); }
 function resetAddressForm() { const form = document.querySelector("#profile-address-form"); form.reset(); form.hidden = true; form.dataset.addressId = ""; form.classList.remove("editing"); document.querySelector("#profile-address-title").textContent = tr("addNewAddress"); clearErrors(form); }
 function renderAddresses() { const list = document.querySelector("#profile-addresses"); if (!state.addresses.length) { list.innerHTML = `<div class="empty-inline">${tr("noSavedAddress")}</div>`; return; } list.innerHTML = state.addresses.map((address) => `<article class="profile-address-card"><div><strong>${escapeHTML(address.title)} ${address.is_default ? `<small class="default-badge">${tr("defaultAddress")}</small>` : ""}</strong><p>${escapeHTML(address.province)}، ${escapeHTML(address.city)}، ${escapeHTML(address.address_line)}</p><small>${escapeHTML(address.recipient_name)} · ${escapeHTML(address.recipient_phone)} · ${escapeHTML(address.postal_code)}</small></div><div class="address-actions"><button class="address-action" data-action="edit" data-id="${address.id}" type="button">${tr("editAddress")}</button><button class="address-action delete" data-action="delete" data-id="${address.id}" type="button">${tr("remove")}</button></div></article>`).join(""); list.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => { const address = state.addresses.find((item) => item.id === Number(button.dataset.id)); button.dataset.action === "edit" ? beginAddressEdit(address) : deleteAddress(address); })); }
@@ -255,7 +275,28 @@ async function reorderProfileOrder(orderNumber, button) {
 }
 async function loadOrders() { try { const data = await request("orders/?page_size=100"); state.orders = data.results || data; renderOrders(); updateProfileStats(); } catch (error) { message(error.message); } }
 
-document.querySelectorAll(".profile-nav button").forEach((button) => button.addEventListener("click", () => openSection(button.dataset.section)));
+document.querySelectorAll(".profile-nav button").forEach((button) => {
+  button.addEventListener("click", () => openSection(button.dataset.section));
+  button.addEventListener("keydown", (event) => {
+    const buttons = [...document.querySelectorAll(".profile-nav button")];
+    const index = buttons.indexOf(button);
+    const forwardKey = document.documentElement.dir === "rtl" ? "ArrowLeft" : "ArrowRight";
+    const backwardKey = document.documentElement.dir === "rtl" ? "ArrowRight" : "ArrowLeft";
+    const nextIndex = event.key === "ArrowDown" || event.key === forwardKey
+      ? (index + 1) % buttons.length
+      : event.key === "ArrowUp" || event.key === backwardKey
+        ? (index - 1 + buttons.length) % buttons.length
+        : event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? buttons.length - 1
+            : -1;
+    if (nextIndex < 0) return;
+    event.preventDefault();
+    buttons[nextIndex].focus();
+    openSection(buttons[nextIndex].dataset.section);
+  });
+});
 document.querySelectorAll("[data-profile-shortcut]").forEach((button) => button.addEventListener("click", () => { openSection(button.dataset.profileShortcut); document.querySelector(".profile-main")?.scrollIntoView({ behavior: "smooth", block: "start" }); }));
 document.querySelector("#new-address").addEventListener("click", () => { const form = document.querySelector("#profile-address-form"); resetAddressForm(); form.hidden = false; form.scrollIntoView({ behavior: "smooth", block: "center" }); });
 document.querySelector("#cancel-profile-address").addEventListener("click", resetAddressForm);
@@ -274,4 +315,10 @@ document.addEventListener("nexora-favorite-changed", (event) => {
   if (document.querySelector('[data-panel="favorites"]')?.classList.contains("active")) renderFavorites();
 });
 window.addEventListener("nexora-language-changed", () => { if (state.profile) renderProfile(state.profile); if (state.addresses.length) renderAddresses(); if (state.orders.length) renderOrders(); if (state.favorites.length) renderFavorites(); if (state.watchesLoaded) renderWatches(); if (state.rewardsLoaded) renderRewards(); renderProfileCompletion(); });
-setupTheme(); openSection(["personal", "addresses", "orders", "favorites", "watches", "rewards", "security"].includes(initialSection) ? initialSection : "personal"); load();
+setupTheme();
+openSection(PROFILE_SECTIONS.includes(initialSection) ? initialSection : "personal", { persist: false });
+window.addEventListener("popstate", () => {
+  const section = new URLSearchParams(window.location.search).get("section") || "personal";
+  openSection(PROFILE_SECTIONS.includes(section) ? section : "personal", { persist: false });
+});
+load();
