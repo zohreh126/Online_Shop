@@ -216,6 +216,26 @@ a { transition: color .18s ease, background .18s ease, border-color .18s ease, t
 .nexora-feed-icon.question { color: #39739d; background: #e8f3fb; }
 .nexora-question-status { color: #b86e62; font-size: 9px; font-weight: 800; white-space: nowrap; }
 .nexora-question-status.is-answered { color: var(--nexora-green); }
+.nexora-ops-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin:0 0 24px; }
+.nexora-alert-feed { display:grid; }
+.nexora-alert-row { display:grid; grid-template-columns:35px minmax(0,1fr) auto; align-items:center; gap:11px; padding:13px 18px; border-bottom:1px solid #f0ebf4; color:var(--nexora-ink) !important; text-decoration:none !important; }
+.nexora-alert-row:last-child { border-bottom:0; }
+.nexora-alert-row:hover { background:#fff8f5; }
+.nexora-feed-icon.alert { color:#b86e62; background:#fff0ea; }
+.nexora-feed-icon.discount { color:#9a741d; background:#fff4d9; }
+.nexora-feed-icon.feedback { color:var(--nexora-green); background:#eaf6ed; }
+.nexora-alert-value,.nexora-alert-time,.nexora-feedback-rating { direction:ltr; white-space:nowrap; font-size:9px; font-weight:800; }
+.nexora-alert-value { color:#b86e62; }
+.nexora-alert-value.is-empty { color:#b35b64; }
+.nexora-alert-time { color:var(--nexora-purple); }
+.nexora-feedback-rating { color:#b47724; }
+.nexora-dashboard .nexora-ops-grid .nexora-dashboard-panel { min-width:0; }
+@media (max-width: 1180px) {
+  .nexora-ops-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 900px) {
+  .nexora-ops-grid { grid-template-columns:1fr; }
+}
 @media (max-width: 1180px) {
   .nexora-dashboard .nexora-dashboard-panels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

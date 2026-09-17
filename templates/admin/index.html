@@ -166,6 +166,63 @@
     {% endif %}
   </section>
 
+  <section class="nexora-ops-grid" aria-label="هشدارهای عملیاتی فروشگاه">
+    {% if perms.products.view_product %}
+      <article class="nexora-dashboard-panel">
+        <div class="nexora-panel-heading"><div><span class="nexora-panel-kicker">INVENTORY WATCH</span><h2>موجودی رو به اتمام</h2></div><a href="{% url 'admin:products_product_changelist' %}?is_active__exact=1">مدیریت موجودی ↗</a></div>
+        {% if nexora_low_stock_products %}
+          <div class="nexora-alert-feed">
+            {% for product in nexora_low_stock_products %}
+              <a class="nexora-alert-row" href="{% url 'admin:products_product_change' product.pk %}">
+                <span class="nexora-feed-icon alert">!</span>
+                <span class="nexora-feed-main"><strong>{{ product.name|truncatechars:32 }}</strong><small>{{ product.sku }}</small></span>
+                <span class="nexora-alert-value {% if product.stock_quantity == 0 %}is-empty{% endif %}">{{ product.stock_quantity }} عدد</span>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="nexora-panel-empty">همه‌ی محصولات فعال موجودی مناسبی دارند.</p>
+        {% endif %}
+      </article>
+    {% endif %}
+    {% if perms.products.view_discount %}
+      <article class="nexora-dashboard-panel">
+        <div class="nexora-panel-heading"><div><span class="nexora-panel-kicker">PROMOTION RADAR</span><h2>تخفیف‌های رو به پایان</h2></div><a href="{% url 'admin:products_discount_changelist' %}">مدیریت کمپین‌ها ↗</a></div>
+        {% if nexora_expiring_discounts %}
+          <div class="nexora-alert-feed">
+            {% for discount in nexora_expiring_discounts %}
+              <a class="nexora-alert-row" href="{% url 'admin:products_discount_change' discount.pk %}">
+                <span class="nexora-feed-icon discount">%</span>
+                <span class="nexora-feed-main"><strong>{{ discount.product.name|truncatechars:32 }}</strong><small>{{ discount.get_discount_type_display }} · {{ discount.value|floatformat:0 }}</small></span>
+                <time class="nexora-alert-time" datetime="{{ discount.ends_at|date:'c' }}">{{ discount.ends_at|date:"m/d H:i" }}</time>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="nexora-panel-empty">در هفت روز آینده کمپینی منقضی نمی‌شود.</p>
+        {% endif %}
+      </article>
+    {% endif %}
+    {% if perms.customers.view_sitefeedback %}
+      <article class="nexora-dashboard-panel">
+        <div class="nexora-panel-heading"><div><span class="nexora-panel-kicker">SITE PULSE</span><h2>نبض تجربه‌ی مشتری</h2></div><a href="{% url 'admin:customers_sitefeedback_changelist' %}">مشاهده بازخوردها ↗</a></div>
+        {% if nexora_recent_feedback %}
+          <div class="nexora-alert-feed">
+            {% for feedback in nexora_recent_feedback %}
+              <a class="nexora-alert-row" href="{% url 'admin:customers_sitefeedback_change' feedback.pk %}">
+                <span class="nexora-feed-icon feedback">★</span>
+                <span class="nexora-feed-main"><strong>{% if feedback.customer %}{{ feedback.customer.username }}{% else %}مهمان فروشگاه{% endif %}</strong><small>{{ feedback.comment|default:"بدون توضیح"|truncatechars:42 }}</small></span>
+                <span class="nexora-feedback-rating">{{ feedback.rating }}/5 ★</span>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="nexora-panel-empty">هنوز بازخوردی برای نمایش ثبت نشده است.</p>
+        {% endif %}
+      </article>
+    {% endif %}
+  </section>
+
   <div id="content-main">
     {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
   </div>

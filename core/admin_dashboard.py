@@ -1,10 +1,12 @@
+from datetime import timedelta
+
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Q, Sum
 from django.shortcuts import render
 from django.utils import timezone
 
-from customers.models import Customer
+from customers.models import Customer, SiteFeedback
 from orders.models import Order
 from products.models import Discount, Product, ProductQuestion, ProductReview
 
@@ -44,6 +46,9 @@ def nexora_admin_index(request):
             "nexora_recent_orders": [],
             "nexora_recent_reviews": [],
             "nexora_recent_questions": [],
+            "nexora_low_stock_products": [],
+            "nexora_expiring_discounts": [],
+            "nexora_recent_feedback": [],
         }
     )
 
@@ -128,6 +133,10 @@ def nexora_admin_index(request):
                 "tone": "purple",
             }
         )
+        context["nexora_low_stock_products"] = (
+            Product.objects.filter(is_active=True, stock_quantity__lte=5)
+            .order_by("stock_quantity", "name")[:6]
+        )
 
     if _can_access(user, "products", "discount"):
         now = timezone.now()
@@ -149,6 +158,16 @@ def nexora_admin_index(request):
                 "url": "admin:products_discount_changelist",
                 "tone": "coral",
             }
+        )
+        context["nexora_expiring_discounts"] = (
+            Discount.objects.filter(
+                active_discount_filter,
+                product__is_active=True,
+                ends_at__isnull=False,
+                ends_at__lte=now + timedelta(days=7),
+            )
+            .select_related("product")
+            .order_by("ends_at")[:6]
         )
 
     if _can_access(user, "orders", "order"):
@@ -244,6 +263,13 @@ def nexora_admin_index(request):
         context["nexora_recent_questions"] = (
             question_queryset
             .select_related("product", "customer")
+            .order_by("-created_at")[:5]
+        )
+
+    if _can_access(user, "customers", "sitefeedback"):
+        context["nexora_recent_feedback"] = (
+            SiteFeedback.objects.filter(is_active=True)
+            .select_related("customer")
             .order_by("-created_at")[:5]
         )
 
