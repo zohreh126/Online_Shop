@@ -156,6 +156,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductReviewSerializer(serializers.ModelSerializer):
     customer_name = serializers.SerializerMethodField()
     is_mine = serializers.SerializerMethodField()
+    is_verified_purchase = serializers.SerializerMethodField()
     helpful_count = serializers.SerializerMethodField()
     helpful_by_me = serializers.SerializerMethodField()
 
@@ -165,6 +166,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             "id",
             "customer_name",
             "is_mine",
+            "is_verified_purchase",
             "helpful_count",
             "helpful_by_me",
             "rating",
@@ -177,6 +179,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             "id",
             "customer_name",
             "is_mine",
+            "is_verified_purchase",
             "helpful_count",
             "helpful_by_me",
             "created_at",
@@ -190,6 +193,15 @@ class ProductReviewSerializer(serializers.ModelSerializer):
     def get_is_mine(self, review):
         request = self.context.get("request")
         return bool(request and request.user.is_authenticated and review.customer_id == request.user.id)
+
+    @extend_schema_field(OpenApiTypes.BOOL)
+    def get_is_verified_purchase(self, review):
+        if hasattr(review, "verified_purchase_value"):
+            return bool(review.verified_purchase_value)
+        return review.customer.orders.filter(
+            payment_status="paid",
+            items__product_id=review.product_id,
+        ).exists()
 
     def get_helpful_count(self, review):
         if hasattr(review, "helpful_count_value"):

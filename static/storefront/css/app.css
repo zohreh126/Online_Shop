@@ -776,6 +776,9 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
 .review-card-head { display:flex; justify-content:space-between; gap:15px; align-items:start; }
 .review-card-head > div { display:grid; gap:7px; }
 .review-card-head strong { font-size:13px; }
+.review-author-line { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.verified-purchase { display:inline-flex; align-items:center; gap:4px; padding:4px 7px; border-radius:999px; color:#397b55; background:#eaf6ed; font-size:9px; font-weight:800; white-space:nowrap; }
+.verified-purchase span { display:grid; place-items:center; width:13px; height:13px; border-radius:50%; color:#fff; background:#5b9b72; font-size:8px; }
 .review-card-head time { color:var(--muted); font-size:10px; direction:ltr; }
 .review-card h3 { margin:15px 0 7px; font-size:13px; }
 .review-card p { margin:12px 0 0; color:var(--muted); font-size:12px; line-height:2; white-space:pre-wrap; }

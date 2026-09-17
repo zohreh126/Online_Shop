@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from customers.models import Customer
+from orders.models import Order, OrderItem
 
 from .models import (
     Category,
@@ -138,6 +139,7 @@ class ProductCatalogAPITests(APITestCase):
         )
         self.assertEqual(response.data["results"][0]["customer_name"], "public-reviewer")
         self.assertFalse(response.data["results"][0]["is_mine"])
+        self.assertFalse(response.data["results"][0]["is_verified_purchase"])
         self.assertEqual(response.data["results"][0]["helpful_count"], 0)
         self.assertFalse(response.data["results"][0]["helpful_by_me"])
 
@@ -197,6 +199,49 @@ class ProductCatalogAPITests(APITestCase):
             ).count(),
             1,
         )
+
+    def test_review_from_paid_order_is_marked_as_verified_purchase(self):
+        customer = Customer.objects.create_user(
+            username="verified-reviewer",
+            email="verified-reviewer@example.com",
+            password="Strong-password-123",
+        )
+        order = Order.objects.create(
+            customer=customer,
+            status=Order.Status.DELIVERED,
+            payment_status=Order.PaymentStatus.PAID,
+            subtotal=Decimal("100.00"),
+            total_amount=Decimal("100.00"),
+            shipping_title="Home",
+            shipping_province="Tehran",
+            shipping_city="Tehran",
+            shipping_address_line="A test address",
+            shipping_postal_code="1234567890",
+            shipping_recipient_name="Verified Reviewer",
+            shipping_recipient_phone="09120000000",
+        )
+        OrderItem.objects.create(
+            order=order,
+            product=self.keyboard,
+            product_name=self.keyboard.name,
+            product_sku=self.keyboard.sku,
+            unit_price=self.keyboard.price,
+            unit_discount=Decimal("0.00"),
+            quantity=1,
+        )
+        ProductReview.objects.create(
+            product=self.keyboard,
+            customer=customer,
+            rating=5,
+            body="I bought and tested this keyboard.",
+        )
+
+        response = self.client.get(
+            reverse("product-reviews", kwargs={"slug": self.keyboard.slug})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["results"][0]["is_verified_purchase"])
 
     def test_authenticated_customer_can_toggle_review_helpful_vote(self):
         author = Customer.objects.create_user(

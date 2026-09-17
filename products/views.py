@@ -10,6 +10,8 @@ from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from orders.models import Order, OrderItem
+
 from .models import (
     Category,
     Product,
@@ -202,6 +204,13 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
                 is_approved=True,
             ).select_related("customer").annotate(
                 helpful_count_value=Count("helpful_votes", distinct=True),
+                verified_purchase_value=Exists(
+                    OrderItem.objects.filter(
+                        product_id=OuterRef("product_id"),
+                        order__customer_id=OuterRef("customer_id"),
+                        order__payment_status=Order.PaymentStatus.PAID,
+                    )
+                ),
             ).order_by("-created_at")
             if request.user.is_authenticated:
                 reviews = reviews.annotate(
