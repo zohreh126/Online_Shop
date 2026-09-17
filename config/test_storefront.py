@@ -130,6 +130,13 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/product-detail.js")
 
+    def test_product_review_wall_loads_all_api_pages(self):
+        source = (Path(__file__).resolve().parents[1] / "static/storefront/js/product-detail.js").read_text()
+
+        self.assertIn("function collectReviewPages", source)
+        self.assertIn("pageCount < 100", source)
+        self.assertIn("productReviews = await collectReviewPages(data)", source)
+
     def test_csrf_token_endpoint_is_available_to_storefront(self):
         response = self.client.get(reverse("auth-csrf"))
 

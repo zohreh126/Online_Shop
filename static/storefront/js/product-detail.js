@@ -519,6 +519,26 @@ async function loadReviewUser() {
   }
 }
 
+function apiPathFromUrl(url) {
+  const parsed = new URL(url, window.location.origin);
+  const apiPrefix = new URL(API_BASE, window.location.origin).pathname;
+  return (parsed.pathname.startsWith(apiPrefix) ? parsed.pathname.slice(apiPrefix.length) : parsed.pathname.replace(/^\/+/, "")) + parsed.search;
+}
+
+async function collectReviewPages(firstPage) {
+  const reviews = Array.isArray(firstPage) ? [...firstPage] : [...(firstPage.results || [])];
+  let nextUrl = firstPage?.next || null;
+  let pageCount = 1;
+  while (nextUrl && pageCount < 100) {
+    const page = await getJSON(apiPathFromUrl(nextUrl));
+    if (Array.isArray(page)) reviews.push(...page);
+    else reviews.push(...(Array.isArray(page.results) ? page.results : []));
+    nextUrl = page?.next || null;
+    pageCount += 1;
+  }
+  return reviews;
+}
+
 async function loadReviews(product) {
   const section = document.querySelector("#product-reviews");
   if (!section) return;
@@ -529,7 +549,7 @@ async function loadReviews(product) {
       getJSON(`products/${encodeURIComponent(slug)}/reviews/?sort=${encodeURIComponent(reviewSort)}`),
       loadReviewUser(),
     ]);
-    productReviews = Array.isArray(data.results) ? data.results : [];
+    productReviews = await collectReviewPages(data);
     reviewSummary = {
       average: Number(data.average || 0),
       count: Number(data.count || 0),
