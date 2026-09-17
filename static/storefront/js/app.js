@@ -1,5 +1,6 @@
 const API_BASE = "/api/v1/";
 const state = { products: [], categories: [], category: "", search: "", sort: "newest", onlyDiscounted: false, onlyInStock: false, priceBand: "all" };
+const expandedCategorySlugs = new Set();
 const COMPARE_STORAGE_KEY = "nexora-compare";
 const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 const FREE_SHIPPING_THRESHOLD = 2000000;
@@ -554,9 +555,30 @@ function showToast(message) { const toast = document.createElement("div"); toast
 function renderCategories(categories) {
   const roots = categories.filter((category) => !category.parent);
   const hasDescendant = (category, slug) => category.slug === slug || (category.children || []).some((child) => hasDescendant(child, slug));
-  const renderNode = (category, depth = 0) => `<li class="category-tree-item depth-${depth}"><button class="category-tree-button ${hasDescendant(category, state.category) ? "selected" : ""}" data-category="${category.slug}" type="button"><span class="category-tree-chevron">${category.children?.length ? "⌄" : ""}</span>${categoryName(category)}</button>${category.children?.length ? `<ul class="category-tree-children">${category.children.map((child) => renderNode(child, depth + 1)).join("")}</ul>` : ""}</li>`;
+  const renderNode = (category, depth = 0) => {
+    const children = category.children || [];
+    const hasChildren = children.length > 0;
+    const selected = hasDescendant(category, state.category);
+    const expanded = hasChildren && (expandedCategorySlugs.has(category.slug) || (state.category && category.slug !== state.category && hasDescendant(category, state.category)));
+    const name = categoryName(category);
+    const escapedSlug = escapeHTML(category.slug);
+    return `<li class="category-tree-item depth-${depth}${expanded ? " is-expanded" : ""}"><div class="category-tree-row"><button class="category-tree-button ${selected ? "selected" : ""}" data-category="${escapedSlug}" type="button" aria-current="${state.category === category.slug ? "true" : "false"}"><span class="category-tree-chevron" aria-hidden="true">${hasChildren ? (expanded ? "⌄" : "›") : "•"}</span><span class="category-tree-label">${escapeHTML(name)}</span></button>${hasChildren ? `<button class="category-tree-expand" data-category-expand="${escapedSlug}" type="button" aria-expanded="${String(expanded)}" aria-label="${escapeHTML(formatMessage(expanded ? "collapseCategory" : "expandCategory", { name }))}"><span aria-hidden="true">${expanded ? "−" : "+"}</span></button>` : ""}</div>${hasChildren ? `<ul class="category-tree-children"${expanded ? "" : " hidden"}>${children.map((child) => renderNode(child, depth + 1)).join("")}</ul>` : ""}</li>`;
+  };
   document.querySelector("#category-tabs").innerHTML = `<button class="category-tree-all ${!state.category ? "selected" : ""}" data-category="" type="button">${t("categoriesAll")}</button><ul class="category-tree">${roots.map((category) => renderNode(category)).join("")}</ul>`;
-  document.querySelectorAll("[data-category]").forEach((button) => button.addEventListener("click", () => { state.category = button.dataset.category; renderCategories(categories); renderProducts(); }));
+  document.querySelectorAll("#category-tabs [data-category]").forEach((button) => button.addEventListener("click", () => {
+    state.category = button.dataset.category;
+    if (state.category) expandedCategorySlugs.add(state.category);
+    renderCategories(categories);
+    renderProducts();
+  }));
+  document.querySelectorAll("#category-tabs [data-category-expand]").forEach((button) => button.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const slug = button.dataset.categoryExpand;
+    if (expandedCategorySlugs.has(slug)) expandedCategorySlugs.delete(slug);
+    else expandedCategorySlugs.add(slug);
+    renderCategories(categories);
+  }));
 }
 
 async function loadCatalog() {
