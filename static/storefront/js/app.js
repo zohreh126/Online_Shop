@@ -613,6 +613,7 @@ document.querySelector("#price-filter")?.addEventListener("change", (event) => {
 });
 document.querySelector("#clear-catalog-filters")?.addEventListener("click", clearCatalogFilters);
 document.querySelector("#discounts-view-all")?.addEventListener("click", (event) => {
+  if (event.currentTarget.getAttribute("href") !== "#catalog") return;
   event.preventDefault();
   state.category = "";
   state.onlyDiscounted = true;

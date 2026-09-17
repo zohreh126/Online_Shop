@@ -33,6 +33,7 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="storefront/index.html"), name="storefront-home"),
     path("about/", TemplateView.as_view(template_name="storefront/about.html"), name="storefront-about"),
     path("contact/", TemplateView.as_view(template_name="storefront/contact.html"), name="storefront-contact"),
+    path("discounts/", TemplateView.as_view(template_name="storefront/discounts.html"), name="storefront-discounts"),
     path("products/<slug:slug>/", TemplateView.as_view(template_name="storefront/product-detail.html"), name="storefront-product-detail"),
     path("checkout/", TemplateView.as_view(template_name="storefront/checkout.html"), name="storefront-checkout"),
     path("order-result/", TemplateView.as_view(template_name="storefront/order-result.html"), name="storefront-order-result"),

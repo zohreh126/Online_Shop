@@ -1414,3 +1414,90 @@ html[dir="ltr"] .question-answer-head time { margin-inline-start:auto; }
   .question-login-callout .secondary-button { margin-inline-start:50px; }
   .question-form-actions { align-items:flex-start; flex-direction:column; }
 }
+
+/* Dedicated discount showcase: make active campaigns feel like a first-class destination. */
+.discounts-page { padding:42px 0 110px; }
+.discounts-hero { position:relative; isolation:isolate; display:grid; grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr); align-items:center; min-height:390px; overflow:hidden; padding:54px 68px; border-radius:26px; color:#fff; background:radial-gradient(circle at 18% 15%,rgba(239,156,131,.28),transparent 22%),linear-gradient(125deg,#30263f,#594176 64%,#7957bd); box-shadow:0 24px 58px rgba(73,54,96,.2); }
+.discounts-hero::before { content:""; position:absolute; z-index:-1; width:480px; height:480px; border:1px solid rgba(255,255,255,.13); border-radius:50%; inset-inline-start:-260px; bottom:-300px; }
+.discounts-hero-copy { max-width:650px; }
+.discounts-hero-copy .eyebrow { color:#d9cce8; }
+.discounts-hero-copy h1 { margin:15px 0 17px; color:#fff; font-size:clamp(38px,5vw,66px); line-height:1.16; letter-spacing:-2px; }
+.discounts-hero-copy h1 em { color:var(--coral); font-style:normal; }
+.discounts-hero-copy > p:not(.eyebrow) { max-width:560px; margin:0; color:#e9e0f0; font-size:13px; line-height:2.1; }
+.discounts-hero-actions { display:flex; align-items:center; flex-wrap:wrap; gap:18px; margin-top:28px; }
+.discounts-hero-actions .primary-button { margin:0; background:var(--coral); color:#30263f; }
+.discounts-hero-note { display:flex; align-items:center; gap:7px; color:#d8cbe7; font-size:10px; }
+.discounts-hero-note > span:first-child { display:grid; place-items:center; width:20px; height:20px; border-radius:50%; color:#fff; background:rgba(120,206,139,.3); }
+.discounts-hero-art { position:relative; width:310px; height:275px; justify-self:end; }
+.discount-orbit { position:absolute; inset:50% auto auto 50%; border:1px solid rgba(255,255,255,.32); border-radius:50%; transform:translate(-50%,-50%); }
+.discount-orbit.orbit-one { width:300px; height:125px; transform:translate(-50%,-50%) rotate(-23deg); }
+.discount-orbit.orbit-two { width:135px; height:300px; transform:translate(-50%,-50%) rotate(27deg); }
+.discount-hero-percent { position:absolute; inset:50% auto auto 50%; display:grid; place-items:center; width:92px; height:92px; border-radius:30px 45px 32px 44px; color:#382a4a; background:linear-gradient(145deg,#fff2ee,var(--coral)); box-shadow:15px 18px 0 rgba(239,156,131,.2); font:800 61px/1 Georgia,serif; transform:translate(-50%,-50%) rotate(-11deg); }
+.discount-spark { position:absolute; color:var(--coral); font-size:24px; }
+.discount-spark.spark-one { top:25px; inset-inline-start:28px; }
+.discount-spark.spark-two { bottom:27px; inset-inline-end:19px; }
+.discount-hero-ticket { position:absolute; inset-inline-end:4px; top:15px; display:grid; gap:3px; width:106px; padding:14px 13px; border:1px solid rgba(255,255,255,.24); border-radius:13px; color:#fff; background:rgba(48,38,63,.4); box-shadow:0 12px 24px rgba(25,16,39,.16); transform:rotate(8deg); }
+.discount-hero-ticket small { color:#f4c5b8; font-size:8px; letter-spacing:1.6px; }
+.discount-hero-ticket strong { font:800 24px/1 Georgia,serif; letter-spacing:1px; }
+.discount-hero-ticket span { color:#d7c9e5; font-size:7px; letter-spacing:1px; }
+.discounts-overview { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; position:relative; z-index:2; margin-top:-38px; }
+.discount-overview-card { display:flex; align-items:center; gap:13px; min-width:0; padding:18px 19px; border:1px solid var(--line); border-radius:15px; background:var(--card); box-shadow:0 14px 35px rgba(75,55,100,.1); }
+.discount-overview-card.tone-coral .discount-overview-icon { color:#b86e62; background:#fff0ea; }
+.discount-overview-card.tone-green .discount-overview-icon { color:var(--nexora-green,#4d8a5c); background:#eaf6ed; }
+.discount-overview-icon { display:grid; place-items:center; flex:0 0 39px; width:39px; height:39px; border-radius:12px; color:var(--accent-strong); background:var(--soft); font-size:20px; font-weight:800; }
+.discount-overview-card small,.discount-overview-card strong { display:block; }
+.discount-overview-card small { color:var(--muted); font-size:9px; }
+.discount-overview-card strong { margin-top:4px; color:var(--ink); font-size:21px; }
+.discount-overview-mark { margin-inline-start:auto; color:var(--coral); font-size:17px; }
+.discounts-catalog { padding-top:86px; }
+.discounts-catalog-heading { align-items:end; }
+.discounts-catalog-heading h2 { margin-bottom:10px; }
+.discounts-toolbar { display:flex; align-items:center; justify-content:space-between; gap:18px; margin:4px 0 25px; padding:13px 15px; border:1px solid var(--line); border-radius:13px; background:var(--soft); }
+.discounts-toolbar-note { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:10px; }
+.discounts-toolbar-note > span:first-child { color:var(--coral); font-size:16px; }
+.discounts-toolbar .sort-box { display:flex; align-items:center; gap:9px; color:var(--muted); font-size:10px; }
+.discounts-toolbar .sort-box select { min-width:165px; margin:0; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); font-size:10px; outline-color:var(--accent-strong); }
+.discounts-product-grid { min-height:320px; }
+.discount-product-card .discount-product-image-link { display:grid; place-items:center; width:100%; height:100%; }
+.discount-product-card .product-card-meta { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.discount-product-card .product-rating-mini { color:#af7a24; font-size:9px; white-space:nowrap; }
+.discount-product-card .product-rating-mini small { color:var(--muted); }
+.discount-product-card .product-savings { color:#4d8a5c; }
+.discount-product-card .discount-countdown { margin-top:5px; }
+.discounts-promise { display:flex; align-items:center; gap:22px; margin-top:74px; padding:31px 35px; overflow:hidden; border-radius:18px; color:#fff; background:linear-gradient(120deg,#30263f,#594176); box-shadow:0 16px 35px rgba(73,54,96,.16); }
+.discounts-promise-icon { display:grid; place-items:center; flex:0 0 54px; width:54px; height:54px; border-radius:17px; color:#3b2b4d; background:var(--coral); font-size:26px; }
+.discounts-promise > div { flex:1; min-width:0; }
+.discounts-promise .eyebrow { margin:0 0 8px; color:#d9cce8; }
+.discounts-promise h2 { margin:0 0 8px; color:#fff; font-size:23px; }
+.discounts-promise p:not(.eyebrow) { max-width:680px; margin:0; color:#ded3e9; font-size:11px; line-height:1.9; }
+.discounts-promise .light-button { flex:0 0 auto; margin:0; }
+.dark .discounts-hero { box-shadow:0 24px 58px rgba(0,0,0,.24); }
+.dark .discount-overview-card,.dark .discounts-toolbar { background:#302a3b; }
+.dark .discount-overview-card.tone-coral .discount-overview-icon { color:#ffb59f; background:#4b3440; }
+.dark .discount-overview-card.tone-green .discount-overview-icon { color:#bce5c4; background:#294533; }
+.dark .discounts-promise { box-shadow:0 16px 35px rgba(0,0,0,.22); }
+html[dir="ltr"] .discounts-hero-copy,html[dir="ltr"] .discounts-catalog-heading { text-align:left; }
+html[dir="ltr"] .discounts-hero-actions,html[dir="ltr"] .discounts-toolbar { direction:ltr; }
+html[dir="ltr"] .discount-overview-mark { margin-inline-start:auto; }
+@media (max-width:900px) {
+  .discounts-hero { grid-template-columns:1fr; min-height:0; padding:43px 34px; }
+  .discounts-hero-art { position:absolute; inset-inline-end:13px; opacity:.35; }
+  .discounts-overview { grid-template-columns:1fr; margin-top:16px; }
+  .discounts-catalog { padding-top:65px; }
+  .discounts-promise { align-items:flex-start; flex-wrap:wrap; }
+  .discounts-promise .light-button { margin-inline-start:76px; }
+}
+@media (max-width:600px) {
+  .discounts-page { padding-top:25px; }
+  .discounts-hero { padding:35px 23px; border-radius:19px; }
+  .discounts-hero-copy h1 { font-size:42px; }
+  .discounts-hero-art { width:235px; height:220px; inset-inline-end:-35px; }
+  .discount-orbit.orbit-one { width:230px; }
+  .discount-orbit.orbit-two { height:230px; }
+  .discount-hero-ticket { transform:scale(.82) rotate(8deg); transform-origin:top right; }
+  .discounts-toolbar { align-items:flex-start; flex-direction:column; }
+  .discounts-toolbar .sort-box { width:100%; justify-content:space-between; }
+  .discounts-toolbar .sort-box select { flex:1; min-width:0; }
+  .discounts-promise { padding:25px 22px; }
+  .discounts-promise-icon { flex-basis:45px; width:45px; height:45px; }
+}

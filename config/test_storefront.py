@@ -26,6 +26,7 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="featured-grid"')
         self.assertContains(response, 'id="discounts"')
         self.assertContains(response, 'id="discount-grid"')
+        self.assertContains(response, 'href="/discounts/"')
         self.assertContains(response, 'id="editor-pick"')
         self.assertContains(response, 'id="shipping-progress"')
         self.assertContains(response, 'data-catalog-filter="discount"')
@@ -52,6 +53,16 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="faq"')
         self.assertContains(response, 'class="faq-question"')
         self.assertContains(response, "/static/storefront/js/site.js")
+
+    def test_discounts_page_is_available(self):
+        response = self.client.get(reverse("storefront-discounts"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "discounts-page")
+        self.assertContains(response, 'id="discount-grid"')
+        self.assertContains(response, 'id="discount-sort"')
+        self.assertContains(response, 'id="discounts-best-saving"')
+        self.assertContains(response, "/static/storefront/js/discounts.js")
 
     def test_product_detail_page_is_available(self):
         response = self.client.get(reverse("storefront-product-detail", kwargs={"slug": "sample-product"}))

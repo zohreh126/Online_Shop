@@ -1,0 +1,72 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="پیشنهادها و تخفیف‌های فعال فروشگاه نکستورا.">
+  <title data-i18n="discountsPageTitle">تخفیف‌های نکستورا | Nexora</title>
+  <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
+</head>
+<body>
+  <div class="announcement"><span data-i18n="freeShipping">ارسال رایگان برای سفارش‌های بالای ۲ میلیون تومان</span><b>✦</b><span data-i18n="securePayment">پرداخت امن و پشتیبانی واقعی</span></div>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/" aria-label="صفحه اصلی Nexora"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
+      <nav class="desktop-nav" aria-label="ناوبری اصلی">
+        <a href="/"><span class="nav-link-icon" aria-hidden="true">◈</span><span data-i18n="shop">فروشگاه</span></a>
+        <a class="active" href="/discounts/"><span class="nav-link-icon" aria-hidden="true">%</span><span data-i18n="discounts">تخفیف‌ها</span></a>
+        <a href="/#featured"><span class="nav-link-icon" aria-hidden="true">✦</span><span data-i18n="specialOffers">پیشنهادهای ویژه</span></a>
+        <a href="/about/"><span class="nav-link-icon" aria-hidden="true">✧</span><span data-i18n="about">درباره ما</span></a>
+        <a href="/contact/"><span class="nav-link-icon" aria-hidden="true">⌖</span><span data-i18n="contact">ارتباط با ما</span></a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button>
+        <button class="language-button" data-language-toggle type="button">English</button>
+        {% include "storefront/favorites-nav.html" %}
+        <a class="account-link" href="/account/" data-i18n="login">ورود</a>
+        <a class="cart-button" href="/?cart=open" data-i18n-aria-label="cartIconLabel" data-i18n-title="cartIconLabel" aria-label="باز کردن سبد خرید" title="باز کردن سبد خرید"><span class="cart-icon" aria-hidden="true">🛒</span><span class="cart-label" data-i18n="cart">سبد خرید</span><b id="discount-cart-count">۰</b></a>
+        <button class="menu-button" id="menu-toggle" type="button" aria-label="باز کردن منو">☰</button>
+      </div>
+    </div>
+    <nav class="mobile-nav container" id="mobile-nav" aria-label="ناوبری موبایل">
+      <a href="/" data-i18n="shop">فروشگاه</a><a class="active" href="/discounts/" data-i18n="discounts">تخفیف‌ها</a><a href="/#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a>
+    </nav>
+  </header>
+
+  <main class="discounts-page">
+    <section class="discounts-hero container">
+      <div class="discounts-hero-copy">
+        <p class="eyebrow"><span></span><span data-i18n="discountsPageEyebrow">ویترین قیمت‌های بهتر</span></p>
+        <h1 data-i18n-html="discountsPageHeading">کمتر پرداخت کن،<br><em>بهتر انتخاب کن.</em></h1>
+        <p data-i18n="discountsPageIntro">همه‌ی پیشنهادهای فعال نکستورا را یک‌جا ببین؛ قیمت قبلی، میزان صرفه‌جویی و زمان باقی‌مانده‌ی هر کمپین کاملاً شفاف است.</p>
+        <div class="discounts-hero-actions"><a class="primary-button" href="#discount-catalog"><span data-i18n="browseDiscounts">دیدن تخفیف‌ها</span><span aria-hidden="true">↓</span></a><span class="discounts-hero-note"><span aria-hidden="true">✓</span><span data-i18n="discountsPageTrust">قیمت نهایی بدون غافلگیری</span></span></div>
+      </div>
+      <div class="discounts-hero-art" aria-hidden="true"><span class="discount-orbit orbit-one"></span><span class="discount-orbit orbit-two"></span><span class="discount-hero-percent">%</span><span class="discount-spark spark-one">✦</span><span class="discount-spark spark-two">✧</span><div class="discount-hero-ticket"><small>NEXORA</small><strong>SALE</strong><span>SMART SAVING</span></div></div>
+    </section>
+
+    <section class="discounts-overview container" aria-label="خلاصه تخفیف‌ها">
+      <article class="discount-overview-card"><span class="discount-overview-icon">%</span><div><small data-i18n="discountsActiveLabel">تخفیف فعال</small><strong id="discounts-count">۰</strong></div><span class="discount-overview-mark" aria-hidden="true">↗</span></article>
+      <article class="discount-overview-card tone-coral"><span class="discount-overview-icon">✦</span><div><small data-i18n="discountsBestSavingLabel">بیشترین صرفه‌جویی</small><strong id="discounts-best-saving">۰٪</strong></div><span class="discount-overview-mark" aria-hidden="true">↗</span></article>
+      <article class="discount-overview-card tone-green"><span class="discount-overview-icon">✓</span><div><small data-i18n="discountsAvailableLabel">محصول قابل خرید</small><strong id="discounts-in-stock">۰</strong></div><span class="discount-overview-mark" aria-hidden="true">↗</span></article>
+    </section>
+
+    <section class="discounts-catalog container" id="discount-catalog">
+      <div class="section-heading discounts-catalog-heading"><div><p class="eyebrow"><span></span><span data-i18n="discountsPageCollection">انتخاب‌های این هفته</span></p><h2 data-i18n="discountsPageTitleShort">تخفیف‌هایی که ارزش دیدن دارند.</h2><p class="section-help" data-i18n="discountsPageHint">از بیشترین صرفه‌جویی شروع کن یا پیشنهادهایی را ببین که زودتر تمام می‌شوند.</p></div><a class="text-link" href="/"><span data-i18n="backToStore">بازگشت به فروشگاه</span> <span>←</span></a></div>
+      <div class="discounts-toolbar"><div class="discounts-toolbar-note"><span aria-hidden="true">◷</span><span data-i18n="discountsLiveHint">زمان کمپین‌ها زنده به‌روزرسانی می‌شود.</span></div><label class="sort-box"><span data-i18n="discountsSortLabel">مرتب‌سازی تخفیف‌ها</span><select id="discount-sort"><option value="saving" data-i18n="discountsSortSaving">بیشترین صرفه‌جویی</option><option value="ending" data-i18n="discountsSortEnding">پایان نزدیک‌تر</option><option value="price" data-i18n="discountsSortPrice">قیمت نهایی</option><option value="newest" data-i18n="discountsSortNewest">جدیدترین</option></select></label></div>
+      <div id="discounts-state" class="state-card"><span class="loader"></span><p data-i18n="discountsLoading">در حال آماده‌سازی پیشنهادها...</p></div>
+      <div id="discount-grid" class="product-grid discounts-product-grid" aria-live="polite" hidden></div>
+    </section>
+
+    <section class="discounts-promise container"><span class="discounts-promise-icon" aria-hidden="true">✦</span><div><p class="eyebrow light"><span></span><span data-i18n="discountsPromiseEyebrow">قول نکستورا</span></p><h2 data-i18n="discountsPromiseTitle">تخفیف باید قابل فهم باشد.</h2><p data-i18n="discountsPromiseText">برای هر محصول، قیمت قبل، قیمت نهایی و مبلغ صرفه‌جویی را کنار هم می‌بینی؛ تصمیم نهایی همیشه با خودت است.</p></div><a class="light-button" href="/contact/"><span data-i18n="talkToUs">با ما صحبت کن</span><span aria-hidden="true">↗</span></a></section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/discounts/" data-i18n="discounts">تخفیف‌ها</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column"><h3 data-i18n="supportColumn">پشتیبانی</h3><a href="/account/" data-i18n="account">حساب کاربری</a><a href="/checkout/" data-i18n="checkoutTitle">تکمیل سفارش</a><a href="/contact/#faq" data-i18n="faqLink">سؤالات متداول و راهنمای خرید</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span>nexorastore.zp@gmail.com</span><span dir="ltr">+98 21 0000 0000</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© ۲۰۲۶ Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
+
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script>
+  <script src="{% static 'storefront/js/favorites.js' %}" defer></script>
+  <script src="{% static 'storefront/js/discounts.js' %}" defer></script>
+  <script src="{% static 'storefront/js/site.js' %}" defer></script>
+</body>
+</html>
