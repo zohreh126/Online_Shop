@@ -41,6 +41,13 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/about/")
         self.assertContains(response, "/contact/")
 
+    def test_public_feedback_wall_loads_all_api_pages(self):
+        source = (Path(__file__).resolve().parents[1] / "static/storefront/js/feedback.js").read_text()
+
+        self.assertIn("data.next", source)
+        self.assertIn("pageCount < 100", source)
+        self.assertIn("feedbackItems = items", source)
+
     def test_about_page_is_available(self):
         response = self.client.get(reverse("storefront-about"))
 

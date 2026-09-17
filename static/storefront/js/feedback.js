@@ -57,10 +57,31 @@ async function loadFeedback() {
   const list = document.querySelector("#feedback-list");
   if (!list) return;
   try {
-    const response = await fetch(`${FEEDBACK_API_BASE}auth/feedback/?page_path=${encodeURIComponent("/")}`, { credentials: "same-origin" });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error("feedback-request-failed");
-    feedbackItems = data.results || data || [];
+    let nextUrl = `${FEEDBACK_API_BASE}auth/feedback/?page_path=${encodeURIComponent("/")}`;
+    const items = [];
+    let pageCount = 0;
+
+    while (nextUrl && pageCount < 100) {
+      const response = await fetch(nextUrl, { credentials: "same-origin" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error("feedback-request-failed");
+
+      if (Array.isArray(data)) {
+        items.push(...data);
+        nextUrl = null;
+      } else {
+        items.push(...(Array.isArray(data.results) ? data.results : []));
+        if (!data.next) {
+          nextUrl = null;
+        } else {
+          const next = new URL(data.next, window.location.origin);
+          nextUrl = next.pathname + next.search;
+        }
+      }
+      pageCount += 1;
+    }
+
+    feedbackItems = items;
     feedbackLoaded = true;
     renderFeedbackList();
   } catch (error) {
