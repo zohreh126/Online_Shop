@@ -42,6 +42,14 @@ a { transition: color .18s ease, background .18s ease, border-color .18s ease, t
 .nexora-admin-hero p { max-width: 520px; margin: 0; color: #e7dff0; font-size: 13px; line-height: 2; }
 .nexora-admin-hero-meta { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 24px; color: #d8cbe6; font-size: 10px; }
 .nexora-admin-hero-meta span:first-child { color: #b9e6c5; }
+.nexora-admin-hero-actions { display:flex; align-items:center; flex-wrap:wrap; gap:11px; margin-top:23px; }
+.nexora-admin-store-link { display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border:1px solid rgba(255,255,255,.2); border-radius:10px; color:#fff !important; background:rgba(255,255,255,.1); font-size:10px; font-weight:800; text-decoration:none !important; }
+.nexora-admin-store-link span { color:var(--nexora-coral); font-size:15px; }
+.nexora-admin-store-link:hover { background:rgba(255,255,255,.18); transform:translateY(-2px); }
+.nexora-admin-role-pill { display:inline-grid; grid-template-columns:28px auto; grid-template-rows:1fr 1fr; column-gap:8px; align-items:center; min-width:150px; padding:6px 10px; border:1px solid rgba(255,255,255,.13); border-radius:10px; background:rgba(48,38,63,.28); }
+.nexora-admin-role-pill > span { grid-row:1 / -1; display:grid; place-items:center; width:28px; height:28px; border-radius:9px; color:var(--nexora-purple-dark); background:var(--nexora-coral); font-size:15px; }
+.nexora-admin-role-pill strong { color:#fff; font-size:10px; }
+.nexora-admin-role-pill small { color:#d8cbe6; font-size:8px; direction:ltr; text-align:start; }
 .nexora-admin-hero-art { position: relative; width: 230px; height: 190px; justify-self: end; }
 .hero-art-orbit { position: absolute; inset: 50% auto auto 50%; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; transform: translate(-50%, -50%) rotate(-24deg); }
 .orbit-a { width: 215px; height: 92px; }
@@ -176,11 +184,14 @@ a { transition: color .18s ease, background .18s ease, border-color .18s ease, t
 .nexora-dashboard #content {
   width: min(1800px, calc(100% - 56px));
   max-width: none;
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: 24px;
   align-items: start;
 }
+.nexora-dashboard #container,
+.nexora-dashboard #main { width:100%; }
 .nexora-dashboard #content-main {
   grid-column: 1;
   grid-row: 1;
@@ -249,4 +260,8 @@ a { transition: color .18s ease, background .18s ease, border-color .18s ease, t
   .nexora-dashboard #content { display: block; width: min(100% - 28px, 720px); }
   .nexora-dashboard #content-related { margin-top: 20px; }
   .nexora-dashboard .nexora-recent-actions { position: static; }
+}
+@media (max-width: 560px) {
+  .nexora-admin-hero-actions { align-items:stretch; flex-direction:column; }
+  .nexora-admin-store-link,.nexora-admin-role-pill { width:100%; box-sizing:border-box; }
 }

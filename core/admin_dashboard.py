@@ -49,10 +49,20 @@ def nexora_admin_index(request):
             "nexora_low_stock_products": [],
             "nexora_expiring_discounts": [],
             "nexora_recent_feedback": [],
+            "nexora_admin_role": "",
+            "nexora_admin_identity": "",
         }
     )
 
     user = request.user
+    role_labels = {
+        Customer.Role.PRODUCT_MANAGER: "مدیر محصولات",
+        Customer.Role.SUPERVISOR: "ناظر",
+        Customer.Role.OPERATOR: "اپراتور",
+    }
+    context["nexora_admin_role"] = "مدیر کل" if user.is_superuser else role_labels.get(getattr(user, "role", ""), "کاربر عملیاتی")
+    identity = f"{user.first_name} {user.last_name}".strip() or user.username
+    context["nexora_admin_identity"] = identity
     metrics = []
     quick_actions = []
 
