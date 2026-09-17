@@ -1,8 +1,16 @@
 from django.contrib import admin
+from django.utils import timezone
 
 from core.admin_permissions import RolePermissionAdminMixin
 
-from .models import Category, Discount, DiscountCode, Product, ProductReview
+from .models import (
+    Category,
+    Discount,
+    DiscountCode,
+    Product,
+    ProductQuestion,
+    ProductReview,
+)
 
 
 @admin.register(Category)
@@ -60,6 +68,43 @@ class ProductReviewAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
     @admin.display(description="Helpful votes")
     def helpful_votes_count(self, review):
         return review.helpful_votes.count()
+
+
+@admin.register(ProductQuestion)
+class ProductQuestionAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = (
+        "product",
+        "customer",
+        "question_preview",
+        "answer_status",
+        "is_approved",
+        "is_active",
+        "created_at",
+    )
+    list_filter = ("is_approved", "is_active", "answered_at")
+    search_fields = (
+        "product__name",
+        "product__sku",
+        "customer__username",
+        "question",
+        "answer",
+    )
+    autocomplete_fields = ("product", "customer")
+    ordering = ("-created_at",)
+    readonly_fields = ("created_at", "updated_at")
+
+    @admin.display(description="Question")
+    def question_preview(self, question):
+        return question.question[:70]
+
+    @admin.display(description="Answer")
+    def answer_status(self, question):
+        return "Answered" if question.answer else "Waiting"
+
+    def save_model(self, request, obj, form, change):
+        if obj.answer and obj.answered_at is None:
+            obj.answered_at = timezone.now()
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Discount)

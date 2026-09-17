@@ -5,7 +5,14 @@ from django.db import transaction
 
 from customers.models import Address, Customer, SiteFeedback
 from orders.models import Order, OrderItem
-from products.models import Category, Discount, DiscountCode, Product, ProductReview
+from products.models import (
+    Category,
+    Discount,
+    DiscountCode,
+    Product,
+    ProductQuestion,
+    ProductReview,
+)
 
 
 ROLE_PERMISSIONS = {
@@ -15,6 +22,7 @@ ROLE_PERMISSIONS = {
         Discount: ("view", "add", "change", "delete"),
         DiscountCode: ("view", "add", "change", "delete"),
         ProductReview: ("view", "change"),
+        ProductQuestion: ("view", "change"),
         SiteFeedback: ("view",),
     },
     Customer.Role.SUPERVISOR: {
@@ -25,6 +33,7 @@ ROLE_PERMISSIONS = {
         Discount: ("view",),
         DiscountCode: ("view",),
         ProductReview: ("view", "change", "delete"),
+        ProductQuestion: ("view", "change", "delete"),
         SiteFeedback: ("view", "change", "delete"),
         Order: ("view",),
         OrderItem: ("view",),
@@ -35,6 +44,7 @@ ROLE_PERMISSIONS = {
         Order: ("view", "change"),
         OrderItem: ("view", "change"),
         ProductReview: ("view",),
+        ProductQuestion: ("view",),
         SiteFeedback: ("view",),
     },
 }

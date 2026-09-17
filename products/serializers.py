@@ -5,7 +5,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from .models import Category, Discount, Product, ProductReview
+from .models import Category, Discount, Product, ProductQuestion, ProductReview
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -213,4 +213,61 @@ class ProductReviewSerializer(serializers.ModelSerializer):
         value = " ".join(value.strip().split())
         if not value:
             raise serializers.ValidationError("Review text cannot be empty.")
+        return value
+
+
+class ProductQuestionSerializer(serializers.ModelSerializer):
+    customer_name = serializers.SerializerMethodField()
+    is_mine = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductQuestion
+        fields = (
+            "id",
+            "customer_name",
+            "is_mine",
+            "question",
+            "answer",
+            "answered_at",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = (
+            "id",
+            "customer_name",
+            "is_mine",
+            "answer",
+            "answered_at",
+            "created_at",
+            "updated_at",
+        )
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_customer_name(self, question):
+        full_name = f"{question.customer.first_name} {question.customer.last_name}".strip()
+        return full_name or question.customer.username
+
+    @extend_schema_field(OpenApiTypes.BOOL)
+    def get_is_mine(self, question):
+        request = self.context.get("request")
+        return bool(
+            request
+            and request.user.is_authenticated
+            and question.customer_id == request.user.id
+        )
+
+    def validate_question(self, value):
+        value = " ".join(value.strip().split())
+        if not value:
+            raise serializers.ValidationError("Question text cannot be empty.")
+        return value
+
+
+class ProductQuestionAnswerSerializer(serializers.Serializer):
+    answer = serializers.CharField(max_length=1500, allow_blank=False)
+
+    def validate_answer(self, value):
+        value = " ".join(value.strip().split())
+        if not value:
+            raise serializers.ValidationError("Answer text cannot be empty.")
         return value

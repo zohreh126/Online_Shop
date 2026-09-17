@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from customers.models import Customer
 from orders.models import Order
-from products.models import Discount, Product, ProductReview
+from products.models import Discount, Product, ProductQuestion, ProductReview
 
 
 def _fa_number(value):
@@ -43,6 +43,7 @@ def nexora_admin_index(request):
             "nexora_quick_actions": [],
             "nexora_recent_orders": [],
             "nexora_recent_reviews": [],
+            "nexora_recent_questions": [],
         }
     )
 
@@ -101,6 +102,17 @@ def nexora_admin_index(request):
                 "label": "بررسی نظرات",
                 "hint": "مدیریت صدای مشتریان",
                 "url": "admin:products_productreview_changelist",
+                "tone": "blue",
+            }
+        )
+
+    if _can_access(user, "products", "productquestion"):
+        quick_actions.append(
+            {
+                "icon": "?",
+                "label": "پرسش‌های محصول",
+                "hint": "پاسخ به سؤال‌های مشتریان",
+                "url": "admin:products_productquestion_changelist",
                 "tone": "blue",
             }
         )
@@ -209,6 +221,28 @@ def nexora_admin_index(request):
             ProductReview.objects.filter(
                 is_active=True,
             )
+            .select_related("product", "customer")
+            .order_by("-created_at")[:5]
+        )
+
+    if _can_access(user, "products", "productquestion"):
+        question_queryset = ProductQuestion.objects.filter(
+            is_active=True,
+            is_approved=True,
+        )
+        unanswered_count = question_queryset.filter(answer="").count()
+        metrics.append(
+            {
+                "icon": "?",
+                "label": "پرسش‌های بی‌پاسخ",
+                "value": _fa_number(unanswered_count),
+                "hint": "در انتظار پاسخ تیم",
+                "url": "admin:products_productquestion_changelist",
+                "tone": "blue",
+            }
+        )
+        context["nexora_recent_questions"] = (
+            question_queryset
             .select_related("product", "customer")
             .order_by("-created_at")[:5]
         )

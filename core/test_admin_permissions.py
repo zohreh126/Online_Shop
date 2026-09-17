@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from customers.models import Address, Customer
 from orders.models import Order
-from products.models import Product
+from products.models import Product, ProductQuestion
 
 
 class AdminPermissionTests(TestCase):
@@ -55,31 +55,40 @@ class AdminPermissionTests(TestCase):
 
     def test_product_manager_can_manage_catalog_but_not_orders(self):
         product_admin = self.admin_for(Product)
+        question_admin = self.admin_for(ProductQuestion)
         order_admin = self.admin_for(Order)
         request = self.request_for(self.product_manager)
 
         self.assertTrue(product_admin.has_change_permission(request))
         self.assertTrue(product_admin.has_delete_permission(request))
+        self.assertTrue(question_admin.has_view_permission(request))
+        self.assertTrue(question_admin.has_change_permission(request))
         self.assertFalse(order_admin.has_view_permission(request))
 
     def test_supervisor_can_view_but_not_change_products(self):
         product_admin = self.admin_for(Product)
+        question_admin = self.admin_for(ProductQuestion)
         request = self.request_for(self.supervisor)
 
         self.assertTrue(product_admin.has_view_permission(request))
         self.assertFalse(product_admin.has_change_permission(request))
+        self.assertTrue(question_admin.has_change_permission(request))
+        self.assertTrue(question_admin.has_delete_permission(request))
 
     def test_operator_can_manage_customers_addresses_and_orders(self):
         customer_admin = self.admin_for(Customer)
         address_admin = self.admin_for(Address)
         order_admin = self.admin_for(Order)
         product_admin = self.admin_for(Product)
+        question_admin = self.admin_for(ProductQuestion)
         request = self.request_for(self.operator)
 
         self.assertTrue(customer_admin.has_change_permission(request))
         self.assertTrue(address_admin.has_add_permission(request))
         self.assertTrue(order_admin.has_change_permission(request))
         self.assertFalse(product_admin.has_view_permission(request))
+        self.assertTrue(question_admin.has_view_permission(request))
+        self.assertFalse(question_admin.has_change_permission(request))
 
     def test_superuser_has_full_admin_access(self):
         product_admin = self.admin_for(Product)
@@ -127,6 +136,9 @@ class AdminPermissionTests(TestCase):
         self.assertContains(response, "عملیات سریع")
         self.assertContains(response, "آخرین سفارش‌ها")
         self.assertContains(response, "آخرین نظرها")
+        self.assertContains(response, "پرسش‌های محصول")
+        self.assertContains(response, "پرسش‌های بی‌پاسخ")
+        self.assertContains(response, "آخرین پرسش‌ها")
         self.assertContains(response, "/static/admin/css/nexora-admin.css")
 
     def test_customer_admin_delete_action_deactivates_account(self):

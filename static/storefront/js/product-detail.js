@@ -9,6 +9,8 @@ const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 let productReviews = [];
 let reviewUser = null;
 let reviewSummary = { average: 0, count: 0, distribution: {}, loaded: false };
+let productQuestions = [];
+let questionUser = null;
 let productRecommendations = [];
 let productWatch = null;
 let productWatchLoaded = false;
@@ -320,6 +322,95 @@ function renderReviewsList() {
   list.querySelectorAll("[data-review-helpful]").forEach((button) => button.addEventListener("click", () => toggleReviewHelpful(Number(button.dataset.reviewHelpful), button)));
 }
 
+function renderQuestionsList() {
+  const list = document.querySelector("#questions-list");
+  const count = document.querySelector("#questions-count");
+  if (!list) return;
+  if (count) count.textContent = format("questionCount", { count: number(productQuestions.length) });
+  if (!productQuestions.length) {
+    list.innerHTML = `<div class="empty-inline"><strong>${escapeHTML(t("noQuestions"))}</strong><span>${escapeHTML(t("productQuestionsHint"))}</span></div>`;
+    return;
+  }
+  list.innerHTML = productQuestions.map((question) => {
+    const author = question.customer_name || t("customer");
+    const answer = question.answer
+      ? `<div class="question-answer"><div class="question-answer-head"><span aria-hidden="true">✦</span><strong>${escapeHTML(t("answeredByNexora"))}</strong><time datetime="${escapeHTML(question.answered_at || "")}">${escapeHTML(reviewDate(question.answered_at))}</time></div><p>${escapeHTML(question.answer)}</p></div>`
+      : `<div class="question-pending"><span aria-hidden="true">◷</span><span>${escapeHTML(t("answerPending"))}</span></div>`;
+    return `<article class="question-card"><div class="question-card-head"><div class="question-author"><span class="question-avatar" aria-hidden="true">?</span><div><strong>${escapeHTML(author)}</strong><small>${escapeHTML(reviewDate(question.created_at))}</small></div></div><span class="question-card-mark" aria-hidden="true">?</span></div><p class="question-text">${escapeHTML(question.question)}</p>${answer}</article>`;
+  }).join("");
+}
+
+function renderQuestionComposer() {
+  const composer = document.querySelector("#question-composer");
+  if (!composer) return;
+  if (!questionUser) {
+    const loginUrl = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+    composer.innerHTML = `<div class="question-login-callout"><span class="question-login-icon" aria-hidden="true">?</span><div><strong>${escapeHTML(t("askQuestion"))}</strong><p>${escapeHTML(t("loginToAsk"))}</p></div><a class="secondary-button" href="${loginUrl}">${escapeHTML(t("login"))}</a></div>`;
+    return;
+  }
+  const displayName = escapeHTML(questionUser.first_name || questionUser.username || t("customer"));
+  composer.innerHTML = `<form class="question-form" id="question-form"><div class="question-form-header"><div><strong>${escapeHTML(t("askQuestion"))}</strong><small>${displayName}</small></div><span aria-hidden="true">?</span></div><label><span>${escapeHTML(t("questionFieldLabel"))}</span><textarea name="question" maxlength="1000" rows="5" required placeholder="${escapeHTML(t("questionPlaceholder"))}"></textarea></label><div class="question-form-actions"><button class="primary-button" type="submit"><span aria-hidden="true">↗</span>${escapeHTML(t("submitQuestion"))}</button><small id="question-form-message" role="status"></small></div></form>`;
+  composer.querySelector("#question-form")?.addEventListener("submit", submitQuestion);
+}
+
+function renderQuestionSection() {
+  renderQuestionsList();
+  renderQuestionComposer();
+}
+
+async function loadQuestions() {
+  const section = document.querySelector("#product-questions");
+  if (!section) return;
+  section.hidden = false;
+  try {
+    const [data, user] = await Promise.all([
+      getJSON(`products/${encodeURIComponent(slug)}/questions/`),
+      loadReviewUser(),
+    ]);
+    productQuestions = Array.isArray(data.results) ? data.results : [];
+    questionUser = user;
+    renderQuestionSection();
+  } catch (error) {
+    const list = document.querySelector("#questions-list");
+    if (list) list.innerHTML = `<div class="empty-inline">${escapeHTML(t("questionLoadFailed"))}</div>`;
+    renderQuestionComposer();
+  }
+}
+
+async function submitQuestion(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector("button[type=submit]");
+  const message = form.querySelector("#question-form-message");
+  message.textContent = "";
+  if (!form.reportValidity()) return;
+  button.disabled = true;
+  try {
+    const response = await fetch(`${API_BASE}products/${encodeURIComponent(slug)}/questions/`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-CSRFToken": await csrf() },
+      body: JSON.stringify({ question: form.question.value.trim() }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+      return;
+    }
+    if (!response.ok) {
+      const errors = Object.values(data).flatMap((value) => Array.isArray(value) ? value : [value]).filter((value) => typeof value === "string").join(" ");
+      throw new Error(errors || t("questionSubmitFailed"));
+    }
+    if (data.question) productQuestions = [data.question, ...productQuestions];
+    renderQuestionSection();
+    showToast(t("questionSaved"));
+  } catch (error) {
+    message.textContent = error.message || t("questionSubmitFailed");
+  } finally {
+    button.disabled = false;
+  }
+}
+
 async function toggleReviewHelpful(reviewId, button) {
   if (!reviewUser) {
     window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
@@ -413,6 +504,7 @@ async function loadReviews(product) {
       loaded: true,
     };
     reviewUser = user;
+    questionUser = user;
     renderReviewSection(product);
   } catch (error) {
     reviewUser = null;
@@ -539,9 +631,11 @@ async function loadProduct() {
     document.querySelector("#product-detail-state").hidden = true;
     document.querySelector("#product-detail-content").hidden = false;
     document.querySelector("#product-reviews").hidden = false;
+    document.querySelector("#product-questions").hidden = false;
     renderReviewSection(product);
     loadProductWatch(product);
     loadReviews(product);
+    loadQuestions(product);
     loadRecommendations(product);
     document.title = `${window.NexoraI18n?.productName(product) || product.name} | Nexora`;
     return product;
@@ -555,5 +649,5 @@ document.querySelector("#theme-toggle").addEventListener("click", () => { docume
 if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.classList.add("dark");
 updateThemeButton();
 window.setInterval(updateDiscountCountdowns, 1000);
-window.addEventListener("nexora-language-changed", () => { if (window.productDetail) { renderProduct(window.productDetail); renderReviewSection(window.productDetail); renderRecommendations(); updateDiscountCountdowns(); } });
+window.addEventListener("nexora-language-changed", () => { if (window.productDetail) { renderProduct(window.productDetail); renderReviewSection(window.productDetail); renderQuestionSection(); renderRecommendations(); updateDiscountCountdowns(); } });
 loadProduct();

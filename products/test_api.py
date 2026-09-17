@@ -9,7 +9,14 @@ from rest_framework.test import APITestCase
 
 from customers.models import Customer
 
-from .models import Category, Discount, Product, ProductReview, ProductReviewHelpfulVote
+from .models import (
+    Category,
+    Discount,
+    Product,
+    ProductQuestion,
+    ProductReview,
+    ProductReviewHelpfulVote,
+)
 
 
 class ProductCatalogAPITests(APITestCase):
@@ -232,6 +239,113 @@ class ProductCatalogAPITests(APITestCase):
         self.assertFalse(second_response.data["helpful"])
         self.assertEqual(second_response.data["helpful_count"], 0)
         self.assertFalse(ProductReviewHelpfulVote.objects.exists())
+
+    def test_product_questions_are_public_and_include_answers(self):
+        customer = Customer.objects.create_user(
+            username="question-author",
+            email="question-author@example.com",
+            password="Strong-password-123",
+            first_name="Question",
+            last_name="Author",
+        )
+        question = ProductQuestion.objects.create(
+            product=self.keyboard,
+            customer=customer,
+            question="Does this keyboard support USB-C?",
+            answer="Yes, it includes a USB-C connection.",
+            answered_at=timezone.now(),
+        )
+
+        response = self.client.get(
+            reverse("product-questions", kwargs={"slug": self.keyboard.slug})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["id"], question.pk)
+        self.assertEqual(response.data["results"][0]["customer_name"], "Question Author")
+        self.assertEqual(
+            response.data["results"][0]["answer"],
+            "Yes, it includes a USB-C connection.",
+        )
+        self.assertFalse(response.data["results"][0]["is_mine"])
+
+    def test_writing_product_question_requires_authentication(self):
+        response = self.client.post(
+            reverse("product-questions", kwargs={"slug": self.keyboard.slug}),
+            {"question": "Is this suitable for everyday use?"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_customer_can_ask_product_question(self):
+        customer = Customer.objects.create_user(
+            username="question-writer",
+            email="question-writer@example.com",
+            password="Strong-password-123",
+        )
+        self.client.force_authenticate(user=customer)
+
+        response = self.client.post(
+            reverse("product-questions", kwargs={"slug": self.keyboard.slug}),
+            {"question": "  Is   this   good for travel?  "},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["count"], 1)
+        self.assertTrue(response.data["question"]["is_mine"])
+        self.assertEqual(response.data["question"]["question"], "Is this good for travel?")
+        self.assertTrue(
+            ProductQuestion.objects.filter(
+                product=self.keyboard,
+                customer=customer,
+                question="Is this good for travel?",
+            ).exists()
+        )
+
+    def test_only_staff_can_answer_product_question(self):
+        customer = Customer.objects.create_user(
+            username="question-customer",
+            email="question-customer@example.com",
+            password="Strong-password-123",
+        )
+        question = ProductQuestion.objects.create(
+            product=self.keyboard,
+            customer=customer,
+            question="Can I use this with a laptop?",
+        )
+        url = reverse(
+            "product-answer-question",
+            kwargs={"slug": self.keyboard.slug, "question_id": question.pk},
+        )
+
+        self.client.force_authenticate(user=customer)
+        customer_response = self.client.patch(
+            url,
+            {"answer": "Customer answer should not be accepted."},
+            format="json",
+        )
+        self.assertEqual(customer_response.status_code, status.HTTP_403_FORBIDDEN)
+
+        staff = Customer.objects.create_superuser(
+            username="question-admin",
+            email="question-admin@example.com",
+            password="Strong-password-123",
+        )
+        self.client.force_authenticate(user=staff)
+        staff_response = self.client.patch(
+            url,
+            {"answer": "Yes, it works with a laptop."},
+            format="json",
+        )
+
+        self.assertEqual(staff_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(staff_response.data["answer"], "Yes, it works with a laptop.")
+        question.refresh_from_db()
+        self.assertEqual(question.answer, "Yes, it works with a laptop.")
+        self.assertIsNotNone(question.answered_at)
 
     def test_product_image_url_is_returned_as_absolute_url(self):
         self.keyboard.image = SimpleUploadedFile(

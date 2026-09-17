@@ -4,13 +4,26 @@ import django_filters
 from django.db.models import Avg, Count, Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework import filters as drf_filters
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Category, Product, ProductReview, ProductReviewHelpfulVote
-from .serializers import CategorySerializer, ProductReviewSerializer, ProductSerializer
+from .models import (
+    Category,
+    Product,
+    ProductQuestion,
+    ProductReview,
+    ProductReviewHelpfulVote,
+)
+from .serializers import (
+    CategorySerializer,
+    ProductQuestionAnswerSerializer,
+    ProductQuestionSerializer,
+    ProductReviewSerializer,
+    ProductSerializer,
+)
 
 
 class CategoryFilter(django_filters.FilterSet):
@@ -251,6 +264,85 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
                 **statistics,
             },
             status=200 if review else 201,
+        )
+
+    @action(detail=True, methods=("get", "post"), url_path="questions")
+    def questions(self, request, slug=None):
+        product = self.get_object()
+        visible_questions = ProductQuestion.objects.filter(
+            product=product,
+            is_active=True,
+            is_approved=True,
+        ).select_related("customer").order_by("-created_at")
+
+        if request.method == "GET":
+            return Response(
+                {
+                    "results": ProductQuestionSerializer(
+                        visible_questions,
+                        many=True,
+                        context={"request": request},
+                    ).data,
+                    "count": visible_questions.count(),
+                }
+            )
+
+        if not request.user.is_authenticated:
+            return Response(
+                {"detail": "Authentication is required to ask a question."},
+                status=401,
+            )
+
+        serializer = ProductQuestionSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        question = serializer.save(
+            product=product,
+            customer=request.user,
+            is_active=True,
+            is_approved=True,
+        )
+        return Response(
+            {
+                "question": ProductQuestionSerializer(
+                    question,
+                    context={"request": request},
+                ).data,
+                "count": visible_questions.count(),
+            },
+            status=201,
+        )
+
+    @extend_schema(
+        request=ProductQuestionAnswerSerializer,
+        responses=ProductQuestionSerializer,
+    )
+    @action(
+        detail=True,
+        methods=("patch",),
+        url_path=r"questions/(?P<question_id>[0-9]+)/answer",
+        permission_classes=(permissions.IsAdminUser,),
+    )
+    def answer_question(self, request, slug=None, question_id=None):
+        product = self.get_object()
+        question = get_object_or_404(
+            ProductQuestion,
+            product=product,
+            pk=question_id,
+            is_active=True,
+        )
+        serializer = ProductQuestionAnswerSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        question.answer = serializer.validated_data["answer"]
+        question.answered_at = timezone.now()
+        question.save(update_fields=("answer", "answered_at", "updated_at"))
+        return Response(
+            ProductQuestionSerializer(
+                question,
+                context={"request": request},
+            ).data
         )
 
     @action(

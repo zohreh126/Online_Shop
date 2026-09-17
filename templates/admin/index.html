@@ -104,6 +104,13 @@
         <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
       </a>
     {% endif %}
+    {% if perms.products.view_productquestion or perms.products.change_productquestion %}
+      <a class="nexora-stat-card" href="{% url 'admin:products_productquestion_changelist' %}">
+        <span class="nexora-stat-icon">?</span>
+        <span><strong>پرسش‌های محصول</strong><small>پاسخ به سؤال‌های مشتریان</small></span>
+        <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
+      </a>
+    {% endif %}
   </section>
 
   <section class="nexora-dashboard-panels" aria-label="نمایش سریع فعالیت‌ها">
@@ -139,6 +146,24 @@
         <p class="nexora-panel-empty">هنوز نظر محصولی برای نمایش ثبت نشده است.</p>
       {% endif %}
     </article>
+    {% if perms.products.view_productquestion or perms.products.change_productquestion %}
+      <article class="nexora-dashboard-panel">
+        <div class="nexora-panel-heading"><div><span class="nexora-panel-kicker">PRODUCT Q&amp;A</span><h2>آخرین پرسش‌ها</h2></div><a href="{% url 'admin:products_productquestion_changelist' %}">مدیریت پرسش‌ها ↗</a></div>
+        {% if nexora_recent_questions %}
+          <div class="nexora-question-feed">
+            {% for question in nexora_recent_questions %}
+              <a class="nexora-question-row" href="{% url 'admin:products_productquestion_change' question.pk %}">
+                <span class="nexora-feed-icon question">?</span>
+                <span class="nexora-feed-main"><strong>{{ question.product.name|truncatechars:30 }}</strong><small>{{ question.customer.username }} · {{ question.question|truncatechars:44 }}</small></span>
+                <span class="nexora-question-status {% if question.answer %}is-answered{% endif %}">{% if question.answer %}پاسخ داده شد{% else %}بی‌پاسخ{% endif %}</span>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="nexora-panel-empty">هنوز پرسشی برای نمایش ثبت نشده است.</p>
+        {% endif %}
+      </article>
+    {% endif %}
   </section>
 
   <div id="content-main">

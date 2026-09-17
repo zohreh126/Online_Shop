@@ -263,6 +263,45 @@ class ProductReviewHelpfulVote(TimeStampedModel):
         return f"Helpful vote - {self.review_id} / {self.customer_id}"
 
 
+class ProductQuestion(TimeStampedModel):
+    """A public customer question and an answer from the Nexora team."""
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        related_name="questions",
+    )
+    customer = models.ForeignKey(
+        "customers.Customer",
+        on_delete=models.CASCADE,
+        related_name="product_questions",
+    )
+    question = models.TextField(max_length=1000)
+    answer = models.TextField(max_length=1500, blank=True)
+    answered_at = models.DateTimeField(null=True, blank=True)
+    is_approved = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Product question"
+        verbose_name_plural = "Product questions"
+        indexes = [
+            models.Index(
+                fields=("product", "is_active", "is_approved"),
+                name="question_product_vis_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.product.sku} - {self.customer.username}: {self.question[:45]}"
+
+    def delete(self, using=None, keep_parents=False):
+        """Hide a question while preserving the customer-support history."""
+        self.is_active = False
+        self.save(update_fields=("is_active", "updated_at"))
+
+
 class Discount(TimeStampedModel):
     class DiscountType(models.TextChoices):
         PERCENTAGE = "percentage", "Percentage"

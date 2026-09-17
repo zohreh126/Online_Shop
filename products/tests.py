@@ -13,6 +13,7 @@ from .models import (
     Discount,
     DiscountCode,
     Product,
+    ProductQuestion,
     ProductReview,
     ProductReviewHelpfulVote,
 )
@@ -186,6 +187,35 @@ class ProductReviewModelTests(TestCase):
                 review=review,
                 customer=self.customer,
             )
+
+
+class ProductQuestionModelTests(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name="Electronics")
+        self.product = Product.objects.create(
+            name="Questionable Product",
+            sku="QUESTION-001",
+            category=self.category,
+            price=Decimal("100.00"),
+            stock_quantity=4,
+        )
+        self.customer = Customer.objects.create_user(
+            username="question-model-user",
+            email="question-model-user@example.com",
+            password="Strong-password-123",
+        )
+
+    def test_delete_soft_deactivates_question(self):
+        question = ProductQuestion.objects.create(
+            product=self.product,
+            customer=self.customer,
+            question="Can this be used every day?",
+        )
+
+        question.delete()
+        question.refresh_from_db()
+
+        self.assertFalse(question.is_active)
 
 
 class DiscountModelTests(TestCase):
