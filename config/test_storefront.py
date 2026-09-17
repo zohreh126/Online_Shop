@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -151,6 +153,15 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "favorites-page")
         self.assertContains(response, "/static/storefront/js/favorites-page.js")
         self.assertContains(response, 'href="/favorites/"')
+
+    def test_quick_cart_actions_are_available_in_secondary_product_shelves(self):
+        project_root = Path(__file__).resolve().parents[1]
+        product_detail_js = (project_root / "static/storefront/js/product-detail.js").read_text()
+        favorites_js = (project_root / "static/storefront/js/favorites-page.js").read_text()
+
+        self.assertIn("data-recommendation-cart", product_detail_js)
+        self.assertIn("data-favorite-cart-icon", favorites_js)
+        self.assertIn("NexoraCartNav?.refresh", favorites_js)
 
     def test_profile_page_is_available(self):
         response = self.client.get(reverse("storefront-profile"))

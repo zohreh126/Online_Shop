@@ -61,6 +61,72 @@
     });
   }
 
+  function getCookie(name) {
+    const cookie = (document.cookie ? document.cookie.split("; ") : []).find((value) => value.startsWith(name + "="));
+    return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : null;
+  }
+
+  async function csrf() {
+    const existingToken = getCookie("csrftoken");
+    if (existingToken) return existingToken;
+    const response = await fetch(API_BASE + "auth/csrf/", { credentials: "same-origin" });
+    if (!response.ok || !getCookie("csrftoken")) throw new Error(tr("securityTokenFailed"));
+    return getCookie("csrftoken");
+  }
+
+  async function sendJSON(path, method, body) {
+    const response = await fetch(API_BASE + path, {
+      method,
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-CSRFToken": await csrf() },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(data.detail || data.product_id?.[0] || tr("operationFailed"));
+      error.status = response.status;
+      throw error;
+    }
+    return data;
+  }
+
+  function showToast(message) {
+    const toast = document.createElement("div");
+    toast.className = "toast-message";
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    window.setTimeout(() => toast.remove(), 2800);
+  }
+
+  function bindCartButtons(root) {
+    root.querySelectorAll(".favorite-cart-button").forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (button.disabled) return;
+        button.disabled = true;
+        button.classList.add("is-loading");
+        const icon = button.querySelector("[data-favorite-cart-icon]");
+        try {
+          await sendJSON("cart/items/", "POST", { product_id: button.dataset.product, quantity: 1 });
+          await window.NexoraCartNav?.refresh();
+          if (icon) icon.textContent = "✓";
+          showToast(tr("addedToCart"));
+          window.setTimeout(() => { if (icon) icon.textContent = "🛒"; }, 900);
+        } catch (error) {
+          if (error.status === 401 || error.status === 403) {
+            window.location.href = "/account/?next=" + encodeURIComponent(window.location.pathname);
+          } else {
+            showToast(error.message || tr("operationFailed"));
+          }
+        } finally {
+          button.disabled = false;
+          button.classList.remove("is-loading");
+        }
+      });
+    });
+  }
+
   function favoriteCard(product) {
     const name = productName(product);
     const href = "/products/" + encodeURIComponent(product.slug) + "/";
@@ -69,6 +135,8 @@
       : `<span class="favorite-placeholder">${escapeHTML((product.brand || "N").slice(0, 1))}</span>`;
     const discount = Number(product.discount_amount) > 0 ? `<del>${money(product.price)}</del>` : "";
     const discountBadge = discountLabel(product) ? `<span class="favorite-discount-badge">${escapeHTML(discountLabel(product))}</span>` : "";
+    const addLabel = tr("addToCart");
+    const canAdd = product.is_in_stock !== false;
     return `<article class="favorite-card">
       <a class="favorite-card-visual" href="${escapeHTML(href)}">${image}${discountBadge}</a>
       <div class="favorite-card-info">
@@ -76,7 +144,7 @@
         <h3><a href="${escapeHTML(href)}">${escapeHTML(name)}</a></h3>
         <div class="favorite-card-bottom">
           <div class="price-stack"><strong>${money(product.final_price)}</strong>${discount}${productSavings(product)}${discountCountdownMarkup(product)}</div>
-          <button class="heart-button favorite-remove" data-favorite-product="${product.id}" type="button" aria-label="${escapeHTML(tr("removeFromFavorites"))}" aria-pressed="true">♥</button>
+          <div class="favorite-card-actions"><button class="add-button cart-icon-button favorite-cart-button" data-product="${product.id}" type="button" aria-label="${escapeHTML(addLabel)}" title="${escapeHTML(addLabel)}" ${canAdd ? "" : "disabled"}><span data-favorite-cart-icon aria-hidden="true">${canAdd ? "🛒" : "−"}</span></button><button class="heart-button favorite-remove" data-favorite-product="${product.id}" type="button" aria-label="${escapeHTML(tr("removeFromFavorites"))}" aria-pressed="true">♥</button></div>
         </div>
       </div>
     </article>`;
@@ -102,6 +170,7 @@
     list.hidden = false;
     list.innerHTML = products.map(favoriteCard).join("");
     window.NexoraFavorites?.bindButtons(list);
+    bindCartButtons(list);
     updateDiscountCountdowns();
   }
 
