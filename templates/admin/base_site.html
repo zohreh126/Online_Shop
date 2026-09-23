@@ -1,18 +1,25 @@
 {% extends "admin/base.html" %}
-{% load static %}
-{% block title %}{{ title }} | Nexora Control Center{% endblock %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% block title %}{{ title }} | {% if LANGUAGE_CODE == "en" %}Nexora Control Center{% else %}مرکز فرماندهی نکستورا{% endif %}{% endblock %}
 {% block branding %}
   <a class="nexora-admin-brand" href="{% url 'admin:index' %}">
     <span class="nexora-admin-mark" aria-hidden="true">N</span>
     <span class="nexora-admin-brand-copy">
       <strong>NEXORA</strong>
-      <small>STORE OPERATIONS / مدیریت فروشگاه</small>
+      <small>{% if LANGUAGE_CODE == "en" %}STORE OPERATIONS / ADMIN{% else %}مدیریت فروشگاه / STORE OPERATIONS{% endif %}</small>
     </span>
   </a>
 {% endblock %}
 {% block userlinks %}
-  <span class="nexora-admin-controls" aria-label="تنظیمات پنل">
-    <button type="button" data-admin-theme-toggle aria-label="تغییر حالت نمایش">☾</button>
+  <span class="nexora-admin-controls" aria-label="{% if LANGUAGE_CODE == 'en' %}Panel settings{% else %}تنظیمات پنل{% endif %}">
+    <form class="nexora-admin-language" action="{% url 'set_language' %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button type="submit" name="language" value="fa"{% if LANGUAGE_CODE == "fa" %} class="is-active" aria-current="page"{% endif %}>فارسی</button>
+      <button type="submit" name="language" value="en"{% if LANGUAGE_CODE == "en" %} class="is-active" aria-current="page"{% endif %}>English</button>
+    </form>
+    <button type="button" data-admin-theme-toggle aria-label="{% if LANGUAGE_CODE == 'en' %}Toggle display mode{% else %}تغییر حالت نمایش{% endif %}">☾</button>
   </span>
   {{ block.super }}
 {% endblock %}

@@ -28,6 +28,10 @@ a { transition: color .18s ease, background .18s ease, border-color .18s ease, t
 #user-tools form { display: inline; }
 #user-tools button { border: 0; padding: 0; background: transparent; cursor: pointer; }
 .nexora-admin-controls { display:inline-flex; align-items:center; margin-inline-end:12px; vertical-align:middle; }
+.nexora-admin-language { display:inline-flex; align-items:center; gap:2px; margin-inline-end:8px; padding:2px; border:1px solid rgba(255,255,255,.18); border-radius:10px; background:rgba(255,255,255,.08); }
+.nexora-admin-language button { border:0; border-radius:7px; padding:4px 7px; color:#eadff5 !important; background:transparent; font:700 10px/1 Vazirmatn, "Segoe UI", sans-serif; cursor:pointer; }
+.nexora-admin-language button:hover { color:#fff !important; background:rgba(255,255,255,.12); }
+.nexora-admin-language button.is-active { color:var(--nexora-purple-dark) !important; background:var(--nexora-coral); }
 .nexora-admin-controls button { display:grid; place-items:center; width:30px; height:30px; padding:0; border:1px solid rgba(255,255,255,.2) !important; border-radius:10px; color:#fff !important; background:rgba(255,255,255,.1) !important; font-size:15px; cursor:pointer; transition:transform .18s ease, background .18s ease, border-color .18s ease; }
 .nexora-admin-controls button:hover { transform:translateY(-2px); border-color:var(--nexora-coral) !important; background:rgba(239,156,131,.2) !important; }
 .breadcrumbs { padding: 12px 28px; color: #e7dff0; background: #3b2f4d; font-size: 11px; }
@@ -312,6 +316,23 @@ html.nexora-admin-dark .nexora-alert-row,
 html.nexora-admin-dark .nexora-feed-row { border-color:var(--nexora-line); color:var(--nexora-ink) !important; }
 html.nexora-admin-dark .nexora-alert-row:hover,
 html.nexora-admin-dark .nexora-question-row:hover { background:#3b2d48; }
+html[dir="ltr"] .nexora-admin-hero,
+html[dir="ltr"] .nexora-quick-actions,
+html[dir="ltr"] .nexora-dashboard-panel,
+html[dir="ltr"] .nexora-stat-card,
+html[dir="ltr"] .nexora-kpi-card,
+html[dir="ltr"] .nexora-recent-actions { direction:ltr; text-align:left; }
+html[dir="rtl"] .nexora-admin-hero,
+html[dir="rtl"] .nexora-quick-actions,
+html[dir="rtl"] .nexora-dashboard-panel,
+html[dir="rtl"] .nexora-stat-card,
+html[dir="rtl"] .nexora-kpi-card,
+html[dir="rtl"] .nexora-recent-actions { direction:rtl; text-align:right; }
+html[dir="ltr"] .nexora-admin-hero-meta,
+html[dir="ltr"] .nexora-admin-hero-actions,
+html[dir="ltr"] .nexora-panel-heading,
+html[dir="ltr"] .nexora-feed-side { text-align:left; }
+html[dir="ltr"] .nexora-admin-brand-copy small { letter-spacing:1px; }
 @media (max-width: 560px) {
   .nexora-admin-hero-actions { align-items:stretch; flex-direction:column; }
   .nexora-admin-store-link,.nexora-admin-role-pill { width:100%; box-sizing:border-box; }

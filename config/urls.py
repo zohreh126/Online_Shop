@@ -30,6 +30,7 @@ from core.admin_dashboard import nexora_admin_index
 import customers.schema  # noqa: F401
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", TemplateView.as_view(template_name="storefront/index.html"), name="storefront-home"),
     path("about/", TemplateView.as_view(template_name="storefront/about.html"), name="storefront-about"),
     path("contact/", TemplateView.as_view(template_name="storefront/contact.html"), name="storefront-contact"),

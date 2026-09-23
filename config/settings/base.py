@@ -32,6 +32,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -70,7 +71,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-LANGUAGE_CODE = "fa-ir"
+LANGUAGE_CODE = "fa"
+LANGUAGES = (
+    ("fa", "فارسی"),
+    ("en", "English"),
+)
+LOCALE_PATHS = [PROJECT_ROOT / "locale"]
 TIME_ZONE = "Asia/Tehran"
 USE_I18N = True
 USE_TZ = True

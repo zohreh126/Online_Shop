@@ -158,6 +158,45 @@ class AdminPermissionTests(TestCase):
         self.assertContains(response, "/static/admin/js/nexora-admin.js")
         self.assertContains(response, "data-admin-theme-toggle")
 
+    def test_admin_dashboard_switches_between_persian_and_english(self):
+        self.client.force_login(self.superuser)
+
+        english_response = self.client.post(
+            reverse("set_language"),
+            {
+                "language": "en",
+                "next": reverse("admin:index"),
+            },
+            follow=True,
+        )
+
+        self.assertEqual(english_response.status_code, 200)
+        self.assertContains(english_response, "Store control center")
+        self.assertContains(english_response, "Quick operations")
+        self.assertContains(english_response, 'lang="en"')
+        self.assertContains(english_response, 'dir="ltr"')
+        self.assertContains(english_response, 'value="en"')
+        self.assertContains(english_response, "is-active")
+        self.assertNotContains(english_response, "مرکز فرماندهی فروشگاه")
+
+        persian_response = self.client.post(
+            reverse("set_language"),
+            {
+                "language": "fa",
+                "next": reverse("admin:index"),
+            },
+            follow=True,
+        )
+
+        self.assertEqual(persian_response.status_code, 200)
+        self.assertContains(persian_response, "مرکز فرماندهی فروشگاه")
+        self.assertContains(persian_response, "عملیات سریع")
+        self.assertContains(persian_response, "نظرات محصولات")
+        self.assertContains(persian_response, 'lang="fa"')
+        self.assertContains(persian_response, 'dir="rtl"')
+        self.assertContains(persian_response, 'value="fa"')
+        self.assertContains(persian_response, "is-active")
+
     def test_customer_admin_delete_action_deactivates_account(self):
         customer_admin = self.admin_for(Customer)
         request = self.request_for(self.superuser)
