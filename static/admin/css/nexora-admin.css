@@ -265,3 +265,46 @@ a { transition: color .18s ease, background .18s ease, border-color .18s ease, t
   .nexora-admin-hero-actions { align-items:stretch; flex-direction:column; }
   .nexora-admin-store-link,.nexora-admin-role-pill { width:100%; box-sizing:border-box; }
 }
+
+/* Final workspace override: Django's legacy colMS widths must not collapse the
+   Nexora dashboard into a narrow centered column on wide screens. */
+.nexora-dashboard #container,
+.nexora-dashboard #main,
+.nexora-dashboard .main,
+.nexora-dashboard #content,
+.nexora-dashboard #content-main,
+.nexora-dashboard #content-related {
+  max-width: none !important;
+}
+.nexora-dashboard #content {
+  width: calc(100% - 48px) !important;
+  margin: 0 24px !important;
+  padding: 28px 0 64px !important;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 22vw) !important;
+}
+.nexora-dashboard #content-main,
+.nexora-dashboard #content-related {
+  width: auto !important;
+  min-width: 0 !important;
+  float: none !important;
+}
+.nexora-dashboard #content-main > section,
+.nexora-dashboard #content-main > .module,
+.nexora-dashboard #content-related > .module {
+  box-sizing: border-box;
+  width: 100%;
+}
+.nexora-dashboard #content-related { margin: 0 !important; }
+.nexora-dashboard .nexora-dashboard-panel,
+.nexora-dashboard .nexora-quick-actions,
+.nexora-dashboard .nexora-stat-grid,
+.nexora-dashboard .nexora-kpi-grid { min-width: 0; }
+@media (max-width: 820px) {
+  .nexora-dashboard #content {
+    width: calc(100% - 28px) !important;
+    margin: 0 14px !important;
+    padding-top: 22px !important;
+    grid-template-columns: 1fr !important;
+  }
+}
