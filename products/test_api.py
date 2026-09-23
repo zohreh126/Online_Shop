@@ -477,6 +477,39 @@ class ProductCatalogAPITests(APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["slug"], self.headphones.slug)
 
+    def test_product_list_honors_page_size_query_parameter(self):
+        response = self.client.get(
+            reverse("product-list"),
+            {"page_size": 100},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 3)
+        self.assertEqual(len(response.data["results"]), 3)
+        self.assertIsNone(response.data["next"])
+
+    def test_discount_filter_can_return_all_discounted_products_in_one_page(self):
+        Discount.objects.create(
+            product=self.keyboard,
+            discount_type=Discount.DiscountType.PERCENTAGE,
+            value=Decimal("15.00"),
+        )
+        Discount.objects.create(
+            product=self.headphones,
+            discount_type=Discount.DiscountType.FIXED,
+            value=Decimal("20.00"),
+        )
+
+        response = self.client.get(
+            reverse("product-list"),
+            {"has_discount": "true", "page_size": 100},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 2)
+        self.assertEqual(len(response.data["results"]), 2)
+        self.assertTrue(all(item["discount_amount"] > 0 for item in response.data["results"]))
+
     def test_product_brand_filter_supports_partial_match(self):
         response = self.client.get(
             reverse("product-list"),
