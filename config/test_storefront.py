@@ -132,6 +132,7 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="product-reviews"')
         self.assertContains(response, 'class="reviews-layout"')
         self.assertContains(response, 'id="reviews-list"')
+        self.assertContains(response, 'id="reviews-public-count"')
         self.assertContains(response, 'id="review-sort"')
         self.assertContains(response, 'value="helpful"')
         self.assertContains(response, 'id="product-questions"')
@@ -146,6 +147,7 @@ class StorefrontPageTests(TestCase):
         self.assertIn("function collectReviewPages", source)
         self.assertIn("pageCount < 100", source)
         self.assertIn("productReviews = await collectReviewPages(data)", source)
+        self.assertIn("reviewGuestHint", source)
 
     def test_csrf_token_endpoint_is_available_to_storefront(self):
         response = self.client.get(reverse("auth-csrf"))

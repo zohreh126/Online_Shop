@@ -781,7 +781,11 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
 .reviews-public-tools select:focus { border-color:var(--accent-strong); }
 .reviews-public-kicker { color:var(--accent-strong); font-size:9px; font-weight:800; letter-spacing:.7px; }
 .reviews-public-heading strong { color:var(--ink); font-size:13px; }
-.review-login-callout { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:18px 20px; border:1px solid var(--line); background:var(--soft); color:var(--muted); }
+.reviews-public-count { display:block; margin-top:7px; color:var(--muted); font-size:10px; }
+.review-login-callout { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:18px 20px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(145deg,var(--soft),var(--card)); color:var(--muted); }
+.review-login-icon { display:grid; place-items:center; flex:0 0 38px; width:38px; height:38px; border-radius:12px; color:var(--accent-strong); background:var(--card); font-size:18px; box-shadow:0 8px 18px rgba(75,55,100,.07); }
+.review-login-callout > div { min-width:0; flex:1; }
+.review-login-callout strong { display:block; color:var(--ink); font-size:12px; }
 .review-login-callout p { margin:0; font-size:12px; line-height:1.9; }
 .review-login-callout .secondary-button { margin-top:0; }
 .review-form { display:grid; gap:15px; max-width:720px; padding:22px; border:1px solid var(--line); border-radius:12px; background:var(--card); }
@@ -809,6 +813,7 @@ html[dir="ltr"] .profile-nav button,html[dir="ltr"] .profile-nav a { text-align:
 .review-form textarea { min-height:130px; resize:vertical; }
 .review-form select,.review-form input,.review-form textarea { border-radius:8px; }
 .dark .review-login-callout,.dark .review-form,.dark .review-card { background:#302a3b; }
+.dark .review-login-icon { background:#403451; box-shadow:none; }
 .dark .review-list-column { background:linear-gradient(135deg,#3b304a,#302a3b); }
 .dark .reviews-public-tools select { border-color:#554a64; background:#302a3b; color:#eee7fb; }
 

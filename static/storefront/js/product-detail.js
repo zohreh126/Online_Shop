@@ -339,6 +339,8 @@ function sortReviewsForDisplay(reviews) {
 function renderReviewsList() {
   const list = document.querySelector("#reviews-list");
   if (!list) return;
+  const count = document.querySelector("#reviews-public-count");
+  if (count) count.textContent = format("reviewCount", { count: number(productReviews.length) });
 
   if (!productReviews.length) {
     list.innerHTML = `<div class="empty-inline"><strong>${escapeHTML(t("noReviews"))}</strong><span>${escapeHTML(t("beFirstReview"))}</span></div>`;
@@ -481,7 +483,7 @@ function renderReviewComposer() {
 
   if (!reviewUser) {
     const loginUrl = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
-    composer.innerHTML = `<div class="review-login-callout"><p>${escapeHTML(t("loginToReview"))}</p><a class="secondary-button" href="${loginUrl}">${escapeHTML(t("login"))}</a></div>`;
+    composer.innerHTML = `<div class="review-login-callout"><span class="review-login-icon" aria-hidden="true">✎</span><div><strong>${escapeHTML(t("reviewGuestTitle"))}</strong><p>${escapeHTML(t("reviewGuestHint"))}</p></div><a class="secondary-button" href="${loginUrl}">${escapeHTML(t("login"))}</a></div>`;
     return;
   }
 
