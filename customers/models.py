@@ -92,6 +92,12 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     email_verified = models.BooleanField(default=False)
 
+    date_of_birth = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text="Jalali date in YYYY/MM/DD format.",
+    )
+
     date_joined = models.DateTimeField(default=timezone.now)
 
     objects = CustomerManager()
@@ -290,3 +296,33 @@ class SiteFeedback(TimeStampedModel):
         """Hide feedback while retaining it for product and service insights."""
         self.is_active = False
         self.save(update_fields=("is_active", "updated_at"))
+
+
+class CustomerNotification(TimeStampedModel):
+    class Kind(models.TextChoices):
+        PRODUCT = "product", "New product"
+        CAMPAIGN = "campaign", "Store campaign"
+        BIRTHDAY = "birthday", "Birthday reward"
+        SYSTEM = "system", "Account update"
+
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+    )
+    kind = models.CharField(max_length=20, choices=Kind.choices, default=Kind.SYSTEM)
+    title = models.CharField(max_length=180)
+    body = models.TextField(max_length=1200)
+    link = models.CharField(max_length=255, blank=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Customer notification"
+        verbose_name_plural = "Customer notifications"
+        indexes = [
+            models.Index(fields=("customer", "is_read", "created_at"), name="notif_customer_read_idx"),
+        ]
+
+    def __str__(self):
+        return f"{self.customer.username} - {self.title}"

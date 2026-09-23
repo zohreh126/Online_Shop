@@ -434,6 +434,15 @@ class Discount(TimeStampedModel):
         self.save(update_fields=("is_active", "updated_at"))
 
 class DiscountCode(TimeStampedModel):
+    customer = models.ForeignKey(
+        "customers.Customer",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="personal_discount_codes",
+        help_text="Leave empty for a store-wide campaign code.",
+    )
+
     code = models.CharField(
         max_length=50,
         unique=True,

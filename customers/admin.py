@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from core.admin_permissions import RolePermissionAdminMixin
 
 from .management.commands.seed_roles import ROLE_PERMISSIONS
-from .models import Address, Customer, ProductWatch, SiteFeedback
+from .models import Address, Customer, CustomerNotification, ProductWatch, SiteFeedback
 
 
 class AddressInline(admin.TabularInline):
@@ -66,6 +66,7 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
                 "last_name",
                 "email",
                 "phone_number",
+                "date_of_birth",
                 "role",
             ),
         }),
@@ -94,6 +95,7 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
                 "email",
                 "password1",
                 "password2",
+                "date_of_birth",
                 "is_staff",
                 "is_active",
                 "role",
@@ -259,3 +261,13 @@ class ProductWatchAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
 
     def delete_queryset(self, request, queryset):
         queryset.update(is_active=False)
+
+
+@admin.register(CustomerNotification)
+class CustomerNotificationAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = ("customer", "kind", "title", "is_read", "created_at")
+    list_filter = ("kind", "is_read")
+    search_fields = ("customer__username", "customer__email", "title", "body")
+    autocomplete_fields = ("customer",)
+    readonly_fields = ("created_at", "updated_at")
+    ordering = ("-created_at",)

@@ -165,6 +165,34 @@ class CheckoutAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(Order.objects.exists())
 
+    def test_checkout_rejects_a_personal_coupon_belonging_to_another_customer(self):
+        other_customer = Customer.objects.create_user(
+            username="other-coupon-owner",
+            email="other-coupon-owner@example.com",
+            password="Strong-password-123",
+        )
+        DiscountCode.objects.create(
+            code="PRIVATE15",
+            customer=other_customer,
+            discount_type=Discount.DiscountType.PERCENTAGE,
+            value=Decimal("15.00"),
+        )
+        self.add_to_cart(quantity=1)
+
+        response = self.client.post(
+            self.checkout_url,
+            {
+                "address_id": self.address.pk,
+                "coupon_code": "private15",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("coupon_code", response.data)
+        self.assertIn("another customer", str(response.data["coupon_code"]))
+        self.assertFalse(Order.objects.exists())
+
     def test_successful_mock_payment_consumes_stock_and_coupon(self):
         discount_code = DiscountCode.objects.create(
             code="PAY10",

@@ -4,16 +4,19 @@ import django_filters
 from django.db.models import Avg, Count, Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
 from rest_framework import filters as drf_filters
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from orders.models import Order, OrderItem
 
 from .models import (
     Category,
+    DiscountCode,
     Product,
     ProductQuestion,
     ProductReview,
@@ -26,6 +29,33 @@ from .serializers import (
     ProductReviewSerializer,
     ProductSerializer,
 )
+
+
+class ActiveCampaignView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def get(self, request):
+        campaign = (
+            DiscountCode.objects.filter(customer__isnull=True, is_active=True)
+            .order_by("-created_at")
+            .first()
+        )
+        if campaign is None or not campaign.is_valid_now:
+            return Response({"campaign": None}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "campaign": {
+                    "code": campaign.code,
+                    "discount_type": campaign.discount_type,
+                    "value": campaign.value,
+                    "minimum_order_amount": campaign.minimum_order_amount,
+                    "ends_at": campaign.ends_at,
+                }
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class CategoryFilter(django_filters.FilterSet):

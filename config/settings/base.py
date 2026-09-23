@@ -116,6 +116,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "customers.tasks.send_product_watch_notifications",
         "schedule": 15 * 60,
     },
+    "issue-birthday-discount-notifications": {
+        "task": "customers.tasks.issue_birthday_discount_notifications",
+        "schedule": 60 * 60 * 24,
+    },
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

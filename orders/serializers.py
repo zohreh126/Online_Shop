@@ -462,6 +462,11 @@ class CheckoutSerializer(serializers.Serializer):
                     {"coupon_code": "This discount code is no longer valid."}
                 )
 
+            if discount_code.customer_id and discount_code.customer_id != self.context["request"].user.id:
+                raise serializers.ValidationError(
+                    {"coupon_code": "This personal discount code belongs to another customer."}
+                )
+
             if subtotal < discount_code.minimum_order_amount:
                 raise serializers.ValidationError(
                     {

@@ -126,6 +126,15 @@ class CartCouponView(APIView):
                 {"code": "Invalid discount code."}
             ) from exc
 
+        if discount_code.customer_id and (
+            not request.user.is_authenticated
+            or discount_code.customer_id != request.user.id
+        ):
+            return Response(
+                {"code": "This personal discount code belongs to another customer."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if not discount_code.is_valid_now:
             return Response(
                 {"code": "This discount code is no longer valid."},

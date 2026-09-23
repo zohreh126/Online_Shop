@@ -126,6 +126,7 @@ class DiscountAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
 @admin.register(DiscountCode)
 class DiscountCodeAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
     list_display = (
+        "customer",
         "code",
         "discount_type",
         "value",
@@ -135,6 +136,7 @@ class DiscountCodeAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
         "is_active",
     )
     list_filter = ("discount_type", "is_active")
-    search_fields = ("code",)
+    search_fields = ("code", "customer__username", "customer__email")
+    autocomplete_fields = ("customer",)
     ordering = ("-created_at",)
     readonly_fields = ("used_count", "created_at", "updated_at")

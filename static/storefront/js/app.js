@@ -33,6 +33,27 @@ async function getJSON(path) {
   return response.json();
 }
 
+async function loadCampaign() {
+  const banner = document.querySelector("#campaign-banner");
+  if (!banner) return;
+  try {
+    const payload = await getJSON("campaigns/active/");
+    const campaign = payload.campaign;
+    if (!campaign) { banner.hidden = true; return; }
+    banner.hidden = false;
+    document.querySelector("#campaign-code").textContent = campaign.code;
+    document.querySelector("#campaign-minimum").textContent = Number(campaign.minimum_order_amount || 0) > 0
+      ? formatMessage("campaignMinimum", { amount: money(campaign.minimum_order_amount) })
+      : t("campaignNoMinimum");
+    document.querySelector("#campaign-copy").onclick = async () => {
+      try { await navigator.clipboard.writeText(campaign.code); } catch (error) { /* clipboard may be unavailable */ }
+      showToast(t("campaignCopied"));
+    };
+  } catch (error) {
+    banner.hidden = true;
+  }
+}
+
 async function loadAccountState() {
   const account = document.querySelector("#account-area");
   try {
@@ -1020,6 +1041,7 @@ loadCatalog().then(() => {
   }
   if (new URLSearchParams(window.location.search).get("cart") === "open") openCart();
 });
+loadCampaign();
 window.addEventListener("nexora-language-changed", () => {
   renderCategories(state.categories);
   renderProducts();
@@ -1034,5 +1056,6 @@ window.addEventListener("nexora-language-changed", () => {
   updateDiscountCountdowns();
   updateCompareUI();
   startOfferSpotlightTimer();
+  loadCampaign();
   if (quickViewProduct && !document.querySelector("#quick-view-modal")?.hidden) renderQuickView(quickViewProduct);
 });

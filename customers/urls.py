@@ -16,6 +16,7 @@ from .views import (
     AddressViewSet,
     CustomerProfileView,
     CustomerRegistrationView,
+    NotificationViewSet,
     FavoriteViewSet,
     ProductWatchViewSet,
     RewardSummaryView,
@@ -38,6 +39,11 @@ router.register(
     "product-watches",
     ProductWatchViewSet,
     basename="customer-product-watch",
+)
+router.register(
+    "notifications",
+    NotificationViewSet,
+    basename="customer-notification",
 )
 
 

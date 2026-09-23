@@ -13,7 +13,8 @@ from products.models import Product
 from products.pricing import get_current_product_price
 from products.serializers import ProductSerializer
 
-from .models import Address, Customer, Favorite, ProductWatch, SiteFeedback
+from .jalali import normalize_jalali_date
+from .models import Address, Customer, CustomerNotification, Favorite, ProductWatch, SiteFeedback
 
 
 class CustomerRegistrationSerializer(serializers.ModelSerializer):
@@ -35,6 +36,7 @@ class CustomerRegistrationSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "phone_number",
+            "date_of_birth",
             "password",
             "password_confirm",
         )
@@ -42,6 +44,7 @@ class CustomerRegistrationSerializer(serializers.ModelSerializer):
             "first_name": {"required": False},
             "last_name": {"required": False},
             "phone_number": {"required": False},
+            "date_of_birth": {"required": False},
         }
 
     def validate_username(self, value):
@@ -56,6 +59,12 @@ class CustomerRegistrationSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         return normalize("NFC", value).strip().lower()
+
+    def validate_date_of_birth(self, value):
+        try:
+            return normalize_jalali_date(value)
+        except ValueError as exc:
+            raise serializers.ValidationError(str(exc)) from exc
 
     def validate(self, attrs):
         password = attrs.get("password")
@@ -101,6 +110,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "phone_number",
+            "date_of_birth",
             "role",
             "is_staff",
             "is_superuser",
@@ -113,13 +123,26 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
 class CustomerProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ("username", "email", "first_name", "last_name", "phone_number")
+        fields = ("username", "email", "first_name", "last_name", "phone_number", "date_of_birth")
 
     def validate_username(self, value):
         return normalize("NFC", value).strip()
 
     def validate_email(self, value):
         return normalize("NFC", value).strip().lower()
+
+    def validate_date_of_birth(self, value):
+        try:
+            return normalize_jalali_date(value)
+        except ValueError as exc:
+            raise serializers.ValidationError(str(exc)) from exc
+
+
+class CustomerNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomerNotification
+        fields = ("id", "kind", "title", "body", "link", "is_read", "created_at")
+        read_only_fields = fields
 
 
 class PasswordChangeSerializer(serializers.Serializer):

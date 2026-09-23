@@ -9,11 +9,12 @@ from rest_framework.response import Response
 from orders.models import RewardTransaction
 from products.models import Product
 
-from .models import Address, Favorite, ProductWatch, SiteFeedback
+from .models import Address, CustomerNotification, Favorite, ProductWatch, SiteFeedback
 from .serializers import (
     AddressSerializer,
     CustomerProfileSerializer,
     CustomerRegistrationSerializer,
+    CustomerNotificationSerializer,
     FavoriteSerializer,
     FavoriteToggleSerializer,
     ProductWatchSerializer,
@@ -178,6 +179,29 @@ class FavoriteViewSet(
             },
             status=status.HTTP_200_OK,
         )
+
+
+class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = CustomerNotificationSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return CustomerNotification.objects.none()
+        return CustomerNotification.objects.filter(customer=self.request.user).order_by("-created_at")
+
+    @action(detail=True, methods=("post",), url_path="read")
+    def mark_read(self, request, pk=None):
+        notification = self.get_object()
+        if not notification.is_read:
+            notification.is_read = True
+            notification.save(update_fields=("is_read", "updated_at"))
+        return Response(CustomerNotificationSerializer(notification).data)
+
+    @action(detail=False, methods=("post",), url_path="read-all")
+    def mark_all_read(self, request):
+        self.get_queryset().filter(is_read=False).update(is_read=True)
+        return Response({"detail": "Notifications marked as read."})
 
 
 class ProductWatchViewSet(viewsets.ModelViewSet):

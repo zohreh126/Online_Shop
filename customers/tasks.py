@@ -9,6 +9,10 @@ from django.utils import timezone
 
 from products.pricing import get_current_product_price
 
+from products.models import Discount, DiscountCode
+
+from .jalali import jalali_date_parts
+from .marketing import create_notification, send_customer_email
 from .models import Customer, ProductWatch
 
 
@@ -27,6 +31,59 @@ def deactivate_unverified_customers(days=3):
     )
     updated = queryset.update(is_active=False)
     return updated
+
+
+@shared_task
+def issue_birthday_discount_notifications():
+    """Issue one personal, seven-day birthday code per Jalali year."""
+    jalali_year, month, day = jalali_date_parts()
+    issued = 0
+    for customer in Customer.objects.filter(
+        is_active=True,
+        is_staff=False,
+        is_superuser=False,
+    ).exclude(date_of_birth=""):
+        parts = customer.date_of_birth.split("/")
+        try:
+            birth_month, birth_day = int(parts[1]), int(parts[2])
+        except (IndexError, ValueError):
+            continue
+        if len(parts) != 3 or (birth_month, birth_day) != (month, day):
+            continue
+        code = f"BIRTHDAY-{customer.pk}-{jalali_year}"
+        now = timezone.now()
+        discount_code, created = DiscountCode.objects.get_or_create(
+            code=code,
+            defaults={
+                "customer": customer,
+                "discount_type": Discount.DiscountType.PERCENTAGE,
+                "value": 15,
+                "max_amount": 300000,
+                "minimum_order_amount": 0,
+                "usage_limit": 1,
+                "starts_at": now,
+                "ends_at": now + timedelta(days=7),
+                "is_active": True,
+            },
+        )
+        if not created:
+            continue
+        title = "کد هدیه تولد نکستورا"
+        body = (
+            f"سلام {customer.first_name or customer.username}، تولدت مبارک!\n\n"
+            f"کد اختصاصی تو: {discount_code.code}\n"
+            "این کد ۱۵٪ تخفیف دارد و تا ۷ روز فقط برای حساب تو فعال است.\n\nNexora Store"
+        )
+        create_notification(
+            customer,
+            kind="birthday",
+            title=title,
+            body="کد هدیه تولدت آماده است: " + discount_code.code,
+            link="/checkout/",
+        )
+        send_customer_email(customer, subject=title, body=body)
+        issued += 1
+    return issued
 
 
 def _watch_message(watch, events, previous_price, current_price):
