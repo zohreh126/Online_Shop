@@ -1,5 +1,5 @@
 const API_BASE = "/api/v1/";
-const state = { products: [], categories: [], category: "", search: "", sort: "newest", onlyDiscounted: false, onlyInStock: false, priceBand: "all" };
+const state = { products: [], categories: [], category: "", search: "", sort: "newest", onlyDiscounted: false, onlyInStock: false, priceBand: "all", page: 1, collection: "all" };
 let offerSpotlightProducts = [];
 let offerSpotlightIndex = 0;
 let offerSpotlightTimer = null;
@@ -7,6 +7,7 @@ const expandedCategorySlugs = new Set();
 const COMPARE_STORAGE_KEY = "nexora-compare";
 const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 const FREE_SHIPPING_THRESHOLD = 2000000;
+const CATALOG_PAGE_SIZE = 12;
 const compareIds = new Set();
 let searchSuggestionIndex = -1;
 let quickViewProduct = null;
@@ -497,8 +498,37 @@ function clearCatalogFilters() {
   state.onlyDiscounted = false;
   state.onlyInStock = false;
   state.priceBand = "all";
+  state.page = 1;
   renderCatalogFilters();
   renderProducts();
+}
+
+function renderCatalogPagination(totalItems) {
+  const pagination = document.querySelector("#catalog-pagination");
+  if (!pagination) return;
+  const pageCount = Math.ceil(totalItems / CATALOG_PAGE_SIZE);
+  pagination.hidden = pageCount <= 1;
+  if (pageCount <= 1) {
+    pagination.innerHTML = "";
+    return;
+  }
+
+  state.page = Math.min(Math.max(1, state.page), pageCount);
+  const visiblePages = new Set([1, pageCount, state.page - 1, state.page, state.page + 1].filter((page) => page > 0 && page <= pageCount));
+  const pageButtons = [];
+  [...visiblePages].sort((a, b) => a - b).forEach((page, index, pages) => {
+    if (index && page - pages[index - 1] > 1) pageButtons.push('<span class="pagination-ellipsis" aria-hidden="true">…</span>');
+    const label = page === pageCount && pageCount > 3 ? t("lastPage") : localizedNumber(page);
+    pageButtons.push(`<button class="catalog-page-button${page === state.page ? " is-active" : ""}" data-catalog-page="${page}" type="button" aria-current="${page === state.page ? "page" : "false"}">${label}</button>`);
+  });
+  pagination.innerHTML = `<button class="catalog-page-arrow" data-catalog-page="${state.page - 1}" type="button" aria-label="${escapeHTML(t("previousPage"))}" ${state.page === 1 ? "disabled" : ""}>‹</button>${pageButtons.join("")}<button class="catalog-page-arrow" data-catalog-page="${state.page + 1}" type="button" aria-label="${escapeHTML(t("nextPage"))}" ${state.page === pageCount ? "disabled" : ""}>›</button>`;
+  pagination.querySelectorAll("[data-catalog-page]").forEach((button) => button.addEventListener("click", () => {
+    const nextPage = Number(button.dataset.catalogPage);
+    if (!nextPage || nextPage < 1 || nextPage > pageCount) return;
+    state.page = nextPage;
+    renderProducts();
+    document.querySelector("#catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
 }
 
 function renderProducts() {
@@ -514,6 +544,7 @@ function renderProducts() {
     return matchesCategory && matchesSearch && matchesDiscount && matchesStock && matchesPriceBand(product);
   });
   const sorted = [...filtered].sort((a, b) => {
+    if (state.collection === "editor") return featuredScore(b) - featuredScore(a);
     if (state.sort === "price-low") return Number(a.final_price) - Number(b.final_price);
     if (state.sort === "price-high") return Number(b.final_price) - Number(a.final_price);
     if (state.sort === "name") return productName(a).localeCompare(productName(b), window.NexoraI18n?.current() === "en" ? "en" : "fa");
@@ -521,14 +552,21 @@ function renderProducts() {
   });
   if (!sorted.length) {
     document.querySelector("#catalog-count").textContent = formatMessage("productCount", { count: localizedNumber(0) });
+    renderCatalogPagination(0);
     grid.innerHTML = `<div class="state-card"><span class="state-icon">⌕</span><h3>${t("noProducts")}</h3><p>${t("changeFilter")}</p></div>`;
     renderRecentlyViewed();
     updateCompareUI();
     return;
   }
   document.querySelector("#catalog-count").textContent = formatMessage("productCount", { count: localizedNumber(sorted.length) });
-  grid.innerHTML = sorted.map((product, index) => productCardMarkup(product, index)).join("");
-  bindProductActions(grid, sorted);
+  const start = (state.page - 1) * CATALOG_PAGE_SIZE;
+  const pageProducts = sorted.slice(start, start + CATALOG_PAGE_SIZE);
+  renderCatalogPagination(sorted.length);
+  document.querySelector("#catalog-heading").textContent = state.collection === "editor" ? t("editorCollectionTitle") : t("betterDesk");
+  const resetLink = document.querySelector("#catalog-reset");
+  if (resetLink) resetLink.textContent = state.collection === "editor" ? t("allProducts") : t("catalogExplore");
+  grid.innerHTML = pageProducts.map((product, index) => productCardMarkup(product, index)).join("");
+  bindProductActions(grid, pageProducts);
   updateDiscountCountdowns();
   renderRecentlyViewed();
   updateCompareUI();
@@ -819,6 +857,8 @@ function renderCategories(categories) {
   document.querySelector("#category-tabs").innerHTML = `<button class="category-tree-all ${!state.category ? "selected" : ""}" data-category="" type="button">${t("categoriesAll")}</button><ul class="category-tree">${roots.map((category) => renderNode(category)).join("")}</ul>`;
   document.querySelectorAll("#category-tabs [data-category]").forEach((button) => button.addEventListener("click", () => {
     state.category = button.dataset.category;
+    state.collection = "all";
+    state.page = 1;
     if (state.category) expandedCategorySlugs.add(state.category);
     renderCategories(categories);
     renderProducts();
@@ -856,7 +896,7 @@ async function loadCatalog() {
 
 const searchInput = document.querySelector("#product-search");
 const searchSuggestions = document.querySelector("#search-suggestions");
-searchInput.addEventListener("input", (event) => { state.search = event.target.value; renderSearchSuggestions(); renderProducts(); });
+searchInput.addEventListener("input", (event) => { state.search = event.target.value; state.page = 1; renderSearchSuggestions(); renderProducts(); });
 searchInput.addEventListener("focus", renderSearchSuggestions);
 searchInput.addEventListener("keydown", (event) => {
   if (event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -885,15 +925,17 @@ document.addEventListener("click", (event) => {
     searchInput.removeAttribute("aria-activedescendant");
   }
 });
-document.querySelector("#product-sort").addEventListener("change", (event) => { state.sort = event.target.value; renderProducts(); });
+document.querySelector("#product-sort").addEventListener("change", (event) => { state.sort = event.target.value; state.page = 1; renderProducts(); });
 document.querySelectorAll("[data-catalog-filter]").forEach((button) => button.addEventListener("click", () => {
   if (button.dataset.catalogFilter === "discount") state.onlyDiscounted = !state.onlyDiscounted;
   if (button.dataset.catalogFilter === "stock") state.onlyInStock = !state.onlyInStock;
+  state.page = 1;
   renderCatalogFilters();
   renderProducts();
 }));
 document.querySelector("#price-filter")?.addEventListener("change", (event) => {
   state.priceBand = event.target.value;
+  state.page = 1;
   renderCatalogFilters();
   renderProducts();
 });
@@ -902,13 +944,42 @@ document.querySelector("#discounts-view-all")?.addEventListener("click", (event)
   if (event.currentTarget.getAttribute("href") !== "#catalog") return;
   event.preventDefault();
   state.category = "";
+  state.collection = "all";
+  state.page = 1;
   state.onlyDiscounted = true;
   renderCategories(state.categories);
   renderCatalogFilters();
   renderProducts();
   document.querySelector("#catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
-document.querySelector("#menu-toggle").addEventListener("click", () => document.querySelector("#mobile-nav").classList.toggle("open"));
+document.querySelector("#catalog-reset")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  state.collection = "all";
+  state.page = 1;
+  renderProducts();
+  document.querySelector("#catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+document.querySelector("#editor-collection-link")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  state.collection = "editor";
+  state.category = "";
+  state.search = "";
+  state.onlyDiscounted = false;
+  state.onlyInStock = false;
+  state.priceBand = "all";
+  state.page = 1;
+  if (searchInput) searchInput.value = "";
+  renderCategories(state.categories);
+  renderCatalogFilters();
+  renderProducts();
+  document.querySelector("#catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+document.querySelector("#menu-toggle").addEventListener("click", () => {
+  const menu = document.querySelector("#mobile-nav");
+  const button = document.querySelector("#menu-toggle");
+  const open = menu.classList.toggle("open");
+  button.setAttribute("aria-expanded", String(open));
+});
 document.querySelector("#cart-toggle").addEventListener("click", openCart);
 document.querySelector("#cart-close").addEventListener("click", closeCart);
 document.querySelector("#drawer-backdrop").addEventListener("click", closeCart);
