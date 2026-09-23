@@ -6,7 +6,12 @@ function setupSiteChrome() {
   if (localStorage.getItem("nexora-theme") === "dark") root.classList.add("dark");
   const updateThemeButton = () => { if (themeButton) themeButton.textContent = root.classList.contains("dark") ? "☼" : "☾"; };
   themeButton?.addEventListener("click", () => { root.classList.toggle("dark"); localStorage.setItem("nexora-theme", root.classList.contains("dark") ? "dark" : "light"); updateThemeButton(); });
-  menuButton?.addEventListener("click", () => { const open = mobileNav?.classList.toggle("open"); menuButton.setAttribute("aria-expanded", String(Boolean(open))); });
+  menuButton?.addEventListener("click", () => {
+    if (!mobileNav) return;
+    const open = mobileNav.classList.toggle("open");
+    menuButton.setAttribute("aria-expanded", String(Boolean(open)));
+    menuButton.setAttribute("aria-label", open ? "بستن منو" : "باز کردن منو");
+  });
   mobileNav?.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => mobileNav.classList.remove("open")));
   updateThemeButton();
 }

@@ -17,7 +17,7 @@ from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 
 from .authentication import CookieJWTAuthentication
-from orders.cart_services import merge_guest_cart
+from orders.cart_services import clear_guest_cart, merge_guest_cart
 from .otp import OTPDeliveryError, request_otp, verify_otp
 from .serializers import (
     CustomerProfileSerializer,
@@ -246,6 +246,7 @@ class CookieLogoutView(APIView):
     @extend_schema(request=None, responses={200: OpenApiTypes.OBJECT})
     def post(self, request):
         _enforce_csrf(request)
+        clear_guest_cart(request)
 
         refresh_token = request.COOKIES.get(
             settings.AUTH_COOKIE_REFRESH
@@ -258,7 +259,7 @@ class CookieLogoutView(APIView):
                 pass
 
         response = Response(
-            {"detail": "Logout successful."},
+            {"detail": "Logout successful.", "clear_client_state": True},
             status=status.HTTP_200_OK,
         )
 

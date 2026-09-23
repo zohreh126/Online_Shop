@@ -30,5 +30,6 @@
   window.NexoraCartNav = { refresh, renderCount };
   window.addEventListener("nexora-language-changed", () => renderCount(lastCount));
   window.addEventListener("nexora-cart-updated", (event) => renderCount(event.detail?.cart?.item_count || 0));
+  window.addEventListener("nexora-logged-out", () => renderCount(0));
   refresh();
 })();

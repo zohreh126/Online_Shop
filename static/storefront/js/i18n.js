@@ -292,6 +292,9 @@ translations.fa.feedbackError = "ثبت بازخورد انجام نشد؛ دو�
 translations.fa.shippingProgressTitle = "ارسال رایگان";
 translations.fa.shippingProgress = "برای ارسال رایگان {amount} دیگر اضافه کن.";
 translations.fa.freeShippingUnlocked = "ارسال رایگان برای سفارش شما فعال شد.";
+translations.fa.free = "رایگان";
+translations.fa.productDiscount = "تخفیف محصولات";
+translations.fa.shippingFee = "هزینه ارسال";
 translations.en.feedback = "Your feedback";
 translations.en.feedbackHeading = "Your voice helps us<br><em>make it better.</em>";
 translations.en.feedbackIntro = "Give your Nexora experience a quick rating; small signals like this help us improve the store.";
@@ -456,6 +459,9 @@ translations.en.profileQuickRewardsHint = "Points and perks";
 translations.en.shippingProgressTitle = "Free shipping";
 translations.en.shippingProgress = "Add {amount} more to unlock free shipping.";
 translations.en.freeShippingUnlocked = "Free shipping is unlocked for this order.";
+translations.en.free = "Free";
+translations.en.productDiscount = "Product discounts";
+translations.en.shippingFee = "Shipping fee";
 translations.fa.faqEyebrow = "پاسخ‌های سریع";
 translations.fa.faqTitle = "سؤالاتی که شاید برای تو هم پیش آمده باشد.";
 translations.fa.faqIntro = "اگر پاسخ سؤال خودت را اینجا پیدا نکردی، با خیال راحت با ما تماس بگیر.";
@@ -779,8 +785,30 @@ function applyLanguage(language) {
     if (value) element.textContent = value;
   });
   document.querySelectorAll("[data-language-toggle]").forEach((button) => { button.textContent = translations[selected].language; });
+  normalizeContactDetails();
   localStorage.setItem("nexora-language", selected);
   window.dispatchEvent(new CustomEvent("nexora-language-changed", { detail: { language: selected } }));
+}
+
+function normalizeContactDetails() {
+  const oldPhone = "+98 21 0000 0000";
+  const phone = "۰۲۱ ۴۳۶۵۸۷۹۱";
+  document.querySelectorAll("body *").forEach((element) => {
+    element.childNodes.forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE && node.nodeValue.includes(oldPhone)) {
+        node.nodeValue = node.nodeValue.replaceAll(oldPhone, phone);
+      }
+    });
+  });
+  document.querySelectorAll('a[href^="tel:"]').forEach((link) => {
+    link.href = "tel:+982143658791";
+    link.textContent = phone;
+    link.dir = "ltr";
+  });
+  document.querySelectorAll('a[href^="mailto:"], .footer-contact span:first-of-type').forEach((element) => {
+    element.dir = "ltr";
+    element.style.unicodeBidi = "isolate";
+  });
 }
 
 window.NexoraI18n = {

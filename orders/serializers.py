@@ -11,6 +11,7 @@ from products.models import DiscountCode, Product
 from products.serializers import ProductSerializer
 
 from .models import Cart, CartItem, Order, OrderItem, RewardTransaction
+from .shipping import calculate_shipping_amount
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -178,6 +179,7 @@ class CartSerializer(serializers.ModelSerializer):
     )
     product_discount_amount = serializers.SerializerMethodField()
     coupon_discount_amount = serializers.SerializerMethodField()
+    shipping_amount = serializers.SerializerMethodField()
     total_amount = serializers.SerializerMethodField()
 
     class Meta:
@@ -189,6 +191,7 @@ class CartSerializer(serializers.ModelSerializer):
             "subtotal",
             "product_discount_amount",
             "coupon_discount_amount",
+            "shipping_amount",
             "total_amount",
             "coupon_code",
             "updated_at",
@@ -219,12 +222,21 @@ class CartSerializer(serializers.ModelSerializer):
             return Decimal("0.00")
         return cart.discount_code.calculate_discount(cart.subtotal - self.get_product_discount_amount(cart))
 
+    def get_shipping_amount(self, cart):
+        merchandise_total = (
+            cart.subtotal
+            - self.get_product_discount_amount(cart)
+            - self.get_coupon_discount_amount(cart)
+        )
+        return calculate_shipping_amount(max(merchandise_total, Decimal("0.00")))
+
     @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_total_amount(self, cart):
         total = (
             cart.subtotal
             - self.get_product_discount_amount(cart)
             - self.get_coupon_discount_amount(cart)
+            + self.get_shipping_amount(cart)
         )
         return max(total, Decimal("0.00")).quantize(Decimal("0.01"))
 
@@ -460,10 +472,17 @@ class CheckoutSerializer(serializers.Serializer):
                     }
                 )
 
-            coupon_discount_amount = discount_code.calculate_discount(subtotal)
+            coupon_base = subtotal - product_discount_amount
+            coupon_discount_amount = discount_code.calculate_discount(coupon_base)
+
+        merchandise_total = max(
+            subtotal - product_discount_amount - coupon_discount_amount,
+            Decimal("0.00"),
+        )
+        shipping_amount = calculate_shipping_amount(merchandise_total)
 
         total_amount = (
-            subtotal - product_discount_amount - coupon_discount_amount
+            merchandise_total + shipping_amount
         ).quantize(Decimal("0.01"))
 
         order = Order.objects.create(
@@ -475,6 +494,7 @@ class CheckoutSerializer(serializers.Serializer):
             subtotal=subtotal,
             product_discount_amount=product_discount_amount,
             coupon_discount_amount=coupon_discount_amount,
+            shipping_amount=shipping_amount,
             total_amount=total_amount,
             discount_code=discount_code,
             discount_code_text=discount_code.code if discount_code else "",

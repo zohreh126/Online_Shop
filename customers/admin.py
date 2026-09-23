@@ -116,12 +116,17 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
 
     @admin.display(description="Role", ordering="role")
     def role_badge(self, obj):
-        labels = {
-            Customer.Role.PRODUCT_MANAGER: ("Product manager", "#7150b4"),
-            Customer.Role.SUPERVISOR: ("Supervisor", "#39739d"),
-            Customer.Role.OPERATOR: ("Operator", "#4d8a5c"),
-        }
-        label, color = labels.get(obj.role, ("Customer", "#77727f"))
+        if obj.is_superuser:
+            label, color = ("Administrator", "#ef8f78")
+        elif obj.is_staff and not obj.role:
+            label, color = ("Administrator", "#ef8f78")
+        else:
+            labels = {
+                Customer.Role.PRODUCT_MANAGER: ("Product manager", "#7150b4"),
+                Customer.Role.SUPERVISOR: ("Supervisor", "#39739d"),
+                Customer.Role.OPERATOR: ("Operator", "#4d8a5c"),
+            }
+            label, color = labels.get(obj.role, ("Customer", "#77727f"))
         return format_html(
             '<span style="color:{};font-weight:700">● {}</span>',
             color,
@@ -137,6 +142,12 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
         if obj.role in ROLE_PERMISSIONS:
             group, _ = Group.objects.get_or_create(name=obj.role)
             obj.groups.add(group)
+
+    def delete_model(self, request, obj):
+        obj.delete()
+
+    def delete_queryset(self, request, queryset):
+        queryset.filter(is_superuser=False).update(is_active=False)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)

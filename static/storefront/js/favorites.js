@@ -166,6 +166,7 @@
   }
 
   window.NexoraFavorites = { bindButtons, isFavorite, load, refresh, sync, toggle, updateButton };
+  window.addEventListener("nexora-logged-out", () => sync([]));
   window.addEventListener("nexora-language-changed", () => {
     updateFavoriteNavigation();
     bindButtons(document);

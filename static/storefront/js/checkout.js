@@ -111,9 +111,13 @@ async function deleteAddress(address) {
 function renderCart() {
   document.querySelector("#checkout-items").innerHTML = state.cart.items.map((item) => `<div class="checkout-item"><span>${productName(item.product)} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("");
   document.querySelector("#checkout-subtotal").textContent = money(state.cart.subtotal ?? 0);
+  const productDiscount = Number(state.cart.product_discount_amount || 0);
+  document.querySelector("#checkout-product-discount-row").hidden = productDiscount <= 0;
+  if (productDiscount > 0) document.querySelector("#checkout-product-discount").textContent = `-${money(productDiscount)}`;
   const discount = Number(state.cart.coupon_discount_amount || 0);
   document.querySelector("#checkout-discount-row").hidden = discount <= 0;
   if (discount > 0) document.querySelector("#checkout-discount").textContent = `-${money(discount)}`;
+  document.querySelector("#checkout-shipping").textContent = Number(state.cart.shipping_amount || 0) > 0 ? money(state.cart.shipping_amount) : tr("free");
   document.querySelector("#checkout-total").textContent = money(state.cart.total_amount ?? state.cart.subtotal);
 }
 

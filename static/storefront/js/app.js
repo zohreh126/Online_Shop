@@ -36,11 +36,14 @@ async function loadAccountState() {
   const account = document.querySelector("#account-area");
   try {
     const profile = await getJSON("auth/profile/");
-    account.innerHTML = `<a class="account-name" href="/dashboard/">${profile.first_name || profile.username}</a><button class="account-link account-logout" id="account-logout" type="button">${t("logout")}</button>`;
+    account.innerHTML = `<a class="account-name" href="/profile/">${profile.first_name || profile.username}</a><button class="account-link account-logout" id="account-logout" type="button">${t("logout")}</button>`;
     document.querySelector("#account-logout").addEventListener("click", async () => {
       try {
         await sendJSON("auth/logout/", "POST");
-        account.innerHTML = '<a class="account-link" href="/account/">ورود</a>';
+        account.innerHTML = `<a class="account-link" href="/account/">${t("login")}</a>`;
+        window.NexoraCartNav?.renderCount(0);
+        window.NexoraFavorites?.sync([]);
+        window.dispatchEvent(new CustomEvent("nexora-logged-out"));
         showToast(t("loggedOut"));
       } catch (error) { showToast(error.message); }
     });
@@ -649,6 +652,13 @@ function renderCart(cart) {
   document.querySelector("#cart-count").textContent = localizedNumber(cart.item_count || 0);
   window.NexoraCartNav?.renderCount(cart.item_count || 0);
   document.querySelector("#cart-subtotal").textContent = money(cart.subtotal ?? 0);
+  const productDiscount = Number(cart.product_discount_amount || 0);
+  const productDiscountRow = document.querySelector("#cart-product-discount-row");
+  if (productDiscountRow) productDiscountRow.hidden = productDiscount <= 0;
+  if (productDiscount > 0) document.querySelector("#cart-product-discount").textContent = `-${money(productDiscount)}`;
+  const shippingAmount = Number(cart.shipping_amount || 0);
+  const shippingElement = document.querySelector("#cart-shipping");
+  if (shippingElement) shippingElement.textContent = shippingAmount > 0 ? money(shippingAmount) : t("free");
   document.querySelector("#cart-total").textContent = money(cart.total_amount ?? cart.subtotal ?? 0);
   const shippingProgress = document.querySelector("#shipping-progress");
   const shippingProgressBar = document.querySelector("#shipping-progress-bar");

@@ -54,3 +54,29 @@ def merge_guest_cart(request, customer):
 
     guest_cart.is_active = False
     guest_cart.save(update_fields=["is_active", "updated_at"])
+
+
+@transaction.atomic
+def clear_guest_cart(request):
+    """Remove the session cart when a user signs out.
+
+    A signed-out browser must not expose the previous customer's cart count or
+    items as a new guest cart. The customer's persistent cart remains intact
+    for the next login.
+    """
+    session_key = request.session.session_key
+    if not session_key:
+        return
+
+    guest_cart = (
+        Cart.objects.select_for_update()
+        .filter(session_key=session_key, is_active=True)
+        .first()
+    )
+    if guest_cart is None:
+        return
+
+    CartItem.objects.filter(cart=guest_cart).delete()
+    guest_cart.discount_code = None
+    guest_cart.is_active = False
+    guest_cart.save(update_fields=("discount_code", "is_active", "updated_at"))

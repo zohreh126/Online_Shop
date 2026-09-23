@@ -94,7 +94,8 @@ class CartAPITests(APITestCase):
         cart = self.client.get(self.cart_url)
         self.assertEqual(cart.data["subtotal"], Decimal("200.00"))
         self.assertEqual(cart.data["product_discount_amount"], Decimal("20.00"))
-        self.assertEqual(cart.data["total_amount"], Decimal("180.00"))
+        self.assertEqual(cart.data["shipping_amount"], Decimal("120000.00"))
+        self.assertEqual(cart.data["total_amount"], Decimal("120180.00"))
 
     def test_item_quantity_cannot_exceed_stock(self):
         self.authenticate()
