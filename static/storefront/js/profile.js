@@ -43,9 +43,10 @@ function favoriteCard(product) {
   const name = favoriteProductName(product);
   const category = product.category ? (window.NexoraI18n?.category(product.category.slug, product.category.name) || product.category.name) : tr("digitalAccessories");
   const href = "/products/" + encodeURIComponent(product.slug) + "/";
-  const image = product.image_url
-    ? "<img src=\"" + escapeHTML(product.image_url) + "\" alt=\"" + escapeHTML(name) + "\" loading=\"lazy\">"
-    : "<span class=\"favorite-placeholder\">" + escapeHTML((product.brand || "N").slice(0, 1)) + "</span>";
+  const image = window.NexoraI18n?.productVisualMarkup?.(product, {
+    className: "favorite-product-art",
+    alt: tr("productImageAlt").replace("{name}", name),
+  }) || "<span class=\"favorite-placeholder\">✦</span>";
   const discount = Number(product.discount_amount) > 0 ? "<del>" + money(product.price) + "</del>" : "";
   return "<article class=\"favorite-card\"><a class=\"favorite-card-visual\" href=\"" + escapeHTML(href) + "\">" + image + "</a><div class=\"favorite-card-info\"><p class=\"product-category\">" + escapeHTML(category) + "</p><h3><a href=\"" + escapeHTML(href) + "\">" + escapeHTML(name) + "</a></h3><div class=\"favorite-card-bottom\"><div class=\"price-stack\"><strong>" + money(product.final_price) + "</strong>" + discount + favoriteSavings(product) + "</div><button class=\"heart-button favorite-remove\" data-favorite-product=\"" + product.id + "\" type=\"button\" aria-label=\"" + tr("removeFromFavorites") + "\" aria-pressed=\"true\">♥</button></div></div></article>";
 }

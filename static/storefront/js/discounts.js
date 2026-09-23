@@ -18,15 +18,11 @@ function productCategory(product) {
   return window.NexoraI18n?.category(product.category.slug, product.category.name) || product.category.name;
 }
 
-function placeholderIcon(slug) {
-  return { "cables-charging": "⌁", gaming: "◈", audio: "◒", "keyboards-mice": "⌘" }[slug] || "N";
-}
-
 function productImage(product, name) {
-  if (product.image_url) {
-    return `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(name)}" loading="lazy" onerror="this.closest('.product-visual')?.classList.add('image-failed'); this.remove();">`;
-  }
-  return `<div class="product-placeholder placeholder-${escapeHTML(product.category?.slug || "accessories")}"><span>${escapeHTML(placeholderIcon(product.category?.slug))}</span><small>NEXORA</small></div>`;
+  return window.NexoraI18n?.productVisualMarkup?.(product, {
+    className: "discount-product-art",
+    alt: formatMessage("productImageAlt", { name }),
+  }) || `<span class="product-placeholder"><span>✦</span><small>NEXORA</small></span>`;
 }
 
 function discountAmount(product) {

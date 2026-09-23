@@ -188,6 +188,8 @@ translations.fa.productAdded = "محصول به سبد خرید اضافه شد.
 translations.fa.productUnavailable = "این محصول فعلاً ناموجود است.";
 translations.fa.showPassword = "نمایش رمز عبور";
 translations.fa.hidePassword = "پنهان کردن رمز عبور";
+translations.fa.viewProduct = "مشاهده محصول";
+translations.fa.customer = "مشتری";
 translations.en.username = "Username";
 translations.en.logout = "Log out";
 translations.en.productDetails = "Product details";
@@ -199,6 +201,8 @@ translations.en.productAdded = "Product added to your cart.";
 translations.en.productUnavailable = "This product is currently out of stock.";
 translations.en.showPassword = "Show password";
 translations.en.hidePassword = "Hide password";
+translations.en.viewProduct = "View product";
+translations.en.customer = "Customer";
 translations.fa.orderResult = "نتیجه سفارش";
 translations.fa.orderConfirmed = "سفارش با موفقیت ثبت شد";
 translations.fa.orderFailed = "پرداخت سفارش ناموفق بود";
@@ -797,6 +801,39 @@ translations.en.openMenu = "Open menu";
 translations.en.closeMenu = "Close menu";
 translations.en.mobileNavigation = "Mobile navigation";
 
+const productVisualThemes = {
+  "keyboards-mice": { icon: "⌘", fa: "میزکار", en: "DESK" },
+  audio: { icon: "◒", fa: "صوت", en: "AUDIO" },
+  "cables-charging": { icon: "⌁", fa: "شارژ و اتصال", en: "POWER" },
+  gaming: { icon: "◈", fa: "گیمینگ", en: "PLAY" },
+  accessories: { icon: "✦", fa: "اکسسوری", en: "ESSENTIAL" },
+};
+
+function visualThemeForProduct(product) {
+  const slug = String(product?.category?.slug || "").toLowerCase();
+  if (slug.includes("keyboards") || slug.includes("mice") || slug.includes("کیبورد") || slug.includes("ماوس")) return { key: "keyboards-mice", ...productVisualThemes["keyboards-mice"] };
+  if (slug.includes("audio") || slug.includes("هدفون") || slug.includes("میکروفون") || slug.includes("اسپیکر")) return { key: "audio", ...productVisualThemes.audio };
+  if (slug.includes("cables") || slug.includes("charging") || slug.includes("شارژ") || slug.includes("پاوربانک")) return { key: "cables-charging", ...productVisualThemes["cables-charging"] };
+  if (slug.includes("gaming") || slug.includes("گیمینگ") || slug.includes("کنترلر") || slug.includes("نورپردازی")) return { key: "gaming", ...productVisualThemes.gaming };
+  return { key: "accessories", ...productVisualThemes.accessories };
+}
+
+function visualEscape(value) {
+  return String(value ?? "").replace(/[&<>\'\"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
+}
+
+function productVisualMarkup(product, { className = "", alt = "" } = {}) {
+  const theme = visualThemeForProduct(product);
+  const currentLanguage = document.documentElement.lang === "en" ? "en" : "fa";
+  const fallbackName = productNames[currentLanguage]?.[product?.sku] || product?.name || product?.product_name || (currentLanguage === "en" ? "Nexora product" : "محصول نکستورا");
+  const accessibleName = alt || fallbackName;
+  const imageUrl = String(product?.image_url || "").trim();
+  const image = imageUrl
+    ? `<img src="${visualEscape(imageUrl)}" alt="${visualEscape(accessibleName)}" loading="lazy" onerror="this.remove(); this.parentElement.classList.remove('has-image');">`
+    : "";
+  return `<span class="nexora-product-art product-art-${theme.key}${image ? " has-image" : ""}${className ? ` ${className}` : ""}" data-product-art="${theme.key}" aria-label="${visualEscape(accessibleName)}">${image}<span class="product-art-surface" aria-hidden="true"><span class="product-art-orbit"></span><b class="product-art-icon">${theme.icon}</b><small class="product-art-label">${theme[currentLanguage]}</small></span></span>`;
+}
+
 function applyLanguage(language) {
   const selected = language === "en" ? "en" : "fa";
   document.documentElement.lang = selected;
@@ -852,7 +889,9 @@ window.NexoraI18n = {
   category: (slug, fallback) => categoryTranslations[document.documentElement.lang === "en" ? "en" : "fa"][slug] || fallback,
   productName: (product) => productNames[document.documentElement.lang === "en" ? "en" : "fa"]?.[product.sku] || product.name || product.product_name,
   productDescription: (product) => document.documentElement.lang === "en" ? (productDescriptions.en?.[product.sku] || (/[\u0600-\u06ff]/.test(product.description || "") ? "A carefully selected Nexora essential for everyday digital life." : product.description)) : product.description,
-  specificationLabel: (key) => specificationTranslations[document.documentElement.lang === "en" ? "en" : "fa"]?.[key] || key
+  specificationLabel: (key) => specificationTranslations[document.documentElement.lang === "en" ? "en" : "fa"]?.[key] || key,
+  visualTheme: visualThemeForProduct,
+  productVisualMarkup,
 };
 
 document.addEventListener("DOMContentLoaded", () => {

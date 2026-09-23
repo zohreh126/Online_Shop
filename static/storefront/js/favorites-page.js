@@ -130,9 +130,10 @@
   function favoriteCard(product) {
     const name = productName(product);
     const href = "/products/" + encodeURIComponent(product.slug) + "/";
-    const image = product.image_url
-      ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(name)}" loading="lazy">`
-      : `<span class="favorite-placeholder">${escapeHTML((product.brand || "N").slice(0, 1))}</span>`;
+    const image = window.NexoraI18n?.productVisualMarkup?.(product, {
+      className: "favorite-product-art",
+      alt: tr("productImageAlt").replace("{name}", name),
+    }) || `<span class="favorite-placeholder">✦</span>`;
     const discount = Number(product.discount_amount) > 0 ? `<del>${money(product.price)}</del>` : "";
     const discountBadge = discountLabel(product) ? `<span class="favorite-discount-badge">${escapeHTML(discountLabel(product))}</span>` : "";
     const addLabel = tr("addToCart");

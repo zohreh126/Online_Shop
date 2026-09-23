@@ -112,12 +112,11 @@ async function sendJSON(path, method, body) {
 }
 
 function productImage(product) {
-  if (product.image_url) {
-    const alt = formatMessage("productImageAlt", { name: productName(product) });
-    return `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(alt)}" loading="lazy" onerror="this.closest('.product-visual').classList.add('image-failed'); this.remove();">`;
-  }
-  const categorySlug = product.category?.slug || "accessories";
-  return `<div class="product-placeholder placeholder-${categorySlug}"><span>${placeholderIcon(categorySlug)}</span><small>${categoryLabel(categorySlug)}</small></div>`;
+  const name = productName(product);
+  return window.NexoraI18n?.productVisualMarkup?.(product, {
+    className: "catalog-product-art",
+    alt: formatMessage("productImageAlt", { name }),
+  }) || `<span class="product-placeholder"><span>✦</span><small>NEXORA</small></span>`;
 }
 
 function renderHeroOrbit() {
@@ -132,9 +131,10 @@ function renderHeroOrbit() {
   orbit.innerHTML = candidates.map((product, index) => {
     const name = productName(product);
     const href = `/products/${encodeURIComponent(product.slug || "")}/`;
-    const image = product.image_url
-      ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(formatMessage("productImageAlt", { name }))}" loading="lazy">`
-      : `<span class="hero-product-placeholder">${escapeHTML((product.brand || "N").slice(0, 1))}</span>`;
+    const image = window.NexoraI18n?.productVisualMarkup?.(product, {
+      className: "hero-product-art",
+      alt: formatMessage("productImageAlt", { name }),
+    }) || `<span class="hero-product-placeholder">✦</span>`;
     const tag = Number(product.discount_amount || 0) > 0 ? discountLabel(product) : (product.brand || "NEXORA");
     return `<a class="hero-product-tile tile-${index + 1}" href="${escapeHTML(href)}" aria-label="${escapeHTML(name)}"><span class="hero-product-tile-image">${image}</span><span class="hero-product-tile-copy"><small>${escapeHTML(tag)}</small><strong>${escapeHTML(name)}</strong><b>${escapeHTML(money(product.final_price))}</b></span></a>`;
   }).join("");
@@ -215,8 +215,10 @@ function searchCandidates(query) {
 
 function searchSuggestionImage(product) {
   const name = productName(product);
-  if (product.image_url) return '<img src="' + escapeHTML(product.image_url) + '" alt="' + escapeHTML(name) + '" loading="lazy">';
-  return '<span class="search-suggestion-placeholder" aria-hidden="true">' + escapeHTML((product.brand || "N").slice(0, 1)) + "</span>";
+  return window.NexoraI18n?.productVisualMarkup?.(product, {
+    className: "search-suggestion-art",
+    alt: formatMessage("productImageAlt", { name }),
+  }) || '<span class="search-suggestion-placeholder" aria-hidden="true">✦</span>';
 }
 
 function renderSearchSuggestions() {
@@ -457,7 +459,10 @@ function renderCompareModal() {
   specificationKeys.forEach((key) => rows.push([window.NexoraI18n?.specificationLabel(key) || key, selected.map((product) => compareSpecValue(product.specifications?.[key]))]));
   content.innerHTML = `<div class="compare-table" style="--compare-columns:${selected.length}"><div class="compare-row compare-products-row"><strong class="compare-row-label">${escapeHTML(t("product"))}</strong>${selected.map((product) => {
     const name = productName(product);
-    const image = product.image_url ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(name)}" loading="lazy">` : `<span class="compare-placeholder">${escapeHTML((product.brand || "N").slice(0, 1))}</span>`;
+    const image = window.NexoraI18n?.productVisualMarkup?.(product, {
+      className: "compare-product-art",
+      alt: formatMessage("productImageAlt", { name }),
+    }) || `<span class="compare-placeholder">✦</span>`;
     return `<article class="compare-product"><div class="compare-product-image">${image}</div><a href="/products/${encodeURIComponent(product.slug)}/">${escapeHTML(name)}</a><button class="quiet-link compare-remove" data-remove-compare="${product.id}" type="button">${escapeHTML(t("removeFromCompare"))}</button></article>`;
   }).join("")}</div>${rows.map(([label, values]) => `<div class="compare-row"><strong class="compare-row-label">${escapeHTML(label)}</strong>${values.map((value) => `<span>${escapeHTML(value)}</span>`).join("")}</div>`).join("")}</div>`;
   content.querySelectorAll("[data-remove-compare]").forEach((button) => button.addEventListener("click", () => toggleCompare(button.dataset.removeCompare)));

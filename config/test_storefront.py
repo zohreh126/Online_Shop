@@ -94,6 +94,24 @@ class StorefrontPageTests(TestCase):
         self.assertIn("closeQuickView", app_source)
         self.assertIn("function renderHeroOrbit", app_source)
 
+    def test_product_visuals_and_dynamic_labels_have_shared_fallbacks(self):
+        project_root = Path(__file__).resolve().parents[1]
+        i18n_source = (project_root / "static/storefront/js/i18n.js").read_text()
+        css_source = (project_root / "static/storefront/css/app.css").read_text()
+
+        self.assertIn("function productVisualMarkup", i18n_source)
+        self.assertIn("productVisualMarkup", (project_root / "static/storefront/js/app.js").read_text())
+        self.assertIn("productVisualMarkup", (project_root / "static/storefront/js/product-detail.js").read_text())
+        self.assertIn("productVisualMarkup", (project_root / "static/storefront/js/discounts.js").read_text())
+        self.assertIn("productVisualMarkup", (project_root / "static/storefront/js/favorites-page.js").read_text())
+        self.assertIn("productVisualMarkup", (project_root / "static/storefront/js/profile.js").read_text())
+        self.assertIn("translations.fa.viewProduct", i18n_source)
+        self.assertIn("translations.en.viewProduct", i18n_source)
+        self.assertIn("translations.fa.customer", i18n_source)
+        self.assertIn("translations.en.customer", i18n_source)
+        self.assertIn(".nexora-product-art", css_source)
+        self.assertIn("scroll-margin-top: 124px", css_source)
+
     def test_public_feedback_wall_loads_all_api_pages(self):
         source = (Path(__file__).resolve().parents[1] / "static/storefront/js/feedback.js").read_text()
 

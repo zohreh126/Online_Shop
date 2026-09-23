@@ -98,9 +98,10 @@ function renderRecommendations() {
     const category = window.NexoraI18n?.category(product.category?.slug, product.category?.name || t("digitalAccessories")) || t("digitalAccessories");
     const url = `/products/${encodeURIComponent(product.slug)}/`;
     const discount = recommendationDiscountLabel(product);
-    const image = product.image_url
-      ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(name)}" loading="lazy">`
-      : `<span class="recommendation-placeholder">${escapeHTML((product.brand || "N").slice(0, 1))}</span>`;
+    const image = window.NexoraI18n?.productVisualMarkup?.(product, {
+      className: "recommendation-product-art",
+      alt: format("productImageAlt", { name }),
+    }) || `<span class="recommendation-placeholder">✦</span>`;
     const addLabel = t("addToCart");
     return `<article class="product-card recommendation-card" style="--delay:${index * 60}ms"><div class="product-visual"><a class="recommendation-visual-link" href="${url}" aria-label="${escapeHTML(name)}">${image}</a>${discount ? `<span class="discount-badge">${escapeHTML(discount)}</span>` : ""}<span class="stock-badge ${product.is_in_stock ? "" : "out-of-stock"}">${escapeHTML(product.is_in_stock ? t("available") : t("unavailable"))}</span><button class="heart-button" data-favorite-product="${product.id}" aria-label="${escapeHTML(t("addToFavorites"))}" type="button">♡</button></div><div class="product-info"><p class="product-category">${escapeHTML(category)}</p><h3><a class="product-title-link" href="${url}">${escapeHTML(name)}</a></h3><div class="product-bottom"><div class="price-stack"><strong>${escapeHTML(money(product.final_price))}</strong>${Number(product.discount_amount) > 0 ? `<del>${escapeHTML(money(product.price))}</del>${recommendationSavingsMarkup(product)}${discountCountdownMarkup(product)}` : ""}</div><div class="recommendation-actions"><button class="add-button cart-icon-button recommendation-add-button" data-recommendation-cart="${product.id}" type="button" aria-label="${escapeHTML(addLabel)}" title="${escapeHTML(addLabel)}" ${product.is_in_stock ? "" : "disabled"}><span data-recommendation-cart-icon aria-hidden="true">${product.is_in_stock ? "🛒" : "−"}</span></button><a class="recommendation-link" href="${url}"><span>${escapeHTML(t("viewProduct"))}</span><span aria-hidden="true">↗</span></a></div></div></div></article>`;
   }).join("");
@@ -630,7 +631,10 @@ function renderProduct(product) {
   const displayName = window.NexoraI18n?.productName(product) || product.name;
   const displayCategory = window.NexoraI18n?.category(product.category?.slug, product.category?.name || t("digitalAccessories")) || t("digitalAccessories");
   const displayDescription = window.NexoraI18n?.productDescription(product) || product.description || t("carefulChoiceText");
-  const image = product.image_url ? `<img class="product-detail-image" src="${escapeHTML(product.image_url)}" alt="${escapeHTML(displayName)}">` : `<div class="product-detail-placeholder"><span>${escapeHTML((product.brand || "N").slice(0, 1))}</span></div>`;
+  const image = window.NexoraI18n?.productVisualMarkup?.(product, {
+    className: "product-detail-art",
+    alt: format("productImageAlt", { name: displayName }),
+  }) || `<span class="product-detail-placeholder"><span>✦</span><small>NEXORA</small></span>`;
   const specsMarkup = specs.length ? `<dl>${specs.map(([key, value]) => `<div><dt>${escapeHTML(key)}</dt><dd>${escapeHTML(Array.isArray(value) ? value.join(", ") : value === true ? t("yes") : value === false ? t("no") : value)}</dd></div>`).join("")}</dl>` : `<p class="empty-inline">${escapeHTML(t("carefulChoiceText"))}</p>`;
   const detailDiscount = Number(product.discount_amount || 0);
   const detailDiscountLabel = detailDiscount > 0 ? `<small class="detail-discount-label">${escapeHTML(recommendationDiscountLabel(product))}</small>` : "";
