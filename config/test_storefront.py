@@ -34,6 +34,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="featured-grid"')
         self.assertContains(response, 'id="discounts"')
         self.assertContains(response, 'id="discount-grid"')
+        self.assertContains(response, 'id="offer-spotlight"')
+        self.assertContains(response, 'id="offer-spotlight-next"')
         self.assertContains(response, 'href="/discounts/"')
         self.assertContains(response, 'id="editor-pick"')
         self.assertContains(response, 'id="shipping-progress"')
@@ -61,6 +63,7 @@ class StorefrontPageTests(TestCase):
         app_source = (Path(__file__).resolve().parents[1] / "static/storefront/js/app.js").read_text()
 
         self.assertIn("function renderQuickView", app_source)
+        self.assertIn("function renderOfferSpotlight", app_source)
         self.assertIn("data-quick-view-product", app_source)
         self.assertIn("data-quick-view-add", app_source)
         self.assertIn("closeQuickView", app_source)

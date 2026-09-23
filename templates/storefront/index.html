@@ -58,6 +58,21 @@
 
     <section class="trust-strip"><div class="container trust-items"><span data-i18n="quality">◈ کیفیت انتخاب‌شده</span><span data-i18n="fastShipping">↗ ارسال سریع</span><span data-i18n="authenticity">◉ ضمانت اصالت</span><span data-i18n="support">✦ پشتیبانی انسانی</span></div></section>
 
+    <section class="offer-spotlight container" id="offer-spotlight" aria-labelledby="offer-spotlight-title" hidden>
+      <div class="offer-spotlight-shell">
+        <div class="offer-spotlight-copy">
+          <div class="offer-spotlight-heading"><p class="eyebrow light"><span></span> <span data-i18n="offerSpotlightEyebrow">پیشنهاد لحظه‌ای</span></p><span class="offer-spotlight-index" id="offer-spotlight-index">۱ / ۱</span></div>
+          <h2 id="offer-spotlight-title" data-i18n="offerSpotlightTitle">پیشنهادهای ویژه، همین حالا</h2>
+          <h3 id="offer-spotlight-product"></h3>
+          <p id="offer-spotlight-description" class="offer-spotlight-description"></p>
+          <div class="offer-spotlight-price"><strong id="offer-spotlight-price"></strong><del id="offer-spotlight-original"></del><span id="offer-spotlight-saving" class="offer-spotlight-saving"></span></div>
+          <div class="offer-spotlight-actions"><a id="offer-spotlight-link" class="light-button" href="#catalog"><span data-i18n="offerSpotlightCta">مشاهده محصول</span><span aria-hidden="true">←</span></a><small data-i18n="offerSpotlightHint">قیمت نهایی و میزان صرفه‌جویی را شفاف ببین.</small></div>
+        </div>
+        <div class="offer-spotlight-visual product-visual" id="offer-spotlight-visual" aria-live="polite"></div>
+        <div class="offer-spotlight-controls"><button id="offer-spotlight-prev" type="button" data-i18n-aria-label="offerSpotlightPrevious" data-i18n-title="offerSpotlightPrevious" aria-label="پیشنهاد قبلی" title="پیشنهاد قبلی">←</button><div id="offer-spotlight-dots" class="offer-spotlight-dots"></div><button id="offer-spotlight-next" type="button" data-i18n-aria-label="offerSpotlightNext" data-i18n-title="offerSpotlightNext" aria-label="پیشنهاد بعدی" title="پیشنهاد بعدی">→</button></div>
+      </div>
+    </section>
+
     <section class="catalog container" id="catalog">
       <div class="section-heading"><div><p class="eyebrow"><span></span> <span data-i18n="featuredCollection">مجموعه منتخب</span></p><h2 data-i18n="betterDesk">برای میز کار بهتر</h2><p id="catalog-count" class="catalog-count" aria-live="polite"></p></div><a href="#catalog" class="text-link"><span data-i18n="allProducts">همه محصولات</span> <span>←</span></a></div>
       <div class="catalog-tools"><div class="category-filter" id="category-filter"><button class="category-filter-toggle" id="category-toggle" type="button" aria-expanded="false"><span class="filter-icon">☷</span><span data-i18n="categories">دسته‌بندی‌ها</span><span class="filter-chevron">⌄</span></button><div class="category-tabs" id="category-tabs" hidden></div></div><div class="search-box-wrap"><label class="search-box"><span aria-hidden="true">⌕</span><input id="product-search" type="search" data-i18n-placeholder="searchProducts" placeholder="جست‌وجوی محصول..." aria-label="جست‌وجوی محصول" autocomplete="off" aria-controls="search-suggestions" aria-autocomplete="list"></label><div class="search-suggestions" id="search-suggestions" role="listbox" hidden></div></div><label class="sort-box"><span data-i18n="sortBy">مرتب‌سازی</span><select id="product-sort"><option value="newest" data-i18n="sortNewest">جدیدترین</option><option value="price-low" data-i18n="sortPriceLow">ارزان‌ترین</option><option value="price-high" data-i18n="sortPriceHigh">گران‌ترین</option><option value="name" data-i18n="sortName">نام محصول</option></select></label></div>

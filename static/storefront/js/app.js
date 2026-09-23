@@ -1,5 +1,8 @@
 const API_BASE = "/api/v1/";
 const state = { products: [], categories: [], category: "", search: "", sort: "newest", onlyDiscounted: false, onlyInStock: false, priceBand: "all" };
+let offerSpotlightProducts = [];
+let offerSpotlightIndex = 0;
+let offerSpotlightTimer = null;
 const expandedCategorySlugs = new Set();
 const COMPARE_STORAGE_KEY = "nexora-compare";
 const RECENT_STORAGE_KEY = "nexora-recently-viewed";
@@ -583,6 +586,63 @@ function renderDiscountProducts() {
   updateCompareUI();
 }
 
+function renderOfferSpotlight() {
+  const section = document.querySelector("#offer-spotlight");
+  const visual = document.querySelector("#offer-spotlight-visual");
+  if (!section || !visual) return;
+
+  offerSpotlightProducts = state.products
+    .filter((product) => Number(product.discount_amount || 0) > 0 && product.is_in_stock)
+    .sort((first, second) => {
+      const firstRatio = Number(first.price) ? Number(first.discount_amount) / Number(first.price) : 0;
+      const secondRatio = Number(second.price) ? Number(second.discount_amount) / Number(second.price) : 0;
+      return (secondRatio - firstRatio) || (Number(second.discount_amount) - Number(first.discount_amount));
+    })
+    .slice(0, 5);
+
+  if (!offerSpotlightProducts.length) {
+    section.hidden = true;
+    return;
+  }
+
+  section.hidden = false;
+  offerSpotlightIndex = offerSpotlightIndex % offerSpotlightProducts.length;
+  const product = offerSpotlightProducts[offerSpotlightIndex];
+  const name = productName(product);
+  const description = window.NexoraI18n?.productDescription(product) || product.description || t("offerSpotlightHint");
+  const productLink = `/products/${encodeURIComponent(product.slug || "")}/`;
+  const dots = document.querySelector("#offer-spotlight-dots");
+
+  document.querySelector("#offer-spotlight-product").textContent = name;
+  document.querySelector("#offer-spotlight-description").textContent = description;
+  document.querySelector("#offer-spotlight-price").textContent = money(product.final_price);
+  document.querySelector("#offer-spotlight-original").textContent = money(product.price);
+  document.querySelector("#offer-spotlight-saving").textContent = formatMessage("offerSpotlightSaving", { amount: money(product.discount_amount) });
+  document.querySelector("#offer-spotlight-link").href = productLink;
+  document.querySelector("#offer-spotlight-index").textContent = `${localizedNumber(offerSpotlightIndex + 1)} / ${localizedNumber(offerSpotlightProducts.length)}`;
+  visual.innerHTML = `${productImage(product)}<span class="offer-spotlight-badge">${escapeHTML(discountLabel(product))}</span><span class="offer-spotlight-visual-label">${escapeHTML(product.brand || "NEXORA")}</span>`;
+
+  if (dots) {
+    dots.innerHTML = offerSpotlightProducts.map((item, index) => `<button class="offer-spotlight-dot${index === offerSpotlightIndex ? " is-active" : ""}" data-offer-index="${index}" type="button" aria-label="${escapeHTML(formatMessage("offerSpotlightGoTo", { number: localizedNumber(index + 1) }))}" aria-current="${index === offerSpotlightIndex ? "true" : "false"}"></button>`).join("");
+    dots.querySelectorAll("[data-offer-index]").forEach((button) => button.addEventListener("click", () => {
+      offerSpotlightIndex = Number(button.dataset.offerIndex);
+      renderOfferSpotlight();
+      startOfferSpotlightTimer();
+    }));
+  }
+}
+
+function moveOfferSpotlight(step) {
+  if (!offerSpotlightProducts.length) return;
+  offerSpotlightIndex = (offerSpotlightIndex + step + offerSpotlightProducts.length) % offerSpotlightProducts.length;
+  renderOfferSpotlight();
+}
+
+function startOfferSpotlightTimer() {
+  window.clearInterval(offerSpotlightTimer);
+  if (offerSpotlightProducts.length > 1) offerSpotlightTimer = window.setInterval(() => moveOfferSpotlight(1), 6500);
+}
+
 function renderCart(cart) {
   const body = document.querySelector("#cart-body");
   const footer = document.querySelector("#cart-footer");
@@ -775,6 +835,8 @@ async function loadCatalog() {
     renderCatalogFilters();
     renderProducts();
     renderDiscountProducts();
+    renderOfferSpotlight();
+    startOfferSpotlightTimer();
     renderFeaturedProducts();
     renderSearchSuggestions();
   } catch (error) {
@@ -860,6 +922,8 @@ document.querySelector("#category-toggle").addEventListener("click", () => {
   document.querySelector("#category-filter").classList.toggle("open", !isOpen);
 });
 document.querySelector("#theme-toggle").addEventListener("click", () => { document.documentElement.classList.toggle("dark"); localStorage.setItem("nexora-theme", document.documentElement.classList.contains("dark") ? "dark" : "light"); updateThemeButton(); });
+document.querySelector("#offer-spotlight-prev")?.addEventListener("click", () => { moveOfferSpotlight(-1); startOfferSpotlightTimer(); });
+document.querySelector("#offer-spotlight-next")?.addEventListener("click", () => { moveOfferSpotlight(1); startOfferSpotlightTimer(); });
 if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.classList.add("dark");
 function updateThemeButton() { document.querySelector("#theme-toggle").textContent = document.documentElement.classList.contains("dark") ? "☼" : "☾"; }
 updateThemeButton();
@@ -879,6 +943,7 @@ window.addEventListener("nexora-language-changed", () => {
   renderCategories(state.categories);
   renderProducts();
   renderDiscountProducts();
+  renderOfferSpotlight();
   renderFeaturedProducts();
   renderRecentlyViewed();
   refreshCart();
@@ -887,5 +952,6 @@ window.addEventListener("nexora-language-changed", () => {
   renderSearchSuggestions();
   updateDiscountCountdowns();
   updateCompareUI();
+  startOfferSpotlightTimer();
   if (quickViewProduct && !document.querySelector("#quick-view-modal")?.hidden) renderQuickView(quickViewProduct);
 });

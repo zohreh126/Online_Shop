@@ -92,6 +92,22 @@ translations.en.discountsPromiseText = "For every product, you see the original 
 translations.en.featuredEmpty = "No special offer is available yet.";
 translations.en.featuredFallback = "Selected from the freshest, best-stocked products in the showcase.";
 translations.en.selectedForYou = "Picked for you";
+translations.fa.offerSpotlightEyebrow = "پیشنهاد لحظه‌ای";
+translations.fa.offerSpotlightTitle = "پیشنهادهای ویژه، همین حالا";
+translations.fa.offerSpotlightCta = "مشاهده محصول";
+translations.fa.offerSpotlightHint = "قیمت نهایی و میزان صرفه‌جویی را شفاف ببین.";
+translations.fa.offerSpotlightSaving = "صرفه‌جویی {amount}";
+translations.fa.offerSpotlightGoTo = "رفتن به پیشنهاد {number}";
+translations.fa.offerSpotlightPrevious = "پیشنهاد قبلی";
+translations.fa.offerSpotlightNext = "پیشنهاد بعدی";
+translations.en.offerSpotlightEyebrow = "Live offer";
+translations.en.offerSpotlightTitle = "A better pick, right now";
+translations.en.offerSpotlightCta = "View product";
+translations.en.offerSpotlightHint = "See the final price and your exact saving at a glance.";
+translations.en.offerSpotlightSaving = "Save {amount}";
+translations.en.offerSpotlightGoTo = "Go to offer {number}";
+translations.en.offerSpotlightPrevious = "Previous offer";
+translations.en.offerSpotlightNext = "Next offer";
 
 const categoryTranslations = {
   fa: {
