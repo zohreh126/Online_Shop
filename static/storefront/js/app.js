@@ -11,6 +11,8 @@ const CATALOG_PAGE_SIZE = 25;
 const compareIds = new Set();
 let searchSuggestionIndex = -1;
 let quickViewProduct = null;
+let cartSessionGeneration = 0;
+let cartSignedOut = false;
 
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const localizedNumber = (value) => new Intl.NumberFormat(window.NexoraI18n?.current() === "en" ? "en-US" : "fa-IR").format(value);
@@ -783,8 +785,11 @@ function renderCart(cart) {
 }
 
 async function refreshCart() {
+  if (cartSignedOut) return null;
+  const generation = cartSessionGeneration;
   try {
     const cart = await getJSON("cart/");
+    if (cartSignedOut || generation !== cartSessionGeneration) return null;
     renderCart(cart);
     return cart;
   } catch (error) {
@@ -805,6 +810,20 @@ async function updateCartItem(itemId, action) {
 function openCart() { document.querySelector("#cart-drawer").classList.add("open"); document.querySelector("#cart-drawer").setAttribute("aria-hidden", "false"); document.querySelector("#drawer-backdrop").hidden = false; refreshCart(); }
 function closeCart() { document.querySelector("#cart-drawer").classList.remove("open"); document.querySelector("#cart-drawer").setAttribute("aria-hidden", "true"); document.querySelector("#drawer-backdrop").hidden = true; }
 function showToast(message) { const toast = document.createElement("div"); toast.className = "toast-message"; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2800); }
+
+window.addEventListener("nexora-logged-out", () => {
+  cartSessionGeneration += 1;
+  cartSignedOut = true;
+  const cartBody = document.querySelector("#cart-body");
+  const cartFooter = document.querySelector("#cart-footer");
+  if (cartBody) cartBody.innerHTML = `<div class="cart-empty"><span class="state-icon">♡</span><h3>${t("emptyCart")}</h3><p>${t("emptyCartText")}</p></div>`;
+  if (cartFooter) cartFooter.hidden = true;
+});
+window.addEventListener("nexora-logged-in", () => {
+  cartSessionGeneration += 1;
+  cartSignedOut = false;
+  refreshCart();
+});
 
 function renderQuickView(product) {
   const content = document.querySelector("#quick-view-content");
@@ -994,12 +1013,6 @@ document.querySelector("#editor-collection-link")?.addEventListener("click", (ev
   renderCatalogFilters();
   renderProducts();
   document.querySelector("#catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-});
-document.querySelector("#menu-toggle").addEventListener("click", () => {
-  const menu = document.querySelector("#mobile-nav");
-  const button = document.querySelector("#menu-toggle");
-  const open = menu.classList.toggle("open");
-  button.setAttribute("aria-expanded", String(open));
 });
 document.querySelector("#cart-toggle").addEventListener("click", openCart);
 document.querySelector("#cart-close").addEventListener("click", closeCart);

@@ -790,6 +790,12 @@ translations.en.dashboardFavoritesStat = "Favorites";
 translations.en.dashboardFavoritesHint = "Saved for later";
 translations.en.dashboardRewardsStat = "Club points";
 translations.en.dashboardRewardsHint = "Available to use";
+translations.fa.openMenu = "باز کردن منو";
+translations.fa.closeMenu = "بستن منو";
+translations.fa.mobileNavigation = "ناوبری موبایل";
+translations.en.openMenu = "Open menu";
+translations.en.closeMenu = "Close menu";
+translations.en.mobileNavigation = "Mobile navigation";
 
 function applyLanguage(language) {
   const selected = language === "en" ? "en" : "fa";
@@ -827,15 +833,7 @@ function applyLanguage(language) {
 }
 
 function normalizeContactDetails() {
-  const oldPhone = "+98 21 0000 0000";
   const phone = "۰۲۱ ۴۳۶۵۸۷۹۱";
-  document.querySelectorAll("body *").forEach((element) => {
-    element.childNodes.forEach((node) => {
-      if (node.nodeType === Node.TEXT_NODE && node.nodeValue.includes(oldPhone)) {
-        node.nodeValue = node.nodeValue.replaceAll(oldPhone, phone);
-      }
-    });
-  });
   document.querySelectorAll('a[href^="tel:"]').forEach((link) => {
     link.href = "tel:+982143658791";
     link.textContent = phone;

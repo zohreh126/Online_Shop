@@ -1,6 +1,8 @@
 (function () {
   const API_BASE = "/api/v1/";
   let lastCount = 0;
+  let sessionGeneration = 0;
+  let signedOut = false;
 
   function locale() {
     return document.documentElement.lang === "en" ? "en-US" : "fa-IR";
@@ -17,10 +19,13 @@
   }
 
   async function refresh() {
+    if (signedOut) return renderCount(0);
+    const generation = sessionGeneration;
     try {
       const response = await fetch(`${API_BASE}cart/`, { credentials: "same-origin" });
       if (!response.ok) return lastCount;
       const cart = await response.json();
+      if (generation !== sessionGeneration || signedOut) return renderCount(0);
       return renderCount(cart.item_count || 0);
     } catch (error) {
       return lastCount;
@@ -30,6 +35,15 @@
   window.NexoraCartNav = { refresh, renderCount };
   window.addEventListener("nexora-language-changed", () => renderCount(lastCount));
   window.addEventListener("nexora-cart-updated", (event) => renderCount(event.detail?.cart?.item_count || 0));
-  window.addEventListener("nexora-logged-out", () => renderCount(0));
+  window.addEventListener("nexora-logged-out", () => {
+    sessionGeneration += 1;
+    signedOut = true;
+    renderCount(0);
+  });
+  window.addEventListener("nexora-logged-in", () => {
+    sessionGeneration += 1;
+    signedOut = false;
+    refresh();
+  });
   refresh();
 })();

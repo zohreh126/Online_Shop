@@ -4,6 +4,8 @@
   const favoriteItems = [];
   let loaded = false;
   let loadingPromise = null;
+  let sessionGeneration = 0;
+  let signedOut = false;
 
   const t = (key) => window.NexoraI18n?.t(key) || key;
 
@@ -66,8 +68,10 @@
   }
 
   async function load() {
+    if (signedOut) return sync([]);
     if (loaded) return favoriteItems;
     if (loadingPromise) return loadingPromise;
+    const generation = sessionGeneration;
     loadingPromise = (async () => {
       try {
         const response = await fetch(API_BASE + "auth/favorites/", { credentials: "same-origin" });
@@ -76,6 +80,7 @@
         }
         if (!response.ok) throw new Error("favorites-request-failed");
         const data = await response.json();
+        if (generation !== sessionGeneration || signedOut) return sync([]);
         const favorites = data.results || data || [];
         return sync(favorites);
       } catch (error) {
@@ -166,7 +171,17 @@
   }
 
   window.NexoraFavorites = { bindButtons, isFavorite, load, refresh, sync, toggle, updateButton };
-  window.addEventListener("nexora-logged-out", () => sync([]));
+  window.addEventListener("nexora-logged-out", () => {
+    sessionGeneration += 1;
+    signedOut = true;
+    sync([]);
+  });
+  window.addEventListener("nexora-logged-in", () => {
+    sessionGeneration += 1;
+    signedOut = false;
+    loaded = false;
+    load();
+  });
   window.addEventListener("nexora-language-changed", () => {
     updateFavoriteNavigation();
     bindButtons(document);

@@ -46,6 +46,30 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'aria-autocomplete="list"')
         self.assertContains(response, "/about/")
         self.assertContains(response, "/contact/")
+        self.assertContains(response, "/static/storefront/js/navigation.js")
+
+    def test_storefront_pages_include_shared_mobile_navigation(self):
+        project_root = Path(__file__).resolve().parents[1]
+        navigation_source = (project_root / "static/storefront/js/navigation.js").read_text()
+
+        self.assertIn("function renderGeneratedMenu", navigation_source)
+        self.assertIn("nexora-language-changed", navigation_source)
+        self.assertIn("nexora-logged-out", (project_root / "static/storefront/js/cart-nav.js").read_text())
+        self.assertIn("cartSignedOut", (project_root / "static/storefront/js/app.js").read_text())
+
+        for route_name in (
+            "storefront-about",
+            "storefront-contact",
+            "storefront-discounts",
+            "storefront-favorites",
+            "storefront-account",
+            "storefront-checkout",
+            "storefront-order-result",
+            "storefront-profile",
+        ):
+            response = self.client.get(reverse(route_name))
+            self.assertEqual(response.status_code, 200, route_name)
+            self.assertContains(response, "/static/storefront/js/navigation.js", msg_prefix=route_name)
 
     def test_catalog_search_has_localized_suggestions_and_keyboard_navigation(self):
         project_root = Path(__file__).resolve().parents[1]
