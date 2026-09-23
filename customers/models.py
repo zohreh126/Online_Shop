@@ -116,7 +116,12 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     def delete(self, using=None, keep_parents=False):
         """Deactivate the customer instead of physically deleting the account."""
         self.is_active = False
-        self.save(update_fields=("is_active",))
+        update_fields = ["is_active"]
+        if not self.is_superuser:
+            self.is_staff = False
+            self.role = ""
+            update_fields.extend(("is_staff", "role"))
+        self.save(update_fields=update_fields)
 
 class Address(models.Model):
     customer = models.ForeignKey(

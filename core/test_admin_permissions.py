@@ -122,6 +122,14 @@ class AdminPermissionTests(TestCase):
         self.product_manager.refresh_from_db()
         self.assertFalse(self.product_manager.is_staff)
 
+    def test_root_administrator_is_not_listed_as_a_customer(self):
+        customer_admin = self.admin_for(Customer)
+        request = self.request_for(self.superuser)
+
+        queryset = customer_admin.get_queryset(request)
+
+        self.assertNotIn(self.superuser.pk, queryset.values_list("pk", flat=True))
+
     def test_admin_dashboard_uses_nexora_control_center(self):
         self.client.force_login(self.superuser)
 
@@ -161,3 +169,5 @@ class AdminPermissionTests(TestCase):
         self.product_manager.refresh_from_db()
 
         self.assertFalse(self.product_manager.is_active)
+        self.assertFalse(self.product_manager.is_staff)
+        self.assertEqual(self.product_manager.role, "")

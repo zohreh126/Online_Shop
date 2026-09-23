@@ -53,6 +53,10 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
 
     inlines = [AddressInline]
 
+    def get_queryset(self, request):
+        """Keep the root administrator out of the customer directory."""
+        return super().get_queryset(request).exclude(is_superuser=True)
+
     fieldsets = (
         (None, {
             "fields": (
@@ -149,7 +153,11 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
         obj.delete()
 
     def delete_queryset(self, request, queryset):
-        queryset.filter(is_superuser=False).update(is_active=False)
+        queryset.filter(is_superuser=False).update(
+            is_active=False,
+            is_staff=False,
+            role="",
+        )
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
