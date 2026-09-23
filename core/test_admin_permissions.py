@@ -147,6 +147,8 @@ class AdminPermissionTests(TestCase):
         self.assertContains(response, "نبض تجربه‌ی مشتری")
         self.assertContains(response, "nexora-ops-grid")
         self.assertContains(response, "/static/admin/css/nexora-admin.css")
+        self.assertContains(response, "/static/admin/js/nexora-admin.js")
+        self.assertContains(response, "data-admin-theme-toggle")
 
     def test_customer_admin_delete_action_deactivates_account(self):
         customer_admin = self.admin_for(Customer)

@@ -27,6 +27,9 @@ a { transition: color .18s ease, background .18s ease, border-color .18s ease, t
 #user-tools a:hover, #user-tools button:hover { color: var(--nexora-coral) !important; }
 #user-tools form { display: inline; }
 #user-tools button { border: 0; padding: 0; background: transparent; cursor: pointer; }
+.nexora-admin-controls { display:inline-flex; align-items:center; margin-inline-end:12px; vertical-align:middle; }
+.nexora-admin-controls button { display:grid; place-items:center; width:30px; height:30px; padding:0; border:1px solid rgba(255,255,255,.2) !important; border-radius:10px; color:#fff !important; background:rgba(255,255,255,.1) !important; font-size:15px; cursor:pointer; transition:transform .18s ease, background .18s ease, border-color .18s ease; }
+.nexora-admin-controls button:hover { transform:translateY(-2px); border-color:var(--nexora-coral) !important; background:rgba(239,156,131,.2) !important; }
 .breadcrumbs { padding: 12px 28px; color: #e7dff0; background: #3b2f4d; font-size: 11px; }
 .breadcrumbs a { color: #fff; }
 .main { background: var(--nexora-paper); }
@@ -261,6 +264,54 @@ a { transition: color .18s ease, background .18s ease, border-color .18s ease, t
   .nexora-dashboard #content-related { margin-top: 20px; }
   .nexora-dashboard .nexora-recent-actions { position: static; }
 }
+
+html.nexora-admin-dark {
+  --nexora-ink: #f7f1fb;
+  --nexora-muted: #c4b8d0;
+  --nexora-line: rgba(255,255,255,.12);
+  --nexora-paper: #211d29;
+  --nexora-card: #30283b;
+}
+html.nexora-admin-dark,
+html.nexora-admin-dark body,
+html.nexora-admin-dark .main { background:var(--nexora-paper); color:var(--nexora-ink); }
+html.nexora-admin-dark #content h1,
+html.nexora-admin-dark #content h2,
+html.nexora-admin-dark #content h3,
+html.nexora-admin-dark #content label,
+html.nexora-admin-dark #content p,
+html.nexora-admin-dark #content .help,
+html.nexora-admin-dark #content .quiet { color:var(--nexora-ink); }
+html.nexora-admin-dark #nav-sidebar { border-color:var(--nexora-line); background:#2a2334; }
+html.nexora-admin-dark #nav-sidebar .module th,
+html.nexora-admin-dark #nav-sidebar .module td,
+html.nexora-admin-dark .module,
+html.nexora-admin-dark .inline-group,
+html.nexora-admin-dark .submit-row { border-color:var(--nexora-line); background:var(--nexora-card); color:var(--nexora-ink); }
+html.nexora-admin-dark .module caption,
+html.nexora-admin-dark .module h2,
+html.nexora-admin-dark .inline-group h2 { background:#403250; color:#fff; }
+html.nexora-admin-dark input,
+html.nexora-admin-dark textarea,
+html.nexora-admin-dark select,
+html.nexora-admin-dark .selector-chosen h2,
+html.nexora-admin-dark .selector-available h2 { border-color:var(--nexora-line); background:#251f30; color:var(--nexora-ink); }
+html.nexora-admin-dark table thead th,
+html.nexora-admin-dark .results th,
+html.nexora-admin-dark .results td,
+html.nexora-admin-dark .form-row { border-color:var(--nexora-line); }
+html.nexora-admin-dark a { color:#d8c5fa; }
+html.nexora-admin-dark #nav-sidebar a,
+html.nexora-admin-dark #nav-sidebar th,
+html.nexora-admin-dark #nav-sidebar td { color:#eadff5; }
+html.nexora-admin-dark .nexora-admin-panel,
+html.nexora-admin-dark .nexora-dashboard-panel,
+html.nexora-admin-dark .nexora-kpi-card,
+html.nexora-admin-dark .nexora-stat-card { border-color:var(--nexora-line); background:var(--nexora-card); }
+html.nexora-admin-dark .nexora-alert-row,
+html.nexora-admin-dark .nexora-feed-row { border-color:var(--nexora-line); color:var(--nexora-ink) !important; }
+html.nexora-admin-dark .nexora-alert-row:hover,
+html.nexora-admin-dark .nexora-question-row:hover { background:#3b2d48; }
 @media (max-width: 560px) {
   .nexora-admin-hero-actions { align-items:stretch; flex-direction:column; }
   .nexora-admin-store-link,.nexora-admin-role-pill { width:100%; box-sizing:border-box; }

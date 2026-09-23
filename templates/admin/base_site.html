@@ -10,7 +10,14 @@
     </span>
   </a>
 {% endblock %}
+{% block userlinks %}
+  <span class="nexora-admin-controls" aria-label="تنظیمات پنل">
+    <button type="button" data-admin-theme-toggle aria-label="تغییر حالت نمایش">☾</button>
+  </span>
+  {{ block.super }}
+{% endblock %}
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/nexora-admin.css' %}">
+  <script src="{% static 'admin/js/nexora-admin.js' %}" defer></script>
 {% endblock %}

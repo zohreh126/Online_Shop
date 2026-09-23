@@ -18,7 +18,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -38,7 +38,11 @@ urlpatterns = [
     path("checkout/", TemplateView.as_view(template_name="storefront/checkout.html"), name="storefront-checkout"),
     path("order-result/", TemplateView.as_view(template_name="storefront/order-result.html"), name="storefront-order-result"),
     path("account/", TemplateView.as_view(template_name="storefront/account.html"), name="storefront-account"),
-    path("dashboard/", TemplateView.as_view(template_name="storefront/dashboard.html"), name="storefront-dashboard"),
+    path(
+        "dashboard/",
+        RedirectView.as_view(url="/profile/?section=orders", permanent=False),
+        name="storefront-dashboard",
+    ),
     path("favorites/", TemplateView.as_view(template_name="storefront/favorites.html"), name="storefront-favorites"),
     path("profile/", TemplateView.as_view(template_name="storefront/profile.html"), name="storefront-profile"),
     path("admin/", nexora_admin_index),

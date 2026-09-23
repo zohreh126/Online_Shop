@@ -8,6 +8,7 @@ const money = (value) => `${localizedNumber(Math.round(Number(value)))} ${tr("to
 const statusLabels = { pending: "pending", confirmed: "confirmed", processing: "processing", shipped: "shipped", delivered: "delivered", cancelled: "cancelled", refunded: "refunded" };
 const paymentLabels = { unpaid: "unpaid", pending: "pending", paid: "paid", failed: "failed", refunded: "refunded" };
 const roleLabels = { product_manager: "roleProductManager", supervisor: "roleSupervisor", operator: "roleOperator" };
+const dashboardRoleKey = (profile) => profile?.is_superuser || (profile?.is_staff && !profile?.role) ? "roleAdministrator" : (roleLabels[profile?.role] || "normalCustomer");
 let dashboardOrders = [];
 let dashboardSnapshot = null;
 function setupTheme() { const root = document.documentElement; const button = document.querySelector("#theme-toggle"); if (localStorage.getItem("nexora-theme") === "dark") root.classList.add("dark"); const update = () => { if (button) button.textContent = root.classList.contains("dark") ? "☼" : "☾"; }; button?.addEventListener("click", () => { root.classList.toggle("dark"); localStorage.setItem("nexora-theme", root.classList.contains("dark") ? "dark" : "light"); update(); }); update(); }
@@ -107,7 +108,7 @@ async function loadDashboard() {
       request("auth/rewards/"),
     ]);
     document.querySelector("#dashboard-profile").textContent = `${profile.first_name || profile.username} · ${profile.email}`;
-    document.querySelector("#dashboard-role").textContent = roleLabels[profile.role] ? tr(roleLabels[profile.role]) : tr("normalCustomer");
+    document.querySelector("#dashboard-role").textContent = tr(dashboardRoleKey(profile));
     document.querySelector("#dashboard-content").hidden = false;
     dashboardOrders = orders.results || orders;
     dashboardSnapshot = { profile, orders: dashboardOrders, addresses, favorites, rewards };

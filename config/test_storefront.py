@@ -113,7 +113,6 @@ class StorefrontPageTests(TestCase):
             ("storefront-checkout", {}),
             ("storefront-order-result", {}),
             ("storefront-account", {}),
-            ("storefront-dashboard", {}),
             ("storefront-favorites", {}),
             ("storefront-profile", {}),
         )
@@ -181,18 +180,11 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/static/storefront/js/password-toggle.js")
         self.assertContains(response, 'data-password-toggle="register-password"')
 
-    def test_dashboard_page_is_available(self):
+    def test_legacy_dashboard_route_redirects_to_unified_profile_orders(self):
         response = self.client.get(reverse("storefront-dashboard"))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "داشبورد مشتری")
-        self.assertContains(response, 'href="/favorites/"')
-        self.assertContains(response, 'class="dashboard-overview"')
-        self.assertContains(response, 'id="dashboard-stat-orders"')
-        self.assertContains(response, 'id="dashboard-stat-addresses"')
-        self.assertContains(response, 'id="dashboard-stat-favorites"')
-        self.assertContains(response, 'id="dashboard-stat-rewards"')
-        self.assertContains(response, "/static/storefront/js/dashboard.js")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/profile/?section=orders")
 
     def test_favorites_page_is_available(self):
         response = self.client.get(reverse("storefront-favorites"))
