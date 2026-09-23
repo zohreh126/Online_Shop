@@ -1183,6 +1183,9 @@ html[dir="ltr"] .hero-copy .eyebrow,html[dir="ltr"] .section-heading .eyebrow { 
 html[dir="ltr"] .search-suggestion { text-align:left; }
 html[dir="ltr"] .search-suggestion-price { justify-items:start; }
 .dark .search-suggestions { background:#302a3b; box-shadow:0 20px 42px rgba(0,0,0,.28); }
+.quick-view-button { position:absolute; z-index:3; top:14px; inset-inline-start:58px; display:grid; place-items:center; width:36px; height:36px; border:1px solid rgba(113,80,180,.12); border-radius:12px; color:var(--accent-strong); background:rgba(255,255,255,.92); box-shadow:0 8px 16px rgba(75,55,100,.1); font-size:17px; transition:transform .2s ease,background .2s ease,color .2s ease; }
+.quick-view-button:hover,.quick-view-button:focus-visible { color:#fff; background:var(--accent-strong); transform:translateY(-2px); outline:0; }
+.dark .quick-view-button { color:#f4eaff; background:rgba(68,56,81,.94); border-color:#554a64; }
 @media (max-width:880px) {
   .search-box-wrap { width:100%; min-width:0; }
 }
@@ -1192,6 +1195,49 @@ html[dir="ltr"] .search-suggestion-price { justify-items:start; }
   .search-suggestion-image { width:38px; height:38px; }
   .search-suggestion-copy strong { font-size:10px; }
   .search-suggestion-price { font-size:9px; }
+}
+
+body.quick-view-open { overflow:hidden; }
+.quick-view-backdrop { position:fixed; z-index:50; inset:0; background:rgba(38,28,50,.55); backdrop-filter:blur(5px); }
+.quick-view-backdrop[hidden] { display:none; }
+.quick-view-modal { position:fixed; z-index:51; inset:50% auto auto 50%; width:min(780px,calc(100% - 32px)); max-height:calc(100vh - 32px); overflow:auto; border:1px solid var(--line); border-radius:24px; background:var(--card); box-shadow:0 32px 80px rgba(48,40,61,.25); opacity:0; pointer-events:none; transform:translate(-50%,-46%); transition:opacity .22s ease,transform .22s ease; }
+.quick-view-modal[hidden] { display:none; }
+.quick-view-modal.open { opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }
+.quick-view-header { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; padding:24px 26px 0; }
+.quick-view-header .eyebrow { margin-bottom:8px; }
+.quick-view-header h2 { margin:0; font-size:clamp(22px,3vw,32px); }
+.quick-view-content { display:grid; grid-template-columns:minmax(230px,.9fr) minmax(0,1.1fr); gap:26px; padding:24px 26px 28px; }
+.quick-view-visual { min-height:320px; border:1px solid var(--line); border-radius:18px; }
+.quick-view-visual img { position:relative; z-index:1; width:100%; height:100%; object-fit:cover; }
+.quick-view-visual .discount-badge { z-index:3; }
+.quick-view-heart { z-index:4; }
+.quick-view-copy { display:flex; flex-direction:column; justify-content:center; min-width:0; }
+.quick-view-copy .eyebrow { margin-bottom:12px; }
+.quick-view-copy h3 { margin:4px 0 7px; color:var(--ink); font-size:clamp(24px,3vw,38px); line-height:1.45; }
+.quick-view-category { margin:0; color:var(--accent-strong); font-size:11px; font-weight:700; }
+.quick-view-description { margin:20px 0; color:var(--muted); font-size:12px; line-height:2; }
+.quick-view-price { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.quick-view-price .price-stack { gap:5px; }
+.quick-view-price .price-stack > strong { color:var(--accent-strong); font-size:20px; }
+.quick-view-price del { display:block; color:var(--muted); font-size:11px; }
+.quick-view-stock { flex:0 0 auto; font-size:10px; font-weight:700; }
+.quick-view-stock.in-stock { color:#4d8a5c; }
+.quick-view-stock.out-of-stock { color:#b35b64; }
+.quick-view-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-top:22px; }
+.quick-view-actions .primary-button,.quick-view-actions .secondary-button { margin-top:0; }
+.quick-view-add { min-width:190px; justify-content:center; }
+.quick-view-add [data-quick-view-cart-icon] { font-size:17px; line-height:1; }
+.quick-view-add.is-loading { opacity:.65; cursor:wait; }
+.dark .quick-view-backdrop { background:rgba(10,7,16,.7); }
+.dark .quick-view-modal { box-shadow:0 32px 80px rgba(0,0,0,.38); }
+@media (max-width:620px) {
+  .quick-view-modal { width:min(100% - 20px,520px); max-height:calc(100vh - 20px); border-radius:20px; }
+  .quick-view-header { padding:20px 18px 0; }
+  .quick-view-content { grid-template-columns:1fr; gap:18px; padding:18px; }
+  .quick-view-visual { min-height:235px; }
+  .quick-view-copy h3 { font-size:25px; }
+  .quick-view-actions { display:grid; grid-template-columns:1fr; }
+  .quick-view-actions .primary-button,.quick-view-actions .secondary-button { width:100%; }
 }
 .watch-button:disabled { cursor:not-allowed; }
 .watch-hint { max-width:480px; margin:10px 0 0; color:var(--muted); font-size:11px; line-height:1.9; }

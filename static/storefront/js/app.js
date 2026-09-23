@@ -6,6 +6,7 @@ const RECENT_STORAGE_KEY = "nexora-recently-viewed";
 const FREE_SHIPPING_THRESHOLD = 2000000;
 const compareIds = new Set();
 let searchSuggestionIndex = -1;
+let quickViewProduct = null;
 
 const faNumber = (value) => new Intl.NumberFormat("fa-IR").format(value);
 const localizedNumber = (value) => new Intl.NumberFormat(window.NexoraI18n?.current() === "en" ? "en-US" : "fa-IR").format(value);
@@ -288,6 +289,24 @@ function bindProductActions(container, products) {
     button.setAttribute("aria-pressed", "false");
   });
   window.NexoraFavorites?.bindButtons(container);
+  container.querySelectorAll(".product-card").forEach((card, index) => {
+    const product = products[index];
+    const visual = card.querySelector(".product-visual");
+    if (!product || !visual || visual.querySelector("[data-quick-view-product]")) return;
+    const quickViewButton = document.createElement("button");
+    quickViewButton.className = "quick-view-button";
+    quickViewButton.dataset.quickViewProduct = product.id;
+    quickViewButton.type = "button";
+    quickViewButton.setAttribute("aria-label", t("quickView"));
+    quickViewButton.title = t("quickView");
+    quickViewButton.innerHTML = '<span aria-hidden="true">⌕</span>';
+    visual.appendChild(quickViewButton);
+  });
+  container.querySelectorAll("[data-quick-view-product]").forEach((button) => button.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    openQuickView(products.find((product) => String(product.id) === String(button.dataset.quickViewProduct)));
+  }));
   container.querySelectorAll(".compare-button").forEach((button) => button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); toggleCompare(button.dataset.compareProduct); }));
   container.querySelectorAll(".add-button").forEach((button) => button.addEventListener("click", async () => {
     button.disabled = true;
@@ -658,6 +677,62 @@ function openCart() { document.querySelector("#cart-drawer").classList.add("open
 function closeCart() { document.querySelector("#cart-drawer").classList.remove("open"); document.querySelector("#cart-drawer").setAttribute("aria-hidden", "true"); document.querySelector("#drawer-backdrop").hidden = true; }
 function showToast(message) { const toast = document.createElement("div"); toast.className = "toast-message"; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2800); }
 
+function renderQuickView(product) {
+  const content = document.querySelector("#quick-view-content");
+  if (!content || !product) return;
+  const name = productName(product);
+  const discount = Number(product.discount_amount || 0);
+  const href = "/products/" + encodeURIComponent(product.slug) + "/";
+  const priceDetails = discount > 0 ? '<del>' + escapeHTML(money(product.price)) + '</del><small class="product-savings"><span aria-hidden="true">✦</span>' + escapeHTML(formatMessage("youSave", { amount: money(discount) })) + '</small>' + discountCountdownMarkup(product) : "";
+  content.innerHTML = '<div class="quick-view-visual product-visual">' + productImage(product) + (discount > 0 ? '<span class="discount-badge">' + escapeHTML(discountLabel(product)) + '</span>' : "") + '<button class="heart-button quick-view-heart" data-favorite-product="' + escapeHTML(product.id) + '" type="button" aria-label="' + escapeHTML(t("addToFavorites")) + '" aria-pressed="false">♡</button></div><div class="quick-view-copy"><p class="eyebrow"><span></span><span>' + escapeHTML(t("quickView")) + '</span></p><h3>' + escapeHTML(name) + '</h3><p class="quick-view-category">' + escapeHTML(product.category ? categoryName(product.category) : t("digitalAccessories")) + '</p><div class="product-rating-inline">' + productRating(product) + '</div><p class="quick-view-description">' + escapeHTML(window.NexoraI18n?.productDescription(product) || product.description || t("carefulChoiceText")) + '</p><div class="quick-view-price"><div class="price-stack"><strong>' + escapeHTML(money(product.final_price)) + '</strong>' + priceDetails + '</div><span class="quick-view-stock ' + (product.is_in_stock ? "in-stock" : "out-of-stock") + '">' + escapeHTML(product.is_in_stock ? formatMessage("stockCount", { count: localizedNumber(product.stock_quantity) }) : t("unavailable")) + '</span></div><div class="quick-view-actions"><button class="primary-button quick-view-add" data-quick-view-add="' + escapeHTML(product.id) + '" type="button" ' + (product.is_in_stock ? "" : "disabled") + '><span data-quick-view-cart-icon aria-hidden="true">🛒</span><span>' + escapeHTML(product.is_in_stock ? t("addToCart") : t("unavailable")) + '</span></button><a class="secondary-button" href="' + escapeHTML(href) + '"><span>' + escapeHTML(t("viewFullDetails")) + '</span><span aria-hidden="true">↗</span></a></div></div>';
+  window.NexoraFavorites?.bindButtons(content);
+  const addButton = content.querySelector("[data-quick-view-add]");
+  addButton?.addEventListener("click", async () => {
+    addButton.disabled = true;
+    addButton.classList.add("is-loading");
+    try {
+      await sendJSON("cart/items/", "POST", { product_id: product.id, quantity: 1 });
+      await refreshCart();
+      const icon = addButton.querySelector("[data-quick-view-cart-icon]");
+      if (icon) icon.textContent = "✓";
+      showToast(t("addedToCart"));
+      setTimeout(() => { if (icon && icon.isConnected) icon.textContent = "🛒"; }, 900);
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      addButton.disabled = false;
+      addButton.classList.remove("is-loading");
+    }
+  });
+  updateDiscountCountdowns();
+}
+
+function openQuickView(product) {
+  if (!product) return;
+  quickViewProduct = product;
+  renderQuickView(product);
+  const modal = document.querySelector("#quick-view-modal");
+  const backdrop = document.querySelector("#quick-view-backdrop");
+  if (!modal || !backdrop) return;
+  modal.hidden = false;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  backdrop.hidden = false;
+  document.body.classList.add("quick-view-open");
+  document.querySelector("#quick-view-close")?.focus();
+}
+
+function closeQuickView() {
+  const modal = document.querySelector("#quick-view-modal");
+  const backdrop = document.querySelector("#quick-view-backdrop");
+  if (!modal || !backdrop) return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  modal.hidden = true;
+  backdrop.hidden = true;
+  document.body.classList.remove("quick-view-open");
+}
+
 function renderCategories(categories) {
   const roots = categories.filter((category) => !category.parent);
   const hasDescendant = (category, slug) => category.slug === slug || (category.children || []).some((child) => hasDescendant(child, slug));
@@ -768,11 +843,13 @@ document.querySelector("#compare-open").addEventListener("click", openCompare);
 document.querySelector("#compare-clear").addEventListener("click", () => { compareIds.clear(); persistCompareSelection(); updateCompareUI(); });
 document.querySelector("#compare-close").addEventListener("click", closeCompare);
 document.querySelector("#compare-backdrop").addEventListener("click", closeCompare);
+document.querySelector("#quick-view-close").addEventListener("click", closeQuickView);
+document.querySelector("#quick-view-backdrop").addEventListener("click", closeQuickView);
 document.querySelector("#clear-recently-viewed")?.addEventListener("click", () => {
   localStorage.removeItem(RECENT_STORAGE_KEY);
   renderRecentlyViewed();
 });
-document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeCompare(); });
+document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeCompare(); closeQuickView(); } });
 document.querySelector("#category-toggle").addEventListener("click", () => {
   const button = document.querySelector("#category-toggle");
   const panel = document.querySelector("#category-tabs");
@@ -809,4 +886,5 @@ window.addEventListener("nexora-language-changed", () => {
   renderSearchSuggestions();
   updateDiscountCountdowns();
   updateCompareUI();
+  if (quickViewProduct && !document.querySelector("#quick-view-modal")?.hidden) renderQuickView(quickViewProduct);
 });
