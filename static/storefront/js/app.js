@@ -120,6 +120,26 @@ function productImage(product) {
   return `<div class="product-placeholder placeholder-${categorySlug}"><span>${placeholderIcon(categorySlug)}</span><small>${categoryLabel(categorySlug)}</small></div>`;
 }
 
+function renderHeroOrbit() {
+  const orbit = document.querySelector("#hero-product-orbit");
+  if (!orbit || !state.products.length) return;
+
+  const candidates = [...state.products]
+    .filter((product) => product.is_in_stock)
+    .sort((first, second) => featuredScore(second) - featuredScore(first))
+    .slice(0, 3);
+
+  orbit.innerHTML = candidates.map((product, index) => {
+    const name = productName(product);
+    const href = `/products/${encodeURIComponent(product.slug || "")}/`;
+    const image = product.image_url
+      ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(formatMessage("productImageAlt", { name }))}" loading="lazy">`
+      : `<span class="hero-product-placeholder">${escapeHTML((product.brand || "N").slice(0, 1))}</span>`;
+    const tag = Number(product.discount_amount || 0) > 0 ? discountLabel(product) : (product.brand || "NEXORA");
+    return `<a class="hero-product-tile tile-${index + 1}" href="${escapeHTML(href)}" aria-label="${escapeHTML(name)}"><span class="hero-product-tile-image">${image}</span><span class="hero-product-tile-copy"><small>${escapeHTML(tag)}</small><strong>${escapeHTML(name)}</strong><b>${escapeHTML(money(product.final_price))}</b></span></a>`;
+  }).join("");
+}
+
 function placeholderIcon(categorySlug) {
   const icons = { "cables-charging": "⌁", gaming: "◈", accessories: "N", audio: "◒", "keyboards-mice": "⌘" };
   return icons[categorySlug] || "N";
@@ -928,6 +948,7 @@ async function loadCatalog() {
     renderOfferSpotlight();
     startOfferSpotlightTimer();
     renderFeaturedProducts();
+    renderHeroOrbit();
     renderSearchSuggestions();
   } catch (error) {
     document.querySelector("#product-grid").innerHTML = `<div class="state-card"><span class="state-icon">!</span><h3>${t("storefrontConnectionFailed")}</h3><p>${t("serverCheck")}</p><button class="retry-button" onclick="loadCatalog()">${t("tryAgain")}</button></div>`;
@@ -1061,6 +1082,7 @@ window.addEventListener("nexora-language-changed", () => {
   renderDiscountProducts();
   renderOfferSpotlight();
   renderFeaturedProducts();
+  renderHeroOrbit();
   renderRecentlyViewed();
   refreshCart();
   loadAccountState();

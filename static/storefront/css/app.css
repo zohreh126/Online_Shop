@@ -1905,3 +1905,61 @@ body::before { content: ""; position: fixed; z-index: -2; inset: 0; pointer-even
   .trust-items span { flex: 1 1 42%; justify-content: center; min-width: 145px; }
   .catalog-pagination { margin-top: 26px; }
 }
+
+/* Nexora signature hero: real catalog products orbit the abstract brand mark.
+   This keeps the visual identity editorial while making the first screen feel
+   alive and useful instead of relying on a static illustration. */
+.hero-product-orbit { position:absolute; z-index:3; inset:0; pointer-events:none; }
+.hero-product-tile { position:absolute; display:grid; grid-template-columns:58px minmax(0,1fr); align-items:center; gap:9px; width:196px; padding:8px; overflow:hidden; pointer-events:auto; border:1px solid rgba(255,255,255,.72); border-radius:16px; color:var(--ink); background:rgba(255,255,255,.72); box-shadow:0 16px 32px rgba(75,55,100,.15), inset 0 1px 0 rgba(255,255,255,.7); backdrop-filter:blur(15px); transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+.hero-product-tile::after { content:""; position:absolute; width:78px; height:78px; inset-inline-end:-38px; bottom:-35px; border-radius:50%; background:rgba(239,156,131,.18); filter:blur(2px); }
+.hero-product-tile:hover { z-index:5; border-color:rgba(113,80,180,.45); box-shadow:0 22px 42px rgba(75,55,100,.23), 0 0 0 5px rgba(155,123,210,.08); }
+.hero-product-tile-image { position:relative; z-index:1; display:grid; place-items:center; width:58px; height:58px; overflow:hidden; border-radius:12px; background:linear-gradient(145deg,#eee4fb,#fff3ee); }
+.hero-product-tile-image img { width:100%; height:100%; object-fit:cover; transition:transform .3s ease; }
+.hero-product-tile:hover .hero-product-tile-image img { transform:scale(1.1); }
+.hero-product-placeholder { display:grid; place-items:center; width:38px; height:38px; border-radius:12px; color:#f8efff; background:linear-gradient(145deg,#3f3450,#9b7bd2); font:700 24px Georgia,serif; }
+.hero-product-tile-copy { position:relative; z-index:1; display:grid; min-width:0; gap:2px; }
+.hero-product-tile-copy small { overflow:hidden; color:var(--coral); font-size:8px; font-weight:900; text-overflow:ellipsis; white-space:nowrap; }
+.hero-product-tile-copy strong { overflow:hidden; font-size:10px; line-height:1.5; text-overflow:ellipsis; white-space:nowrap; }
+.hero-product-tile-copy b { color:var(--accent-strong); direction:rtl; font-size:9px; white-space:nowrap; }
+.hero-product-tile.tile-1 { inset-inline-end:-1%; top:12%; transform:rotate(6deg); animation:nexora-orbit-a 6s ease-in-out infinite; }
+.hero-product-tile.tile-2 { inset-inline-start:-3%; bottom:12%; transform:rotate(-7deg); animation:nexora-orbit-b 6.8s ease-in-out -1.8s infinite; }
+.hero-product-tile.tile-3 { inset-inline-start:5%; top:43%; transform:rotate(-3deg) scale(.9); animation:nexora-orbit-c 7.2s ease-in-out -3.2s infinite; }
+.hero-product-tile.tile-3 .hero-product-tile-image { width:50px; height:50px; }
+.hero-product-tile.tile-3 { grid-template-columns:50px minmax(0,1fr); width:178px; }
+.hero-product-tile.tile-3 .hero-product-tile-copy strong { font-size:9px; }
+.hero-product-orbit + .floating-card { z-index:4; }
+.hero-product-tile:focus-visible { outline:3px solid rgba(239,156,131,.55); outline-offset:4px; }
+
+@keyframes nexora-orbit-a { 0%,100% { transform:translate3d(0,0,0) rotate(6deg); } 50% { transform:translate3d(0,-10px,0) rotate(3deg); } }
+@keyframes nexora-orbit-b { 0%,100% { transform:translate3d(0,0,0) rotate(-7deg); } 50% { transform:translate3d(0,9px,0) rotate(-10deg); } }
+@keyframes nexora-orbit-c { 0%,100% { transform:translate3d(0,0,0) rotate(-3deg) scale(.9); } 50% { transform:translate3d(7px,-7px,0) rotate(1deg) scale(.94); } }
+
+body::after { content:""; position:fixed; z-index:-3; inset:0; pointer-events:none; opacity:.22; background-image:radial-gradient(rgba(113,80,180,.18) .65px, transparent .65px),radial-gradient(rgba(239,156,131,.13) .55px, transparent .55px); background-position:0 0, 11px 13px; background-size:23px 23px, 31px 31px; mix-blend-mode:multiply; }
+.section-heading h2 { text-shadow:0 8px 20px rgba(75,55,100,.06); }
+.section-heading .eyebrow > span:first-child { box-shadow:0 0 12px rgba(239,156,131,.6); }
+.feature-banner { position:relative; isolation:isolate; }
+.feature-banner::after { content:""; position:absolute; z-index:0; width:280px; height:280px; inset-inline-end:12%; top:-120px; border:1px solid rgba(239,156,131,.25); border-radius:50%; box-shadow:0 0 0 24px rgba(239,156,131,.05),0 0 0 48px rgba(255,255,255,.035); animation:nexora-spin 30s linear infinite reverse; }
+.feature-banner > * { position:relative; z-index:1; }
+.banner-orbit { box-shadow:0 0 0 13px rgba(239,156,131,.05),0 24px 45px rgba(0,0,0,.18); animation:nexora-breathe 7s ease-in-out infinite; }
+.mini-device { filter:drop-shadow(0 20px 16px rgba(0,0,0,.2)); }
+.feedback-wall { border-radius:22px; background:linear-gradient(145deg,rgba(242,237,249,.6),rgba(255,255,255,.35)); padding:22px; box-shadow:0 16px 38px rgba(75,55,100,.05); }
+.feedback-wall-heading { margin-bottom:16px; }
+.dark body::after { opacity:.12; mix-blend-mode:screen; }
+.dark .hero-product-tile { border-color:rgba(255,255,255,.14); color:#f7effb; background:rgba(48,42,59,.8); box-shadow:0 18px 36px rgba(0,0,0,.24); }
+.dark .hero-product-tile-image { background:linear-gradient(145deg,#463655,#302a3b); }
+.dark .feedback-wall { background:linear-gradient(145deg,rgba(58,48,72,.7),rgba(48,42,59,.5)); box-shadow:none; }
+@media (max-width:880px) {
+  .hero-product-tile { width:166px; grid-template-columns:48px minmax(0,1fr); padding:7px; }
+  .hero-product-tile-image { width:48px; height:48px; }
+  .hero-product-tile.tile-1 { inset-inline-end:-3%; top:3%; }
+  .hero-product-tile.tile-2 { inset-inline-start:-2%; bottom:4%; }
+  .hero-product-tile.tile-3 { display:none; }
+  .feature-banner::after { inset-inline-end:-80px; }
+}
+@media (max-width:560px) {
+  .hero-product-tile { width:145px; grid-template-columns:42px minmax(0,1fr); }
+  .hero-product-tile-image { width:42px; height:42px; }
+  .hero-product-tile-copy strong { font-size:9px; }
+  .hero-product-tile-copy b { font-size:8px; }
+  .feedback-wall { padding:15px; }
+}

@@ -25,6 +25,7 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'id="compare-modal"')
         self.assertContains(response, 'id="quick-view-modal"')
         self.assertContains(response, 'id="quick-view-content"')
+        self.assertContains(response, 'id="hero-product-orbit"')
         self.assertContains(response, 'id="catalog-count"')
         self.assertContains(response, 'id="recently-viewed"')
         self.assertContains(response, 'id="clear-recently-viewed"')
@@ -91,6 +92,7 @@ class StorefrontPageTests(TestCase):
         self.assertIn("data-quick-view-product", app_source)
         self.assertIn("data-quick-view-add", app_source)
         self.assertIn("closeQuickView", app_source)
+        self.assertIn("function renderHeroOrbit", app_source)
 
     def test_public_feedback_wall_loads_all_api_pages(self):
         source = (Path(__file__).resolve().parents[1] / "static/storefront/js/feedback.js").read_text()
