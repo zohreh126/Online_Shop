@@ -109,7 +109,12 @@ async function deleteAddress(address) {
 }
 
 function renderCart() {
-  document.querySelector("#checkout-items").innerHTML = state.cart.items.map((item) => `<div class="checkout-item"><span>${productName(item.product)} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("");
+  document.querySelector("#checkout-items").innerHTML = state.cart.items.map((item) => {
+    const quantity = Number(item.quantity || 0);
+    const lineDiscount = Number(item.line_discount || (Number(item.unit_discount || 0) * quantity));
+    const originalLineTotal = Number(item.original_line_total || (Number(item.product?.price || 0) * quantity));
+    return `<div class="checkout-item"><span>${productName(item.product)} × ${localizedNumber(quantity)}${lineDiscount > 0 ? `<small class="checkout-item-saving"><span aria-hidden="true">✦</span>${formatMessage("youSave", { amount: money(lineDiscount) })}</small>` : ""}</span><span class="checkout-item-price"><strong>${money(item.line_total)}</strong>${lineDiscount > 0 ? `<del>${money(originalLineTotal)}</del>` : ""}</span></div>`;
+  }).join("");
   document.querySelector("#checkout-subtotal").textContent = money(state.cart.subtotal ?? 0);
   const productDiscount = Number(state.cart.product_discount_amount || 0);
   document.querySelector("#checkout-product-discount-row").hidden = productDiscount <= 0;

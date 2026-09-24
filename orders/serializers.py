@@ -39,6 +39,14 @@ class CartItemSerializer(serializers.ModelSerializer):
         decimal_places=2,
         read_only=True,
     )
+    original_unit_price = serializers.DecimalField(
+        source="product.price",
+        max_digits=12,
+        decimal_places=2,
+        read_only=True,
+    )
+    original_line_total = serializers.SerializerMethodField()
+    line_discount = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
@@ -49,6 +57,9 @@ class CartItemSerializer(serializers.ModelSerializer):
             "quantity",
             "unit_price",
             "unit_discount",
+            "original_unit_price",
+            "original_line_total",
+            "line_discount",
             "line_total",
             "created_at",
             "updated_at",
@@ -57,9 +68,20 @@ class CartItemSerializer(serializers.ModelSerializer):
             "id",
             "product",
             "line_total",
+            "original_unit_price",
+            "original_line_total",
+            "line_discount",
             "created_at",
             "updated_at",
         )
+
+    @extend_schema_field(OpenApiTypes.DECIMAL)
+    def get_original_line_total(self, item):
+        return (item.product.price * item.quantity).quantize(Decimal("0.01"))
+
+    @extend_schema_field(OpenApiTypes.DECIMAL)
+    def get_line_discount(self, item):
+        return (item.unit_discount * item.quantity).quantize(Decimal("0.01"))
 
     def validate(self, attrs):
         product = attrs.get("product")

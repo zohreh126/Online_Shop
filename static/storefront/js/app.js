@@ -739,6 +739,7 @@ function renderCart(cart) {
   window.NexoraCartNav?.renderCount(cart.item_count || 0);
   document.querySelector("#cart-subtotal").textContent = money(cart.subtotal ?? 0);
   const productDiscount = Number(cart.product_discount_amount || 0);
+  const couponDiscount = Number(cart.coupon_discount_amount || 0);
   const productDiscountRow = document.querySelector("#cart-product-discount-row");
   if (productDiscountRow) productDiscountRow.hidden = productDiscount <= 0;
   if (productDiscount > 0) document.querySelector("#cart-product-discount").textContent = `-${money(productDiscount)}`;
@@ -751,9 +752,9 @@ function renderCart(cart) {
   const shippingProgressAmount = document.querySelector("#shipping-progress-amount");
   const shippingProgressMessage = document.querySelector("#shipping-progress-message");
   if (shippingProgress && shippingProgressBar && shippingProgressAmount && shippingProgressMessage) {
-    const subtotal = Number(cart.subtotal || 0);
-    const remaining = Math.max(FREE_SHIPPING_THRESHOLD - subtotal, 0);
-    const progress = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
+    const merchandiseTotal = Math.max(Number(cart.subtotal || 0) - productDiscount - couponDiscount, 0);
+    const remaining = Math.max(FREE_SHIPPING_THRESHOLD - merchandiseTotal, 0);
+    const progress = Math.min((merchandiseTotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
     shippingProgress.hidden = false;
     shippingProgressBar.style.width = `${progress}%`;
     shippingProgressBar.classList.toggle("complete", remaining === 0);
@@ -767,8 +768,8 @@ function renderCart(cart) {
   const couponInput = document.querySelector("#coupon-code");
   const couponForm = document.querySelector("#coupon-form");
   const couponRemove = document.querySelector("#coupon-remove");
-  if (couponTotal) couponTotal.hidden = !(Number(cart.coupon_discount_amount) > 0);
-  if (couponTotal && Number(cart.coupon_discount_amount) > 0) document.querySelector("#cart-coupon-discount").textContent = `-${money(cart.coupon_discount_amount)}`;
+  if (couponTotal) couponTotal.hidden = !(couponDiscount > 0);
+  if (couponTotal && couponDiscount > 0) document.querySelector("#cart-coupon-discount").textContent = `-${money(couponDiscount)}`;
   if (couponInput) couponInput.value = cart.coupon_code || "";
   if (couponRemove) couponRemove.hidden = !cart.coupon_code;
   if (couponForm && !couponForm.dataset.bound) {
@@ -805,7 +806,14 @@ function renderCart(cart) {
     return;
   }
   footer.hidden = false;
-  body.innerHTML = cart.items.map((item) => `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="${productName(item.product)}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product ? productName(item.product) : t("product")}</h3><strong>${money(item.line_total)}</strong>${item.unit_discount > 0 ? `<small class="cart-item-discount">${t("discountPerUnit")}: ${money(item.unit_discount)}</small>` : ""}<div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="−">−</button><span>${localizedNumber(item.quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="+">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="${t("remove")}" title="${t("remove")}"><span aria-hidden="true">×</span><span class="sr-only">${t("remove")}</span></button></div></div></article>`).join("");
+  body.innerHTML = cart.items.map((item) => {
+    const quantity = Number(item.quantity || 0);
+    const lineDiscount = Number(item.line_discount || (Number(item.unit_discount || 0) * quantity));
+    const originalLineTotal = Number(item.original_line_total || (Number(item.product?.price || 0) * quantity));
+    const priceMarkup = `<div class="cart-item-price"><strong>${money(item.line_total)}</strong>${lineDiscount > 0 ? `<del>${money(originalLineTotal)}</del>` : ""}</div>`;
+    const savingMarkup = lineDiscount > 0 ? `<small class="cart-item-discount"><span aria-hidden="true">✦</span>${formatMessage("youSave", { amount: money(lineDiscount) })}</small>` : "";
+    return `<article class="cart-item"><div class="cart-item-image">${item.product?.image_url ? `<img src="${item.product.image_url}" alt="${productName(item.product)}">` : `<span>${(item.product?.brand || "N").slice(0, 1)}</span>`}</div><div class="cart-item-content"><h3>${item.product ? productName(item.product) : t("product")}</h3>${priceMarkup}${savingMarkup}<div class="quantity-control"><button data-action="decrease" data-item="${item.id}" aria-label="−">−</button><span>${localizedNumber(quantity)}</span><button data-action="increase" data-item="${item.id}" aria-label="+">+</button><button class="remove-item" data-action="remove" data-item="${item.id}" aria-label="${t("remove")}" title="${t("remove")}"><span aria-hidden="true">×</span><span class="sr-only">${t("remove")}</span></button></div></div></article>`;
+  }).join("");
   body.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => updateCartItem(button.dataset.item, button.dataset.action)));
 }
 
