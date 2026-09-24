@@ -10,9 +10,11 @@
 {% block bodyclass %}{{ block.super }} dashboard nexora-dashboard{% endblock %}
 {% block nav-breadcrumbs %}{% endblock %}
 {% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
 
 {% block content %}
-  <section class="nexora-admin-hero" aria-labelledby="nexora-dashboard-title">
+  <div class="nexora-dashboard-main">
+    <section class="nexora-admin-hero" aria-labelledby="nexora-dashboard-title">
     <div class="nexora-admin-hero-copy">
       <span class="nexora-admin-kicker">{{ nexora_copy.hero_kicker }}</span>
       <h1 id="nexora-dashboard-title">{{ nexora_copy.hero_title }}</h1>
@@ -33,9 +35,9 @@
       <span class="hero-art-spark spark-a">✦</span>
       <span class="hero-art-spark spark-b">✧</span>
     </div>
-  </section>
+    </section>
 
-  <section class="nexora-quick-actions" aria-labelledby="nexora-quick-actions-title">
+    <section class="nexora-quick-actions" aria-labelledby="nexora-quick-actions-title">
     <div class="nexora-quick-copy">
       <span class="nexora-panel-kicker">{{ nexora_copy.quick_kicker }}</span>
       <h2 id="nexora-quick-actions-title">{{ nexora_copy.quick_title }}</h2>
@@ -52,9 +54,9 @@
         <p class="nexora-panel-empty">{{ nexora_copy.quick_empty }}</p>
       {% endfor %}
     </div>
-  </section>
+    </section>
 
-  <section class="nexora-kpi-grid" aria-label="{{ nexora_copy.kpi_aria }}">
+    <section class="nexora-kpi-grid" aria-label="{{ nexora_copy.kpi_aria }}">
     {% for metric in nexora_metrics %}
       <a class="nexora-kpi-card tone-{{ metric.tone }}" href="{% url metric.url %}">
         <span class="nexora-kpi-copy"><small>{{ metric.label }}</small><strong>{{ metric.value }}</strong><span>{{ metric.hint }}</span></span>
@@ -63,9 +65,9 @@
     {% empty %}
       <div class="nexora-empty-kpi">{{ nexora_copy.empty_kpi }}</div>
     {% endfor %}
-  </section>
+    </section>
 
-  <section class="nexora-stat-grid" aria-label="{{ nexora_copy.stat_aria }}">
+    <section class="nexora-stat-grid" aria-label="{{ nexora_copy.stat_aria }}">
     {% if perms.products.view_product or perms.products.change_product %}
       <a class="nexora-stat-card" href="{% url 'admin:products_product_changelist' %}">
         <span class="nexora-stat-icon">◈</span>
@@ -115,9 +117,9 @@
         <b class="nexora-stat-arrow" aria-hidden="true">↗</b>
       </a>
     {% endif %}
-  </section>
+    </section>
 
-  <section class="nexora-dashboard-panels" aria-label="{{ nexora_copy.panels_aria }}">
+    <section class="nexora-dashboard-panels" aria-label="{{ nexora_copy.panels_aria }}">
     <article class="nexora-dashboard-panel">
       <div class="nexora-panel-heading"><div><span class="nexora-panel-kicker">LIVE ORDERS</span><h2>{{ nexora_copy.live_orders }}</h2></div><a href="{% url 'admin:orders_order_changelist' %}">{{ nexora_copy.view_all }} ↗</a></div>
       {% if nexora_recent_orders %}
@@ -168,7 +170,7 @@
         {% endif %}
       </article>
     {% endif %}
-  </section>
+    </section>
 
   <section class="nexora-ops-grid" aria-label="{{ nexora_copy.ops_aria }}">
     {% if perms.products.view_product %}
@@ -227,8 +229,9 @@
     {% endif %}
   </section>
 
-  <div id="content-main">
-    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+    <div id="content-main">
+      {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+    </div>
   </div>
 {% endblock %}
 
