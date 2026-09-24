@@ -19,7 +19,6 @@
       </a>
       <nav class="desktop-nav" aria-label="ناوبری اصلی">
         <a class="active" href="#catalog"><span class="nav-link-icon" aria-hidden="true">◈</span><span data-i18n="shop">فروشگاه</span></a>
-        <a href="#featured"><span class="nav-link-icon" aria-hidden="true">✦</span><span data-i18n="specialOffers">پیشنهادهای ویژه</span></a>
         <a href="#discounts"><span class="nav-link-icon" aria-hidden="true">%</span><span data-i18n="discounts">تخفیف‌ها</span></a>
         <a href="#why-us"><span class="nav-link-icon" aria-hidden="true">◎</span><span data-i18n="whyNexora">چرا نکستورا؟</span></a>
         <a href="/about/"><span class="nav-link-icon" aria-hidden="true">✧</span><span data-i18n="about">درباره ما</span></a>
@@ -34,7 +33,7 @@
       </div>
     </div>
     <nav class="mobile-nav container" id="mobile-nav" aria-label="ناوبری موبایل">
-      <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#featured" data-i18n="specialOffers">پیشنهادهای ویژه</a><a href="#discounts" data-i18n="discounts">تخفیف‌ها</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a>
+      <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#discounts" data-i18n="discounts">تخفیف‌ها</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a>
     </nav>
   </header>
 
@@ -76,12 +75,12 @@
 
     <section class="campaign-banner container" id="campaign-banner" hidden aria-live="polite">
       <div class="campaign-mark" aria-hidden="true">%</div>
-      <div class="campaign-copy"><p class="eyebrow"><span></span> <span data-i18n="campaignEyebrow">کمپین فعال</span></p><h2 data-i18n="campaignTitle">یک کد، یک انتخاب بهتر.</h2><p><span data-i18n="campaignCodeHint">کد امروز:</span> <strong id="campaign-code" dir="ltr"></strong></p><small id="campaign-minimum"></small></div>
+      <div class="campaign-copy"><p class="eyebrow"><span></span> <span data-i18n="campaignEyebrow">کمپین فعال</span></p><h2 data-i18n="campaignTitle">یک کد، یک انتخاب بهتر.</h2><p><span data-i18n="campaignCodeHint">کد امروز:</span> <strong id="campaign-code" dir="ltr"></strong></p><small id="campaign-minimum"></small><small id="campaign-expiry" class="campaign-expiry" hidden></small></div>
       <button class="campaign-copy-button" id="campaign-copy" type="button"><span data-i18n="copyCode">کپی کد</span><span aria-hidden="true">⧉</span></button>
     </section>
 
     <section class="catalog container" id="catalog">
-      <div class="section-heading"><div><p class="eyebrow"><span></span> <span data-i18n="featuredCollection">مجموعه منتخب</span></p><h2 id="catalog-heading" data-i18n="betterDesk">برای میز کار بهتر</h2><p id="catalog-count" class="catalog-count" aria-live="polite"></p></div><a href="#catalog" class="text-link" id="catalog-reset"><span data-i18n="catalogExplore">مرور ویترین</span> <span>←</span></a></div>
+      <div class="section-heading"><div><p class="eyebrow"><span></span> <span data-i18n="featuredCollection">مجموعه منتخب</span></p><h2 id="catalog-heading" data-i18n="betterDesk">برای میز کار بهتر</h2><p id="catalog-count" class="catalog-count" aria-live="polite"></p><small id="catalog-collection-note" class="catalog-collection-note" hidden></small></div><a href="#catalog" class="text-link" id="catalog-reset"><span data-i18n="catalogExplore">مرور ویترین</span> <span>←</span></a></div>
       <div class="catalog-tools"><div class="category-filter" id="category-filter"><button class="category-filter-toggle" id="category-toggle" type="button" aria-expanded="false"><span class="filter-icon">☷</span><span data-i18n="categories">دسته‌بندی‌ها</span><span class="filter-chevron">⌄</span></button><div class="category-tabs" id="category-tabs" hidden></div></div><div class="search-box-wrap"><label class="search-box"><span aria-hidden="true">⌕</span><input id="product-search" type="search" data-i18n-placeholder="searchProducts" placeholder="جست‌وجوی محصول..." aria-label="جست‌وجوی محصول" autocomplete="off" aria-controls="search-suggestions" aria-autocomplete="list"></label><div class="search-suggestions" id="search-suggestions" role="listbox" hidden></div></div><label class="sort-box"><span data-i18n="sortBy">مرتب‌سازی</span><select id="product-sort"><option value="newest" data-i18n="sortNewest">جدیدترین</option><option value="price-low" data-i18n="sortPriceLow">ارزان‌ترین</option><option value="price-high" data-i18n="sortPriceHigh">گران‌ترین</option><option value="name" data-i18n="sortName">نام محصول</option></select></label></div>
       <div class="catalog-filter-row" id="catalog-filter-row"><span class="filter-row-label" data-i18n="quickFilters">فیلترهای سریع</span><button class="filter-chip" data-catalog-filter="discount" type="button" aria-pressed="false"><span class="filter-chip-mark">%</span><span data-i18n="onlyDiscounted">فقط تخفیف‌دارها</span></button><button class="filter-chip" data-catalog-filter="stock" type="button" aria-pressed="false"><span class="filter-chip-mark">✓</span><span data-i18n="onlyInStock">فقط موجودها</span></button><label class="price-filter"><span data-i18n="priceRange">بازه قیمت</span><select id="price-filter"><option value="all" data-i18n="priceAll">همه قیمت‌ها</option><option value="under-2m" data-i18n="priceUnder2">کمتر از ۲ میلیون</option><option value="2m-4m" data-i18n="price2to4">۲ تا ۴ میلیون</option><option value="over-4m" data-i18n="priceOver4">بیشتر از ۴ میلیون</option></select></label><button class="clear-filter-button" id="clear-catalog-filters" type="button" data-i18n="clearFilters" hidden>پاک کردن فیلترها</button></div>
       <div class="product-grid" id="product-grid" aria-live="polite"><div class="state-card loading-state"><span class="loader"></span><p data-i18n="loadingShowcase">در حال آماده‌سازی ویترین...</p></div></div>
@@ -158,7 +157,7 @@
   </aside>
 
   <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column"><h3 data-i18n="supportColumn">پشتیبانی</h3><a href="/account/" data-i18n="account">حساب کاربری</a><a href="/checkout/" data-i18n="checkoutTitle">تکمیل سفارش</a><a href="/contact/" data-i18n="faqLink">سؤالات متداول و راهنمای خرید</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span dir="ltr">nexorastore.zp@gmail.com</span><span dir="ltr">۰۲۱ ۴۳۶۵۸۷۹۱</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© ۲۰۲۶ Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
-  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/cart-nav.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/notifications.js' %}" defer></script><script src="{% static 'storefront/js/feedback.js' %}" defer></script><script src="{% static 'storefront/js/app.js' %}" defer></script>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/account-nav.js' %}" defer></script><script src="{% static 'storefront/js/cart-nav.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/notifications.js' %}" defer></script><script src="{% static 'storefront/js/feedback.js' %}" defer></script><script src="{% static 'storefront/js/app.js' %}" defer></script>
   <script src="{% static 'storefront/js/navigation.js' %}" defer></script>
 </body>
 </html>

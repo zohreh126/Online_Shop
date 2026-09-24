@@ -1,7 +1,6 @@
 (function () {
   const links = [
     { key: "shop", icon: "◈", href: () => window.location.pathname === "/" ? "#catalog" : "/" },
-    { key: "specialOffers", icon: "✦", href: () => window.location.pathname === "/" ? "#featured" : "/#featured" },
     { key: "discounts", icon: "%", href: () => window.location.pathname === "/" ? "#discounts" : "/discounts/" },
     { key: "whyNexora", icon: "◎", href: () => window.location.pathname === "/" ? "#why-us" : "/#why-us" },
     { key: "about", icon: "✧", href: () => "/about/" },
@@ -18,8 +17,17 @@
 
   function closeMenu(menu, button) {
     menu?.classList.remove("open");
+    menu?.setAttribute("aria-hidden", "true");
     button?.setAttribute("aria-expanded", "false");
     if (button) button.setAttribute("aria-label", t("openMenu"));
+  }
+
+  function bindMenuLinks(menu, button) {
+    menu.querySelectorAll("a").forEach((link) => {
+      if (link.dataset.navigationBound === "true") return;
+      link.dataset.navigationBound = "true";
+      link.addEventListener("click", () => closeMenu(menu, button));
+    });
   }
 
   function setup() {
@@ -39,6 +47,9 @@
       button.textContent = "☰";
       actions.append(button);
     }
+    button.setAttribute("aria-controls", "mobile-nav");
+    if (!button.hasAttribute("aria-expanded")) button.setAttribute("aria-expanded", "false");
+    if (!button.hasAttribute("aria-label")) button.setAttribute("aria-label", t("openMenu"));
 
     let menu = header.querySelector("#mobile-nav");
     if (!menu) {
@@ -52,16 +63,18 @@
     } else if (menu.dataset.navigationGenerated === "true") {
       renderGeneratedMenu(menu);
     }
+    if (!menu.hasAttribute("aria-hidden")) menu.setAttribute("aria-hidden", "true");
 
     if (button.dataset.navigationBound === "true") return;
     button.dataset.navigationBound = "true";
     button.addEventListener("click", (event) => {
       event.stopPropagation();
       const open = menu.classList.toggle("open");
+      menu.setAttribute("aria-hidden", String(!open));
       button.setAttribute("aria-expanded", String(open));
       button.setAttribute("aria-label", t(open ? "closeMenu" : "openMenu"));
     });
-    menu.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => closeMenu(menu, button)));
+    bindMenuLinks(menu, button);
     document.addEventListener("click", (event) => {
       if (!header.contains(event.target)) closeMenu(menu, button);
     });
@@ -75,9 +88,7 @@
     const menu = document.querySelector("#mobile-nav[data-navigation-generated]");
     if (menu) {
       renderGeneratedMenu(menu);
-      menu.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
-        closeMenu(menu, document.querySelector("#menu-toggle"));
-      }));
+      bindMenuLinks(menu, document.querySelector("#menu-toggle"));
     }
     const button = document.querySelector("#menu-toggle");
     if (button) button.setAttribute("aria-label", t(button.getAttribute("aria-expanded") === "true" ? "closeMenu" : "openMenu"));

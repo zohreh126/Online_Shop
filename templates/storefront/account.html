@@ -18,9 +18,9 @@
       <h1 id="account-title" data-i18n="loginTitle">ورود به حساب</h1>
       <p id="account-subtitle" class="account-subtitle" data-i18n="loginSubtitle">برای ادامه‌ی خرید وارد حساب کاربری‌ات شو.</p>
       <div id="account-alert" class="account-alert" hidden></div>
-      <form id="login-form" autocomplete="off">
+      <form id="login-form" autocomplete="on">
         <label><span data-i18n="usernameOrEmail">نام کاربری یا ایمیل</span><input name="identifier" required autocomplete="username"></label>
-        <label class="password-field"><span data-i18n="password">رمز عبور</span><span class="password-input-wrap"><input id="login-password" name="password" type="password" required autocomplete="off"><button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="نمایش رمز عبور" title="نمایش رمز عبور">◉</button></span></label>
+        <label class="password-field"><span data-i18n="password">رمز عبور</span><span class="password-input-wrap"><input id="login-password" name="password" type="password" required autocomplete="current-password"><button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="نمایش رمز عبور" title="نمایش رمز عبور">◉</button></span></label>
         <button class="primary-button account-submit" type="submit"><span data-i18n="requestLoginCode">دریافت کد ورود</span> <span>←</span></button>
       </form>
       <form id="login-otp-form" hidden>

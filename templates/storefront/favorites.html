@@ -19,6 +19,7 @@
         <button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button>
         <button class="language-button" data-language-toggle type="button">English</button>
         {% include "storefront/favorites-nav.html" %}
+        <span id="account-area"><a class="account-link" href="/account/" data-i18n="login">ورود</a></span>
         <a class="cart-button icon-action-button" href="/?cart=open" data-i18n-aria-label="cartIconLabel" data-i18n-title="cartIconLabel" aria-label="باز کردن سبد خرید" title="باز کردن سبد خرید"><span class="cart-icon" aria-hidden="true">🛒</span><span class="cart-label sr-only" data-i18n="cart">سبد خرید</span><b data-cart-count>۰</b></a>
         <a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a>
       </div>
@@ -43,6 +44,7 @@
   </main>
 
   <script src="{% static 'storefront/js/i18n.js' %}" defer></script>
+  <script src="{% static 'storefront/js/account-nav.js' %}" defer></script>
   <script src="{% static 'storefront/js/cart-nav.js' %}" defer></script>
   <script src="{% static 'storefront/js/favorites.js' %}" defer></script>
   <script src="{% static 'storefront/js/favorites-page.js' %}" defer></script>

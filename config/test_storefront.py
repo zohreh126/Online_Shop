@@ -20,6 +20,7 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/static/storefront/js/cart-nav.js")
         self.assertContains(response, "/static/storefront/css/app.css")
         self.assertContains(response, "/static/storefront/js/favorites.js")
+        self.assertContains(response, "/static/storefront/js/account-nav.js")
         self.assertContains(response, "/static/storefront/js/app.js")
         self.assertContains(response, 'id="compare-bar"')
         self.assertContains(response, 'id="compare-modal"')
@@ -54,6 +55,8 @@ class StorefrontPageTests(TestCase):
         navigation_source = (project_root / "static/storefront/js/navigation.js").read_text()
 
         self.assertIn("function renderGeneratedMenu", navigation_source)
+        self.assertIn('setAttribute("aria-expanded"', navigation_source)
+        self.assertIn('setAttribute("aria-hidden"', navigation_source)
         self.assertIn("nexora-language-changed", navigation_source)
         self.assertIn("nexora-logged-out", (project_root / "static/storefront/js/cart-nav.js").read_text())
         self.assertIn("cartSignedOut", (project_root / "static/storefront/js/app.js").read_text())
@@ -71,6 +74,8 @@ class StorefrontPageTests(TestCase):
             response = self.client.get(reverse(route_name))
             self.assertEqual(response.status_code, 200, route_name)
             self.assertContains(response, "/static/storefront/js/navigation.js", msg_prefix=route_name)
+            if route_name not in {"storefront-account", "storefront-profile"}:
+                self.assertContains(response, "/static/storefront/js/account-nav.js", msg_prefix=route_name)
 
     def test_catalog_search_has_localized_suggestions_and_keyboard_navigation(self):
         project_root = Path(__file__).resolve().parents[1]
@@ -223,6 +228,7 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/static/storefront/js/account.js")
         self.assertContains(response, "/static/storefront/js/password-toggle.js")
         self.assertContains(response, 'data-password-toggle="register-password"')
+        self.assertContains(response, 'autocomplete="current-password"')
 
     def test_legacy_dashboard_route_redirects_to_unified_profile_orders(self):
         response = self.client.get(reverse("storefront-dashboard"))
@@ -271,6 +277,13 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/profile.js")
         self.assertContains(response, "/static/storefront/js/password-toggle.js")
+
+    def test_home_page_exposes_campaign_expiry_slot(self):
+        response = self.client.get(reverse("storefront-home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="campaign-banner"')
+        self.assertContains(response, 'id="campaign-expiry"')
 
     @override_settings(DEBUG=False)
     def test_custom_error_pages_are_configured(self):

@@ -3,6 +3,7 @@ const state = { products: [], categories: [], category: "", search: "", sort: "n
 let offerSpotlightProducts = [];
 let offerSpotlightIndex = 0;
 let offerSpotlightTimer = null;
+let campaignExpiryTimer = null;
 const expandedCategorySlugs = new Set();
 const COMPARE_STORAGE_KEY = "nexora-compare";
 const RECENT_STORAGE_KEY = "nexora-recently-viewed";
@@ -41,38 +42,32 @@ async function loadCampaign() {
   try {
     const payload = await getJSON("campaigns/active/");
     const campaign = payload.campaign;
-    if (!campaign) { banner.hidden = true; return; }
+    if (!campaign) { banner.hidden = true; window.clearInterval(campaignExpiryTimer); return; }
     banner.hidden = false;
     document.querySelector("#campaign-code").textContent = campaign.code;
     document.querySelector("#campaign-minimum").textContent = Number(campaign.minimum_order_amount || 0) > 0
       ? formatMessage("campaignMinimum", { amount: money(campaign.minimum_order_amount) })
       : t("campaignNoMinimum");
+    const expiry = document.querySelector("#campaign-expiry");
+    const endsAt = Date.parse(campaign.ends_at || "");
+    if (expiry && Number.isFinite(endsAt)) {
+      const updateExpiry = () => {
+        const remaining = endsAt - Date.now();
+        expiry.hidden = remaining <= 0;
+        if (remaining > 0) expiry.textContent = formatMessage("campaignEndsIn", { time: discountCountdownText(remaining) });
+      };
+      window.clearInterval(campaignExpiryTimer);
+      updateExpiry();
+      campaignExpiryTimer = window.setInterval(updateExpiry, 1000);
+    } else if (expiry) {
+      expiry.hidden = true;
+    }
     document.querySelector("#campaign-copy").onclick = async () => {
       try { await navigator.clipboard.writeText(campaign.code); } catch (error) { /* clipboard may be unavailable */ }
       showToast(t("campaignCopied"));
     };
   } catch (error) {
     banner.hidden = true;
-  }
-}
-
-async function loadAccountState() {
-  const account = document.querySelector("#account-area");
-  try {
-    const profile = await getJSON("auth/profile/");
-    account.innerHTML = `<a class="account-name" href="/profile/">${profile.first_name || profile.username}</a><button class="account-link account-logout" id="account-logout" type="button">${t("logout")}</button>`;
-    document.querySelector("#account-logout").addEventListener("click", async () => {
-      try {
-        await sendJSON("auth/logout/", "POST");
-        account.innerHTML = `<a class="account-link" href="/account/">${t("login")}</a>`;
-        window.NexoraCartNav?.renderCount(0);
-        window.NexoraFavorites?.sync([]);
-        window.dispatchEvent(new CustomEvent("nexora-logged-out"));
-        showToast(t("loggedOut"));
-      } catch (error) { showToast(error.message); }
-    });
-  } catch (error) {
-    account.innerHTML = `<a class="account-link" href="/account/">${t("login")}</a>`;
   }
 }
 
@@ -591,15 +586,24 @@ function renderProducts() {
     const matchesStock = !state.onlyInStock || product.is_in_stock;
     return matchesCategory && matchesSearch && matchesDiscount && matchesStock && matchesPriceBand(product);
   });
-  const sorted = [...filtered].sort((a, b) => {
+  let sorted = [...filtered].sort((a, b) => {
     if (state.collection === "editor") return featuredScore(b) - featuredScore(a);
     if (state.sort === "price-low") return Number(a.final_price) - Number(b.final_price);
     if (state.sort === "price-high") return Number(b.final_price) - Number(a.final_price);
     if (state.sort === "name") return productName(a).localeCompare(productName(b), window.NexoraI18n?.current() === "en" ? "en" : "fa");
     return new Date(b.created_at || 0) - new Date(a.created_at || 0);
   });
+  if (state.collection === "editor") {
+    const curated = sorted.filter((product) => (
+      product.is_in_stock
+      && (Number(product.discount_amount || 0) > 0 || Number(product.rating_average || 0) >= 4 || Number(product.rating_count || 0) > 0)
+    ));
+    sorted = (curated.length >= 4 ? curated : sorted).slice(0, 8);
+  }
   if (!sorted.length) {
     document.querySelector("#catalog-count").textContent = formatMessage("productCount", { count: localizedNumber(0) });
+    const emptyCollectionNote = document.querySelector("#catalog-collection-note");
+    if (emptyCollectionNote) emptyCollectionNote.hidden = true;
     renderCatalogPagination(0);
     grid.innerHTML = `<div class="state-card"><span class="state-icon">⌕</span><h3>${t("noProducts")}</h3><p>${t("changeFilter")}</p></div>`;
     renderRecentlyViewed();
@@ -607,6 +611,11 @@ function renderProducts() {
     return;
   }
   document.querySelector("#catalog-count").textContent = formatMessage("productCount", { count: localizedNumber(sorted.length) });
+  const collectionNote = document.querySelector("#catalog-collection-note");
+  if (collectionNote) {
+    collectionNote.hidden = state.collection !== "editor";
+    collectionNote.textContent = state.collection === "editor" ? t("editorCollectionHint") : "";
+  }
   const start = (state.page - 1) * CATALOG_PAGE_SIZE;
   const pageProducts = sorted.slice(start, start + CATALOG_PAGE_SIZE);
   renderCatalogPagination(sorted.length);
@@ -1079,7 +1088,6 @@ updateThemeButton();
 window.setInterval(updateDiscountCountdowns, 1000);
 renderCatalogFilters();
 refreshCart();
-loadAccountState();
 loadCatalog().then(() => {
   const pendingToast = sessionStorage.getItem("nexora-toast");
   if (pendingToast) {
@@ -1098,7 +1106,6 @@ window.addEventListener("nexora-language-changed", () => {
   renderHeroOrbit();
   renderRecentlyViewed();
   refreshCart();
-  loadAccountState();
   renderCatalogFilters();
   renderSearchSuggestions();
   updateDiscountCountdowns();
