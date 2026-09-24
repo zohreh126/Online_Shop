@@ -220,3 +220,14 @@ class AdminPermissionTests(TestCase):
         self.assertFalse(self.product_manager.is_active)
         self.assertFalse(self.product_manager.is_staff)
         self.assertEqual(self.product_manager.role, "")
+
+    def test_customer_admin_single_delete_action_deactivates_account(self):
+        customer_admin = self.admin_for(Customer)
+        request = self.request_for(self.superuser)
+
+        customer_admin.delete_model(request, self.product_manager)
+        self.product_manager.refresh_from_db()
+
+        self.assertFalse(self.product_manager.is_active)
+        self.assertFalse(self.product_manager.is_staff)
+        self.assertEqual(self.product_manager.role, "")

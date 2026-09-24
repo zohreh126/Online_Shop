@@ -158,7 +158,13 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
             obj.groups.add(group)
 
     def delete_model(self, request, obj):
-        obj.delete()
+        if obj.is_superuser:
+            return
+        type(obj).objects.filter(pk=obj.pk).update(
+            is_active=False,
+            is_staff=False,
+            role="",
+        )
 
     def delete_queryset(self, request, queryset):
         queryset.filter(is_superuser=False).update(
