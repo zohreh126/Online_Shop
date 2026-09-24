@@ -29,7 +29,7 @@
     const root = document.createElement("div");
     root.className = "notifications-root";
     root.dataset.notificationRoot = "true";
-    root.innerHTML = `<button class="notification-button" id="notification-toggle" type="button" aria-expanded="false"><span aria-hidden="true">♢</span><b data-notification-count hidden>۰</b></button><div class="notifications-panel" id="notifications-panel" hidden><div class="notifications-heading"><div><span class="notifications-kicker">NEXORA</span><strong data-notifications-title>${t("notifications")}</strong></div><button class="notifications-read-all" id="notifications-read-all" type="button">${t("markAllRead")}</button></div><div class="notifications-list" id="notifications-list"></div></div>`;
+    root.innerHTML = `<button class="notification-button" id="notification-toggle" type="button" aria-expanded="false" aria-label="${t("notifications")}" title="${t("notifications")}"><svg class="notification-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 9.6a6 6 0 0 0-12 0c0 6.1-2.4 7.2-2.4 8.4h16.8C20.4 16.8 18 15.7 18 9.6Z"/><path d="M9.7 20.2h4.6"/><path d="M12 2.1v1.2"/><path d="m4.1 4.2.9.9"/><path d="m19.9 4.2-.9.9"/><path d="M20.4 12.2h1.2"/></svg><b data-notification-count hidden>۰</b></button><div class="notifications-panel" id="notifications-panel" hidden><div class="notifications-heading"><div><span class="notifications-kicker">NEXORA</span><strong data-notifications-title>${t("notifications")}</strong></div><button class="notifications-read-all" id="notifications-read-all" type="button">${t("markAllRead")}</button></div><div class="notifications-list" id="notifications-list"></div></div>`;
     host.prepend(root);
     root.querySelector("#notification-toggle").addEventListener("click", () => {
       const panel = root.querySelector("#notifications-panel");
@@ -54,6 +54,9 @@
     const count = root.querySelector("[data-notification-count]");
     count.hidden = unread === 0;
     count.textContent = new Intl.NumberFormat(locale()).format(unread);
+    const toggle = root.querySelector("#notification-toggle");
+    toggle.setAttribute("aria-label", t("notifications"));
+    toggle.title = t("notifications");
     root.querySelector("[data-notifications-title]").textContent = t("notifications");
     root.querySelector("#notifications-read-all").textContent = t("markAllRead");
     const list = root.querySelector("#notifications-list");

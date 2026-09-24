@@ -201,6 +201,25 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/static/storefront/js/favorites.js")
         self.assertContains(response, "/static/storefront/js/product-detail.js")
 
+    def test_product_detail_actions_keep_title_and_favorite_separate(self):
+        project_root = Path(__file__).resolve().parents[1]
+        source = (project_root / "static/storefront/js/product-detail.js").read_text()
+        css_source = (project_root / "static/storefront/css/app.css").read_text()
+
+        self.assertIn("product-detail-title-row", source)
+        self.assertIn('class="heart-button detail-heart"', source)
+        self.assertIn(".product-detail-title-row .detail-heart", css_source)
+        self.assertIn(".detail-add { display:inline-grid", css_source)
+
+    def test_notifications_use_accessible_custom_glyph(self):
+        project_root = Path(__file__).resolve().parents[1]
+        source = (project_root / "static/storefront/js/notifications.js").read_text()
+        css_source = (project_root / "static/storefront/css/app.css").read_text()
+
+        self.assertIn("notification-glyph", source)
+        self.assertIn("aria-label=\"${t(\"notifications\")}\"", source)
+        self.assertIn(".notification-glyph", css_source)
+
     def test_product_review_wall_loads_all_api_pages(self):
         source = (Path(__file__).resolve().parents[1] / "static/storefront/js/product-detail.js").read_text()
 

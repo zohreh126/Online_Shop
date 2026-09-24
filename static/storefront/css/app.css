@@ -332,7 +332,11 @@ body { overflow-x:hidden; background-image:radial-gradient(circle at 8% 18%, rgb
 .contact-note p { color:var(--muted); font-size:11px; line-height:1.9; margin:0; }
 .contact-note .primary-button { margin:0 0 0 auto; white-space:nowrap; }
 html[dir="ltr"] .footer-column a:hover { transform:translateX(3px); }
-html[dir="ltr"] .footer-contact span { text-align:end; }
+html[dir="rtl"] .footer-contact { justify-items:start; text-align:right; }
+html[dir="rtl"] .footer-contact span { display:block; width:100%; text-align:right; unicode-bidi:isolate; }
+html[dir="ltr"] .footer-contact { justify-items:start; text-align:left; }
+html[dir="ltr"] .footer-contact span,
+html[dir="ltr"] .footer-contact span:last-child { display:block; width:100%; direction:ltr; text-align:left; unicode-bidi:isolate; }
 html[dir="ltr"] .about-hero-copy,html[dir="ltr"] .contact-hero > div:first-child { text-align:left; }
 html[dir="ltr"] .about-monogram span { margin:-78px 0 0 -90px; }
 html[dir="ltr"] .contact-note .primary-button { margin-left:auto; margin-right:0; }
@@ -694,6 +698,13 @@ html[dir="ltr"] .drawer-header .eyebrow { flex-direction:row; }
 .dark .favorite-nav-link { background:#443851; color:#fff; }
 .dark .favorite-nav-link b { border-color:#443851; }
 .detail-heart { left:auto; right:auto; inset-inline-start:auto; inset-inline-end:20px; top:20px; width:44px; height:44px; z-index:2; box-shadow:0 8px 20px rgba(75,55,100,.12); }
+.product-detail-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }
+.product-detail-title-row > div { min-width:0; flex:1 1 auto; }
+.product-detail-title-row .eyebrow { margin-bottom:0; }
+.product-detail-title-row h1 { margin-top:18px; }
+.product-detail-title-row .detail-heart { position:static; flex:0 0 46px; width:46px; height:46px; margin-top:8px; }
+html[dir="rtl"] .product-detail-title-row .detail-heart,
+html[dir="ltr"] .product-detail-title-row .detail-heart { inset-inline:auto; }
 .favorite-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:22px; }
 .favorite-card { display:grid; grid-template-columns:120px minmax(0,1fr); gap:16px; overflow:hidden; border:1px solid var(--line); background:var(--card); }
 .favorite-card-visual { min-height:150px; display:grid; place-items:center; overflow:hidden; background:var(--soft); }
@@ -1173,6 +1184,8 @@ html[dir="ltr"] .hero-copy .eyebrow,html[dir="ltr"] .section-heading .eyebrow { 
 
 .detail-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:24px; }
 .detail-actions .detail-add { margin-top:0; }
+.detail-add { display:inline-grid; place-items:center; width:52px; min-width:52px; height:52px; padding:0; border-radius:15px; justify-content:center; }
+.detail-add .button-icon { margin:0; font-size:20px; }
 .watch-button { min-height:48px; gap:9px; border:1px solid rgba(113,80,180,.24); cursor:pointer; }
 .watch-button.is-active { color:#3f7651; border-color:rgba(77,138,92,.3); background:#edf8ef; }
 .watch-button.is-loading { opacity:.72; cursor:wait; }
@@ -1798,6 +1811,7 @@ html[dir="ltr"] .profile-nav button::before { inset-inline-start: auto; inset-in
 
 .notifications-root { position: relative; z-index: 30; flex: 0 0 auto; }
 .notification-button { position: relative; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; color: var(--accent-strong); background: var(--card); font-size: 20px; transition: transform .2s ease, box-shadow .2s ease, color .2s ease; }
+.notification-glyph { width:19px; height:19px; display:block; }
 .notification-button:hover { transform: translateY(-2px); color: var(--coral); box-shadow: 0 10px 20px rgba(75,55,100,.12); }
 .notification-button b { position: absolute; top: -5px; inset-inline-end: -5px; display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 3px; border: 2px solid var(--card); border-radius: 50%; color: #fff; background: var(--coral); font-size: 9px; line-height: 1; }
 .notifications-panel { position: absolute; inset-inline-end: 0; top: calc(100% + 12px); width: min(360px, calc(100vw - 30px)); overflow: hidden; border: 1px solid rgba(113,80,180,.18); border-radius: 20px; background: color-mix(in srgb, var(--card) 94%, transparent); box-shadow: 0 24px 55px rgba(39,36,45,.18); backdrop-filter: blur(18px); }
