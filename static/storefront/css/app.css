@@ -393,6 +393,7 @@ html[dir="ltr"] .contact-note .primary-button { margin-left:auto; margin-right:0
 .feedback-wall-heading > strong { flex:0 0 auto; color:var(--accent-strong); font-size:11px; white-space:nowrap; }
 .feedback-list { display:grid; gap:10px; max-height:390px; overflow:auto; padding:17px 3px 2px 0; }
 .feedback-card { padding:14px; border:1px solid var(--line); border-radius:14px; background:var(--card); }
+.feedback-card:first-child { animation:feedback-card-in .38s ease both; }
 .feedback-card-head,.feedback-author { display:flex; align-items:center; }
 .feedback-card-head { justify-content:space-between; gap:10px; }
 .feedback-author { min-width:0; gap:9px; }
@@ -2134,6 +2135,11 @@ body { overflow-x: hidden; }
   .feedback-section,
   .feature-banner { scroll-margin-top: 98px; }
   .product-detail-art > img { padding: 24px; }
+}
+
+@keyframes feedback-card-in {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {

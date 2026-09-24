@@ -62,7 +62,7 @@ async function loadFeedback() {
     let pageCount = 0;
 
     while (nextUrl && pageCount < 100) {
-      const response = await fetch(nextUrl, { credentials: "same-origin" });
+      const response = await fetch(nextUrl, { credentials: "same-origin", cache: "no-store" });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error("feedback-request-failed");
 
@@ -154,6 +154,11 @@ async function submitFeedback(event) {
         .filter((value) => typeof value === "string")
         .join(" ");
       throw new Error(errors || feedbackText("feedbackError"));
+    }
+    if (data?.id) {
+      feedbackItems = [data, ...feedbackItems.filter((item) => Number(item.id) !== Number(data.id))];
+      feedbackLoaded = true;
+      renderFeedbackList();
     }
     try { localStorage.setItem(FEEDBACK_STORAGE_KEY, "1"); } catch (error) { /* best effort */ }
     lockFeedbackForm();
