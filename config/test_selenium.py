@@ -23,6 +23,13 @@ from products.models import Category, Product
 )
 @override_settings(
     EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    # A browser smoke suite intentionally makes many requests in a few
+    # seconds. Keep production throttling enabled while preventing the
+    # shared test client IP from masking UI failures with HTTP 429 responses.
+    REST_FRAMEWORK={
+        **settings.REST_FRAMEWORK,
+        "DEFAULT_THROTTLE_CLASSES": (),
+    },
 )
 class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
     """A real browser smoke test for the guest shopping journey."""
