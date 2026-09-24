@@ -140,6 +140,20 @@ class AdminPermissionTests(TestCase):
         self.assertNotIn(self.supervisor.pk, queryset.values_list("pk", flat=True))
         self.assertNotIn(self.operator.pk, queryset.values_list("pk", flat=True))
 
+    def test_inactive_customers_are_not_listed_in_customer_admin(self):
+        archived = Customer.objects.create_user(
+            username="archived-shopper",
+            email="archived-shopper@example.com",
+            password="SecurePass#2026",
+        )
+        archived.delete()
+
+        customer_admin = self.admin_for(Customer)
+        request = self.request_for(self.superuser)
+        queryset = customer_admin.get_queryset(request)
+
+        self.assertNotIn(archived.pk, queryset.values_list("pk", flat=True))
+
     def test_admin_dashboard_uses_nexora_control_center(self):
         self.client.force_login(self.superuser)
 

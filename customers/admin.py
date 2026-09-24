@@ -37,7 +37,6 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
 
     list_filter = (
         "is_staff",
-        "is_active",
         "is_superuser",
     )
 
@@ -63,6 +62,7 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
         return super().get_queryset(request).filter(
             is_staff=False,
             is_superuser=False,
+            is_active=True,
         )
 
     fieldsets = (

@@ -135,6 +135,12 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
 
+# Customer identity fields use case-insensitive conditional uniqueness so a
+# soft-deleted account no longer reserves its username or email. Django's
+# built-in auth.W004 check only understands unconditional field uniqueness;
+# the authentication backend above explicitly filters active customers.
+SILENCED_SYSTEM_CHECKS = ("auth.W004",)
+
 AUTH_COOKIE_ACCESS = env("AUTH_COOKIE_ACCESS", default="access_token")
 AUTH_COOKIE_REFRESH = env("AUTH_COOKIE_REFRESH", default="refresh_token")
 AUTH_COOKIE_SECURE = env.bool("AUTH_COOKIE_SECURE", default=False)

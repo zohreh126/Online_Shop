@@ -4,6 +4,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.functions import Lower
 from django.utils import timezone
 
 from core.models import TimeStampedModel
@@ -19,7 +20,8 @@ class CustomerManager(BaseUserManager):
         if not email:
             raise ValueError("Email is required.")
 
-        email = self.normalize_email(email)
+        username = self.model.normalize_username(str(username).strip())
+        email = self.normalize_email(email).strip().lower()
 
         user = self.model(
             username=username,
@@ -59,11 +61,9 @@ class Customer(AbstractBaseUser, PermissionsMixin):
 
     username = models.CharField(
         max_length=150,
-        unique=True,
     )
 
     email = models.EmailField(
-        unique=True,
     )
 
     first_name = models.CharField(
@@ -109,6 +109,18 @@ class Customer(AbstractBaseUser, PermissionsMixin):
         ordering = ["-date_joined"]
         verbose_name = "Customer"
         verbose_name_plural = "Customers"
+        constraints = [
+            models.UniqueConstraint(
+                Lower("username"),
+                condition=models.Q(is_active=True),
+                name="unique_active_customer_username",
+            ),
+            models.UniqueConstraint(
+                Lower("email"),
+                condition=models.Q(is_active=True),
+                name="unique_active_customer_email",
+            ),
+        ]
 
     def __str__(self):
         return self.username

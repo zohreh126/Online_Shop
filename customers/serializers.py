@@ -55,10 +55,17 @@ class CustomerRegistrationSerializer(serializers.ModelSerializer):
                 "Username cannot be empty."
             )
 
+        if Customer.objects.filter(username__iexact=value, is_active=True).exists():
+            raise serializers.ValidationError("A customer with this username already exists.")
+
         return value
 
     def validate_email(self, value):
-        return normalize("NFC", value).strip().lower()
+        value = normalize("NFC", value).strip().lower()
+        if Customer.objects.filter(email__iexact=value, is_active=True).exists():
+            raise serializers.ValidationError("A customer with this email already exists.")
+
+        return value
 
     def validate_date_of_birth(self, value):
         try:
@@ -126,10 +133,30 @@ class CustomerProfileUpdateSerializer(serializers.ModelSerializer):
         fields = ("username", "email", "first_name", "last_name", "phone_number", "date_of_birth")
 
     def validate_username(self, value):
-        return normalize("NFC", value).strip()
+        value = normalize("NFC", value).strip()
+        queryset = Customer.objects.filter(
+            username__iexact=value,
+            is_active=True,
+        )
+        if self.instance is not None:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise serializers.ValidationError("A customer with this username already exists.")
+
+        return value
 
     def validate_email(self, value):
-        return normalize("NFC", value).strip().lower()
+        value = normalize("NFC", value).strip().lower()
+        queryset = Customer.objects.filter(
+            email__iexact=value,
+            is_active=True,
+        )
+        if self.instance is not None:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise serializers.ValidationError("A customer with this email already exists.")
+
+        return value
 
     def validate_date_of_birth(self, value):
         try:

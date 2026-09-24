@@ -153,6 +153,33 @@ class CookieJWTAuthAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["user"]["email"], "authuser@example.com")
 
+    def test_login_ignores_soft_deleted_duplicate_identity(self):
+        archived = Customer.objects.create_user(
+            username="archived-login",
+            email="login-reuse@example.com",
+            password="OldPass#2026",
+        )
+        archived.delete()
+        active = Customer.objects.create_user(
+            username="active-login",
+            email="login-reuse@example.com",
+            password="SecurePass#2026",
+        )
+
+        csrf_token = self.get_csrf_token()
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+        response = self.client.post(
+            self.login_url,
+            {
+                "identifier": active.email,
+                "password": "SecurePass#2026",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["user"]["id"], active.pk)
+
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_two_step_login_sends_otp_and_sets_cookies_after_verification(self):
         csrf_token = self.get_csrf_token()

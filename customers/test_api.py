@@ -84,6 +84,31 @@ class CustomerAuthAPITests(APITestCase):
         )
         self.assertIn("username", response.data)
 
+    def test_registration_allows_email_reuse_after_soft_delete(self):
+        archived = Customer.objects.create_user(
+            username="archived-customer",
+            email="reusable@example.com",
+            password="SecurePass#2026",
+        )
+        archived.delete()
+
+        response = self.client.post(
+            reverse("customer-register"),
+            {
+                "username": "new-customer",
+                "email": "reusable@example.com",
+                "password": "SecurePass#2026",
+                "password_confirm": "SecurePass#2026",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            Customer.objects.filter(email="reusable@example.com", is_active=True).count(),
+            1,
+        )
+
     def test_profile_requires_authentication(self):
         response = self.client.get(
             reverse("customer-profile")

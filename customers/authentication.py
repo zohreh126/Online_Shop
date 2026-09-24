@@ -21,12 +21,13 @@ class CustomerAuthenticationBackend(BaseBackend):
         customer_model = get_user_model()
         customer = (
             customer_model.objects.filter(
-                Q(username__iexact=identifier) | Q(email__iexact=identifier)
+                Q(username__iexact=identifier) | Q(email__iexact=identifier),
+                is_active=True,
             )
             .first()
         )
 
-        if customer and customer.check_password(password) and customer.is_active:
+        if customer and customer.check_password(password):
             return customer
 
         return None
@@ -34,7 +35,7 @@ class CustomerAuthenticationBackend(BaseBackend):
     def get_user(self, user_id):
         customer_model = get_user_model()
         try:
-            return customer_model.objects.get(pk=user_id)
+            return customer_model.objects.get(pk=user_id, is_active=True)
         except customer_model.DoesNotExist:
             return None
 
