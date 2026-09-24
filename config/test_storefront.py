@@ -89,6 +89,15 @@ class StorefrontPageTests(TestCase):
         self.assertIn("searchNoResults", i18n_source)
         self.assertIn("const productDescriptions", i18n_source)
 
+    def test_catalog_uses_twelve_products_per_page(self):
+        project_root = Path(__file__).resolve().parents[1]
+        app_source = (project_root / "static/storefront/js/app.js").read_text()
+        home_template = (project_root / "templates/storefront/index.html").read_text()
+
+        self.assertIn("const CATALOG_PAGE_SIZE = 12;", app_source)
+        self.assertIn('id="catalog-pagination"', home_template)
+        self.assertIn("function renderCatalogPagination", app_source)
+
     def test_product_cards_expose_quick_view_actions(self):
         app_source = (Path(__file__).resolve().parents[1] / "static/storefront/js/app.js").read_text()
 
