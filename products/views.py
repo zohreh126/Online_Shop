@@ -37,12 +37,18 @@ class ActiveCampaignView(APIView):
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request):
-        campaign = (
-            DiscountCode.objects.filter(customer__isnull=True, is_active=True)
-            .order_by("-created_at")
-            .first()
+        campaign = next(
+            (
+                candidate
+                for candidate in DiscountCode.objects.filter(
+                    customer__isnull=True,
+                    is_active=True,
+                ).order_by("-created_at")[:50]
+                if candidate.is_valid_now
+            ),
+            None,
         )
-        if campaign is None or not campaign.is_valid_now:
+        if campaign is None:
             return Response({"campaign": None}, status=status.HTTP_200_OK)
         return Response(
             {

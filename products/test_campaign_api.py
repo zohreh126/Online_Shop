@@ -56,3 +56,21 @@ class ActiveCampaignAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNone(response.data["campaign"])
+
+    def test_campaign_endpoint_skips_an_expired_latest_code(self):
+        DiscountCode.objects.create(
+            code="OLDERACTIVE",
+            discount_type="percentage",
+            value=10,
+        )
+        DiscountCode.objects.create(
+            code="LATESTEXPIRED",
+            discount_type="percentage",
+            value=20,
+            ends_at=timezone.now() - timedelta(minutes=1),
+        )
+
+        response = self.client.get(reverse("active-campaign"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["campaign"]["code"], "OLDERACTIVE")
