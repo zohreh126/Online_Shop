@@ -130,6 +130,16 @@ class AdminPermissionTests(TestCase):
 
         self.assertNotIn(self.superuser.pk, queryset.values_list("pk", flat=True))
 
+    def test_staff_accounts_are_not_listed_as_storefront_customers(self):
+        customer_admin = self.admin_for(Customer)
+        request = self.request_for(self.superuser)
+
+        queryset = customer_admin.get_queryset(request)
+
+        self.assertNotIn(self.product_manager.pk, queryset.values_list("pk", flat=True))
+        self.assertNotIn(self.supervisor.pk, queryset.values_list("pk", flat=True))
+        self.assertNotIn(self.operator.pk, queryset.values_list("pk", flat=True))
+
     def test_admin_dashboard_uses_nexora_control_center(self):
         self.client.force_login(self.superuser)
 

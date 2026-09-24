@@ -54,8 +54,16 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
     inlines = [AddressInline]
 
     def get_queryset(self, request):
-        """Keep the root administrator out of the customer directory."""
-        return super().get_queryset(request).exclude(is_superuser=True)
+        """Show only storefront customers in the customer directory.
+
+        Staff accounts have their own administrative identity and must not be
+        counted or presented as ordinary shoppers. The dashboard already
+        exposes role-aware operations for those accounts.
+        """
+        return super().get_queryset(request).filter(
+            is_staff=False,
+            is_superuser=False,
+        )
 
     fieldsets = (
         (None, {
