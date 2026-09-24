@@ -10,6 +10,8 @@ class StorefrontPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "NEXORA")
+        self.assertContains(response, 'class="storefront-home"')
+        self.assertContains(response, "ambient-art-top")
         self.assertContains(response, "product-grid")
         self.assertContains(response, "cart-drawer")
         self.assertContains(response, 'class="favorite-nav-link"')

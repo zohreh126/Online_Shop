@@ -1851,6 +1851,31 @@ html[dir="ltr"] .notification-item:hover { transform: translateX(2px); }
    distracting. */
 body { position: relative; isolation: isolate; overflow-x: hidden; background: radial-gradient(circle at 12% 8%, rgba(155,123,210,.12), transparent 25%), radial-gradient(circle at 90% 24%, rgba(239,156,131,.11), transparent 23%), var(--paper); }
 body::before { content: ""; position: fixed; z-index: -2; inset: 0; pointer-events: none; opacity: .55; background-image: linear-gradient(rgba(113,80,180,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(113,80,180,.035) 1px, transparent 1px); background-size: 42px 42px; mask-image: linear-gradient(to bottom, black, transparent 75%); }
+main.storefront-home { position:relative; isolation:isolate; overflow:clip; }
+main.storefront-home::before,
+main.storefront-home::after { content:""; position:absolute; z-index:-2; pointer-events:none; border-radius:50%; filter:blur(34px); opacity:.22; }
+main.storefront-home::before { width:420px; height:420px; inset-inline-start:-220px; top:620px; background:radial-gradient(circle,rgba(155,123,210,.5),rgba(155,123,210,0) 70%); }
+main.storefront-home::after { width:360px; height:360px; inset-inline-end:-160px; top:1380px; background:radial-gradient(circle,rgba(239,156,131,.46),rgba(239,156,131,0) 70%); }
+.ambient-art { position:absolute; z-index:-1; pointer-events:none; opacity:.34; filter:blur(.15px); }
+.ambient-art-top { width:330px; height:260px; inset-inline-end:-42px; top:210px; transform:rotate(10deg); }
+.ambient-art-middle { width:270px; height:230px; inset-inline-start:-80px; top:1030px; transform:rotate(-12deg); }
+.ambient-art-bottom { width:360px; height:270px; inset-inline-end:-95px; top:2050px; transform:rotate(8deg); }
+.ambient-piece { position:absolute; display:block; border:1px solid rgba(113,80,180,.16); background:linear-gradient(135deg,rgba(155,123,210,.1),rgba(239,156,131,.08)); box-shadow:0 20px 50px rgba(113,80,180,.08); }
+.ambient-piece-a { width:150px; height:150px; border-radius:43% 57% 61% 39%; inset-inline-end:34px; top:22px; transform:rotate(18deg); }
+.ambient-piece-b { width:96px; height:96px; border-radius:50% 42% 58% 48%; inset-inline-start:15px; bottom:18px; border-color:rgba(239,156,131,.18); transform:rotate(-23deg); }
+.ambient-piece-c { width:62px; height:62px; border-radius:18px; inset-inline-end:2px; bottom:4px; background:rgba(239,156,131,.08); transform:rotate(28deg); }
+.ambient-art-middle .ambient-piece-a { width:170px; height:106px; border-radius:50%; border-color:rgba(239,156,131,.14); transform:rotate(25deg); }
+.ambient-art-middle .ambient-piece-b { width:74px; height:74px; border-radius:24px; border-color:rgba(113,80,180,.2); transform:rotate(35deg); }
+.ambient-art-bottom .ambient-piece-a { width:210px; height:122px; border-radius:50%; transform:rotate(-17deg); }
+.ambient-art-bottom .ambient-piece-b { width:112px; height:112px; inset-inline-start:35px; top:8px; border-radius:38% 62% 48% 52%; }
+.ambient-art-bottom .ambient-piece-c { width:48px; height:48px; inset-inline-end:18px; bottom:24px; }
+@keyframes nexora-ambient-drift { 0%,100% { transform:translate3d(0,0,0) rotate(10deg); } 50% { transform:translate3d(0,-8px,0) rotate(13deg); } }
+.ambient-art-top { animation:nexora-ambient-drift 12s ease-in-out infinite; }
+.ambient-art-middle { animation:nexora-ambient-drift 15s ease-in-out -4s infinite reverse; }
+.ambient-art-bottom { animation:nexora-ambient-drift 17s ease-in-out -8s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .ambient-art-top,.ambient-art-middle,.ambient-art-bottom { animation:none; }
+}
 .announcement { position: relative; overflow: hidden; background: linear-gradient(100deg, #2b2337, #4c3865 55%, #7150b4); box-shadow: 0 5px 22px rgba(48,40,61,.15); }
 .announcement::after { content: ""; position: absolute; width: 180px; height: 180px; inset-inline-end: 9%; top: -135px; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; }
 .site-header { background: color-mix(in srgb, var(--paper) 88%, transparent); box-shadow: 0 10px 32px rgba(75,55,100,.06); }
