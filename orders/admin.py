@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 
 from core.admin_permissions import RolePermissionAdminMixin
 
@@ -62,11 +63,11 @@ class OrderAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
         "updated_at",
     )
     fieldsets = (
-        ("Order", {"fields": ("order_number", "customer", "status", "created_at", "updated_at")}),
-        ("Payment", {"fields": ("payment_method", "payment_status", "payment_reference", "paid_at")}),
-        ("Totals", {"fields": ("currency", "subtotal", "product_discount_amount", "coupon_discount_amount", "shipping_amount", "total_amount", "discount_code", "discount_code_text")}),
-        ("Shipping", {"fields": ("shipping_title", "shipping_province", "shipping_city", "shipping_address_line", "shipping_postal_code", "shipping_recipient_name", "shipping_recipient_phone")}),
-        ("Notes", {"fields": ("notes", "cancelled_at")}),
+        (_("Order"), {"fields": ("order_number", "customer", "status", "created_at", "updated_at")}),
+        (_("Payment"), {"fields": ("payment_method", "payment_status", "payment_reference", "paid_at")}),
+        (_("Totals"), {"fields": ("currency", "subtotal", "product_discount_amount", "coupon_discount_amount", "shipping_amount", "total_amount", "discount_code", "discount_code_text")}),
+        (_("Shipping"), {"fields": ("shipping_title", "shipping_province", "shipping_city", "shipping_address_line", "shipping_postal_code", "shipping_recipient_name", "shipping_recipient_phone")}),
+        (_("Notes"), {"fields": ("notes", "cancelled_at")}),
     )
     inlines = (OrderItemInline,)
 

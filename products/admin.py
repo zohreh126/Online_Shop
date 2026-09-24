@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from core.admin_permissions import RolePermissionAdminMixin
 
@@ -40,10 +41,10 @@ class ProductAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
     autocomplete_fields = ("category",)
     readonly_fields = ("slug", "created_at", "updated_at")
     fieldsets = (
-        ("Identity", {"fields": ("name", "slug", "sku", "brand", "category")}),
-        ("Catalog content", {"fields": ("description", "specifications", "image")}),
-        ("Pricing and inventory", {"fields": ("price", "stock_quantity", "is_active")}),
-        ("Dates", {"fields": ("created_at", "updated_at")}),
+        (_("Identity"), {"fields": ("name", "slug", "sku", "brand", "category")}),
+        (_("Catalog content"), {"fields": ("description", "specifications", "image")}),
+        (_("Pricing and inventory"), {"fields": ("price", "stock_quantity", "is_active")}),
+        (_("Dates"), {"fields": ("created_at", "updated_at")}),
     )
 
 
@@ -65,7 +66,7 @@ class ProductReviewAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at")
 
-    @admin.display(description="Helpful votes")
+    @admin.display(description=_("Helpful votes"))
     def helpful_votes_count(self, review):
         return review.helpful_votes.count()
 
@@ -93,13 +94,13 @@ class ProductQuestionAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at")
 
-    @admin.display(description="Question")
+    @admin.display(description=_("Question"))
     def question_preview(self, question):
         return question.question[:70]
 
-    @admin.display(description="Answer")
+    @admin.display(description=_("Answer"))
     def answer_status(self, question):
-        return "Answered" if question.answer else "Waiting"
+        return _("Answered") if question.answer else _("Waiting")
 
     def save_model(self, request, obj, form, change):
         if obj.answer and obj.answered_at is None:

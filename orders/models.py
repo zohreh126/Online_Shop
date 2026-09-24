@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
 
 from core.models import TimeStampedModel
 from customers.models import Customer
@@ -14,12 +15,14 @@ from products.models import DiscountCode, Product
 class Cart(TimeStampedModel):
     customer = models.ForeignKey(
         Customer,
+        verbose_name=_("Customer"),
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="carts",
     )
     session_key = models.CharField(
+        verbose_name=_("Session key"),
         max_length=64,
         unique=True,
         null=True,
@@ -27,15 +30,18 @@ class Cart(TimeStampedModel):
     )
     discount_code = models.ForeignKey(
         DiscountCode,
+        verbose_name=_("Discount code"),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="carts",
     )
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(verbose_name=_("Active"), default=True)
 
     class Meta:
         ordering = ("-updated_at",)
+        verbose_name = _("Cart")
+        verbose_name_plural = _("Carts")
         constraints = [
             models.UniqueConstraint(
                 fields=("customer",),
@@ -77,15 +83,18 @@ class Cart(TimeStampedModel):
 class CartItem(TimeStampedModel):
     cart = models.ForeignKey(
         Cart,
+        verbose_name=_("Cart"),
         on_delete=models.CASCADE,
         related_name="items",
     )
     product = models.ForeignKey(
         Product,
+        verbose_name=_("Product"),
         on_delete=models.PROTECT,
         related_name="cart_items",
     )
     quantity = models.PositiveIntegerField(
+        verbose_name=_("Quantity"),
         validators=[
             MinValueValidator(1),
         ],
@@ -93,6 +102,8 @@ class CartItem(TimeStampedModel):
 
     class Meta:
         ordering = ("id",)
+        verbose_name = _("Cart item")
+        verbose_name_plural = _("Cart items")
         constraints = [
             models.UniqueConstraint(
                 fields=("cart", "product"),
@@ -133,60 +144,68 @@ class CartItem(TimeStampedModel):
 
 class Order(TimeStampedModel):
     class Status(models.TextChoices):
-        PENDING = "pending", "Pending"
-        CONFIRMED = "confirmed", "Confirmed"
-        PROCESSING = "processing", "Processing"
-        SHIPPED = "shipped", "Shipped"
-        DELIVERED = "delivered", "Delivered"
-        CANCELLED = "cancelled", "Cancelled"
-        REFUNDED = "refunded", "Refunded"
+        PENDING = "pending", _("Pending")
+        CONFIRMED = "confirmed", _("Confirmed")
+        PROCESSING = "processing", _("Processing")
+        SHIPPED = "shipped", _("Shipped")
+        DELIVERED = "delivered", _("Delivered")
+        CANCELLED = "cancelled", _("Cancelled")
+        REFUNDED = "refunded", _("Refunded")
 
     class PaymentStatus(models.TextChoices):
-        UNPAID = "unpaid", "Unpaid"
-        PENDING = "pending", "Pending"
-        PAID = "paid", "Paid"
-        FAILED = "failed", "Failed"
-        REFUNDED = "refunded", "Refunded"
+        UNPAID = "unpaid", _("Unpaid")
+        PENDING = "pending", _("Pending")
+        PAID = "paid", _("Paid")
+        FAILED = "failed", _("Failed")
+        REFUNDED = "refunded", _("Refunded")
 
     class PaymentMethod(models.TextChoices):
-        MOCK = "mock", "Mock payment"
-        CASH_ON_DELIVERY = "cash_on_delivery", "Cash on delivery"
+        MOCK = "mock", _("Mock payment")
+        CASH_ON_DELIVERY = "cash_on_delivery", _("Cash on delivery")
 
     order_number = models.UUIDField(
+        verbose_name=_("Order number"),
         default=uuid.uuid4,
         unique=True,
         editable=False,
     )
     customer = models.ForeignKey(
         Customer,
+        verbose_name=_("Customer"),
         on_delete=models.PROTECT,
         related_name="orders",
     )
     status = models.CharField(
+        verbose_name=_("Status"),
         max_length=20,
         choices=Status.choices,
         default=Status.PENDING,
     )
     payment_status = models.CharField(
+        verbose_name=_("Payment status"),
         max_length=20,
         choices=PaymentStatus.choices,
         default=PaymentStatus.UNPAID,
     )
     payment_method = models.CharField(
+        verbose_name=_("Payment method"),
         max_length=30,
         choices=PaymentMethod.choices,
         default=PaymentMethod.MOCK,
     )
     payment_reference = models.CharField(
+        verbose_name=_("Payment reference"),
         max_length=100,
         blank=True,
     )
 
     currency = models.CharField(
+        verbose_name=_("Currency"),
         max_length=3,
         default="IRR",
     )
     subtotal = models.DecimalField(
+        verbose_name=_("Subtotal"),
         max_digits=12,
         decimal_places=2,
         default=Decimal("0.00"),
@@ -195,6 +214,7 @@ class Order(TimeStampedModel):
         ],
     )
     product_discount_amount = models.DecimalField(
+        verbose_name=_("Product discount"),
         max_digits=12,
         decimal_places=2,
         default=Decimal("0.00"),
@@ -203,6 +223,7 @@ class Order(TimeStampedModel):
         ],
     )
     coupon_discount_amount = models.DecimalField(
+        verbose_name=_("Coupon discount"),
         max_digits=12,
         decimal_places=2,
         default=Decimal("0.00"),
@@ -211,6 +232,7 @@ class Order(TimeStampedModel):
         ],
     )
     shipping_amount = models.DecimalField(
+        verbose_name=_("Shipping amount"),
         max_digits=12,
         decimal_places=2,
         default=Decimal("0.00"),
@@ -219,6 +241,7 @@ class Order(TimeStampedModel):
         ],
     )
     total_amount = models.DecimalField(
+        verbose_name=_("Total amount"),
         max_digits=12,
         decimal_places=2,
         default=Decimal("0.00"),
@@ -229,30 +252,34 @@ class Order(TimeStampedModel):
 
     discount_code = models.ForeignKey(
         DiscountCode,
+        verbose_name=_("Discount code"),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="orders",
     )
     discount_code_text = models.CharField(
+        verbose_name=_("Discount code text"),
         max_length=50,
         blank=True,
     )
 
-    shipping_title = models.CharField(max_length=100)
-    shipping_province = models.CharField(max_length=100)
-    shipping_city = models.CharField(max_length=100)
-    shipping_address_line = models.TextField()
-    shipping_postal_code = models.CharField(max_length=10)
-    shipping_recipient_name = models.CharField(max_length=150)
-    shipping_recipient_phone = models.CharField(max_length=20)
+    shipping_title = models.CharField(_("Shipping address title"), max_length=100)
+    shipping_province = models.CharField(_("Shipping province"), max_length=100)
+    shipping_city = models.CharField(_("Shipping city"), max_length=100)
+    shipping_address_line = models.TextField(verbose_name=_("Shipping address"))
+    shipping_postal_code = models.CharField(_("Shipping postal code"), max_length=10)
+    shipping_recipient_name = models.CharField(_("Recipient name"), max_length=150)
+    shipping_recipient_phone = models.CharField(_("Recipient phone"), max_length=20)
 
-    notes = models.TextField(blank=True)
-    paid_at = models.DateTimeField(null=True, blank=True)
-    cancelled_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(verbose_name=_("Notes"), blank=True)
+    paid_at = models.DateTimeField(verbose_name=_("Paid at"), null=True, blank=True)
+    cancelled_at = models.DateTimeField(verbose_name=_("Cancelled at"), null=True, blank=True)
 
     class Meta:
         ordering = ("-created_at",)
+        verbose_name = _("Order")
+        verbose_name_plural = _("Orders")
         indexes = [
             models.Index(fields=("customer", "-created_at")),
             models.Index(fields=("status", "-created_at")),
@@ -280,26 +307,30 @@ class RewardTransaction(TimeStampedModel):
 
     customer = models.ForeignKey(
         Customer,
+        verbose_name=_("Customer"),
         on_delete=models.CASCADE,
         related_name="reward_transactions",
     )
     order = models.OneToOneField(
         Order,
+        verbose_name=_("Order"),
         on_delete=models.PROTECT,
         related_name="reward_transaction",
     )
     points = models.PositiveIntegerField(
+        verbose_name=_("Points"),
         validators=[MinValueValidator(1)],
     )
     reason = models.CharField(
+        verbose_name=_("Reason"),
         max_length=150,
         default="Nexora order reward",
     )
 
     class Meta:
         ordering = ("-created_at",)
-        verbose_name = "Reward transaction"
-        verbose_name_plural = "Reward transactions"
+        verbose_name = _("Reward transaction")
+        verbose_name_plural = _("Reward transactions")
         indexes = [
             models.Index(
                 fields=("customer", "-created_at"),
@@ -314,19 +345,22 @@ class RewardTransaction(TimeStampedModel):
 class OrderItem(TimeStampedModel):
     order = models.ForeignKey(
         Order,
+        verbose_name=_("Order"),
         on_delete=models.CASCADE,
         related_name="items",
     )
     product = models.ForeignKey(
         Product,
+        verbose_name=_("Product"),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="order_items",
     )
-    product_name = models.CharField(max_length=200)
-    product_sku = models.CharField(max_length=100)
+    product_name = models.CharField(_("Product name"), max_length=200)
+    product_sku = models.CharField(_("Product SKU"), max_length=100)
     unit_price = models.DecimalField(
+        verbose_name=_("Unit price"),
         max_digits=12,
         decimal_places=2,
         validators=[
@@ -334,6 +368,7 @@ class OrderItem(TimeStampedModel):
         ],
     )
     unit_discount = models.DecimalField(
+        verbose_name=_("Unit discount"),
         max_digits=12,
         decimal_places=2,
         default=Decimal("0.00"),
@@ -342,11 +377,13 @@ class OrderItem(TimeStampedModel):
         ],
     )
     quantity = models.PositiveIntegerField(
+        verbose_name=_("Quantity"),
         validators=[
             MinValueValidator(1),
         ],
     )
     line_total = models.DecimalField(
+        verbose_name=_("Line total"),
         max_digits=12,
         decimal_places=2,
         default=Decimal("0.00"),
@@ -357,6 +394,8 @@ class OrderItem(TimeStampedModel):
 
     class Meta:
         ordering = ("id",)
+        verbose_name = _("Order item")
+        verbose_name_plural = _("Order items")
         constraints = [
             models.UniqueConstraint(
                 fields=("order", "product"),

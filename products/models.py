@@ -4,15 +4,18 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 from core.models import TimeStampedModel
 
 
 class Category(TimeStampedModel):
     name = models.CharField(
+        verbose_name=_("Name"),
         max_length=150,
     )
 
     slug = models.SlugField(
+        verbose_name=_("Slug"),
         max_length=180,
         unique=True,
         allow_unicode=True,
@@ -20,6 +23,7 @@ class Category(TimeStampedModel):
 
     parent = models.ForeignKey(
         "self",
+        verbose_name=_("Parent category"),
         on_delete=models.PROTECT,
         null=True,
         blank=True,
@@ -27,13 +31,14 @@ class Category(TimeStampedModel):
     )
 
     is_active = models.BooleanField(
+        verbose_name=_("Active"),
         default=True,
     )
 
     class Meta:
         ordering = ("name",)
-        verbose_name = "Category"
-        verbose_name_plural = "Categories"
+        verbose_name = _("Category")
+        verbose_name_plural = _("Categories")
         constraints = [
             models.UniqueConstraint(
                 fields=("parent", "name"),
@@ -94,41 +99,49 @@ class ProductQuerySet(models.QuerySet):
 
 class Product(TimeStampedModel):
     name = models.CharField(
+        verbose_name=_("Name"),
         max_length=200,
     )
 
     slug = models.SlugField(
+        verbose_name=_("Slug"),
         max_length=230,
         unique=True,
         allow_unicode=True,
     )
 
     sku = models.CharField(
+        verbose_name=_("SKU"),
         max_length=100,
         unique=True,
     )
 
     category = models.ForeignKey(
         Category,
+        verbose_name=_("Category"),
         on_delete=models.PROTECT,
         related_name="products",
     )
 
     brand = models.CharField(
+        verbose_name=_("Brand"),
         max_length=150,
         blank=True,
     )
 
     description = models.TextField(
+        verbose_name=_("Description"),
         blank=True,
     )
 
     specifications = models.JSONField(
+        verbose_name=_("Specifications"),
         default=dict,
         blank=True,
     )
 
     price = models.DecimalField(
+        verbose_name=_("Price"),
         max_digits=12,
         decimal_places=2,
         validators=[
@@ -137,16 +150,19 @@ class Product(TimeStampedModel):
     )
 
     stock_quantity = models.PositiveIntegerField(
+        verbose_name=_("Stock quantity"),
         default=0,
     )
 
     image = models.ImageField(
+        verbose_name=_("Image"),
         upload_to="products/%Y/%m/",
         blank=True,
         null=True,
     )
 
     is_active = models.BooleanField(
+        verbose_name=_("Active"),
         default=True,
     )
 
@@ -154,8 +170,8 @@ class Product(TimeStampedModel):
 
     class Meta:
         ordering = ("-created_at",)
-        verbose_name = "Product"
-        verbose_name_plural = "Products"
+        verbose_name = _("Product")
+        verbose_name_plural = _("Products")
         indexes = [
             models.Index(fields=("is_active",)),
             models.Index(fields=("category", "is_active")),
@@ -188,26 +204,29 @@ class Product(TimeStampedModel):
 class ProductReview(TimeStampedModel):
     product = models.ForeignKey(
         Product,
+        verbose_name=_("Product"),
         on_delete=models.PROTECT,
         related_name="reviews",
     )
     customer = models.ForeignKey(
         "customers.Customer",
+        verbose_name=_("Customer"),
         on_delete=models.CASCADE,
         related_name="product_reviews",
     )
     rating = models.PositiveSmallIntegerField(
+        verbose_name=_("Rating"),
         validators=(MinValueValidator(1), MaxValueValidator(5)),
     )
-    title = models.CharField(max_length=120, blank=True)
-    body = models.TextField(max_length=1500)
-    is_approved = models.BooleanField(default=True)
-    is_active = models.BooleanField(default=True)
+    title = models.CharField(_("Title"), max_length=120, blank=True)
+    body = models.TextField(verbose_name=_("Comment"), max_length=1500)
+    is_approved = models.BooleanField(verbose_name=_("Approved"), default=True)
+    is_active = models.BooleanField(verbose_name=_("Active"), default=True)
 
     class Meta:
         ordering = ("-created_at",)
-        verbose_name = "Product review"
-        verbose_name_plural = "Product reviews"
+        verbose_name = _("Product review")
+        verbose_name_plural = _("Product reviews")
         constraints = [
             models.UniqueConstraint(
                 fields=("product", "customer"),
@@ -234,18 +253,20 @@ class ProductReview(TimeStampedModel):
 class ProductReviewHelpfulVote(TimeStampedModel):
     review = models.ForeignKey(
         ProductReview,
+        verbose_name=_("Product review"),
         on_delete=models.CASCADE,
         related_name="helpful_votes",
     )
     customer = models.ForeignKey(
         "customers.Customer",
+        verbose_name=_("Customer"),
         on_delete=models.CASCADE,
         related_name="review_helpful_votes",
     )
 
     class Meta:
-        verbose_name = "Product review helpful vote"
-        verbose_name_plural = "Product review helpful votes"
+        verbose_name = _("Product review helpful vote")
+        verbose_name_plural = _("Product review helpful votes")
         constraints = [
             models.UniqueConstraint(
                 fields=("review", "customer"),
@@ -268,24 +289,26 @@ class ProductQuestion(TimeStampedModel):
 
     product = models.ForeignKey(
         Product,
+        verbose_name=_("Product"),
         on_delete=models.PROTECT,
         related_name="questions",
     )
     customer = models.ForeignKey(
         "customers.Customer",
+        verbose_name=_("Customer"),
         on_delete=models.CASCADE,
         related_name="product_questions",
     )
-    question = models.TextField(max_length=1000)
-    answer = models.TextField(max_length=1500, blank=True)
-    answered_at = models.DateTimeField(null=True, blank=True)
-    is_approved = models.BooleanField(default=True)
-    is_active = models.BooleanField(default=True)
+    question = models.TextField(verbose_name=_("Question"), max_length=1000)
+    answer = models.TextField(verbose_name=_("Answer"), max_length=1500, blank=True)
+    answered_at = models.DateTimeField(verbose_name=_("Answered at"), null=True, blank=True)
+    is_approved = models.BooleanField(verbose_name=_("Approved"), default=True)
+    is_active = models.BooleanField(verbose_name=_("Active"), default=True)
 
     class Meta:
         ordering = ("-created_at",)
-        verbose_name = "Product question"
-        verbose_name_plural = "Product questions"
+        verbose_name = _("Product question")
+        verbose_name_plural = _("Product questions")
         indexes = [
             models.Index(
                 fields=("product", "is_active", "is_approved"),
@@ -304,21 +327,24 @@ class ProductQuestion(TimeStampedModel):
 
 class Discount(TimeStampedModel):
     class DiscountType(models.TextChoices):
-        PERCENTAGE = "percentage", "Percentage"
-        FIXED = "fixed", "Fixed amount"
+        PERCENTAGE = "percentage", _("Percentage")
+        FIXED = "fixed", _("Fixed amount")
 
     product = models.OneToOneField(
         Product,
+        verbose_name=_("Product"),
         on_delete=models.CASCADE,
         related_name="discount",
     )
 
     discount_type = models.CharField(
+        verbose_name=_("Discount type"),
         max_length=20,
         choices=DiscountType.choices,
     )
 
     value = models.DecimalField(
+        verbose_name=_("Value"),
         max_digits=12,
         decimal_places=2,
         validators=[
@@ -327,6 +353,7 @@ class Discount(TimeStampedModel):
     )
 
     max_amount = models.DecimalField(
+        verbose_name=_("Maximum discount"),
         max_digits=12,
         decimal_places=2,
         null=True,
@@ -334,27 +361,30 @@ class Discount(TimeStampedModel):
         validators=[
             MinValueValidator(Decimal("0.00")),
         ],
-        help_text="Only applies to percentage discounts.",
+        help_text=_("Only applies to percentage discounts."),
     )
 
     starts_at = models.DateTimeField(
+        verbose_name=_("Starts at"),
         null=True,
         blank=True,
     )
 
     ends_at = models.DateTimeField(
+        verbose_name=_("Ends at"),
         null=True,
         blank=True,
     )
 
     is_active = models.BooleanField(
+        verbose_name=_("Active"),
         default=True,
     )
 
     class Meta:
         ordering = ("-created_at",)
-        verbose_name = "Discount"
-        verbose_name_plural = "Discounts"
+        verbose_name = _("Discount")
+        verbose_name_plural = _("Discounts")
 
     def clean(self):
         super().clean()
@@ -436,24 +466,28 @@ class Discount(TimeStampedModel):
 class DiscountCode(TimeStampedModel):
     customer = models.ForeignKey(
         "customers.Customer",
+        verbose_name=_("Customer"),
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="personal_discount_codes",
-        help_text="Leave empty for a store-wide campaign code.",
+        help_text=_("Leave empty for a store-wide campaign code."),
     )
 
     code = models.CharField(
+        verbose_name=_("Code"),
         max_length=50,
         unique=True,
     )
 
     discount_type = models.CharField(
+        verbose_name=_("Discount type"),
         max_length=20,
         choices=Discount.DiscountType.choices,
     )
 
     value = models.DecimalField(
+        verbose_name=_("Value"),
         max_digits=12,
         decimal_places=2,
         validators=[
@@ -462,6 +496,7 @@ class DiscountCode(TimeStampedModel):
     )
 
     max_amount = models.DecimalField(
+        verbose_name=_("Maximum discount"),
         max_digits=12,
         decimal_places=2,
         null=True,
@@ -469,10 +504,11 @@ class DiscountCode(TimeStampedModel):
         validators=[
             MinValueValidator(Decimal("0.00")),
         ],
-        help_text="Only applies to percentage discounts.",
+        help_text=_("Only applies to percentage discounts."),
     )
 
     minimum_order_amount = models.DecimalField(
+        verbose_name=_("Minimum order amount"),
         max_digits=12,
         decimal_places=2,
         default=Decimal("0.00"),
@@ -482,32 +518,37 @@ class DiscountCode(TimeStampedModel):
     )
 
     usage_limit = models.PositiveIntegerField(
+        verbose_name=_("Usage limit"),
         null=True,
         blank=True,
     )
 
     used_count = models.PositiveIntegerField(
+        verbose_name=_("Used count"),
         default=0,
     )
 
     starts_at = models.DateTimeField(
+        verbose_name=_("Starts at"),
         null=True,
         blank=True,
     )
 
     ends_at = models.DateTimeField(
+        verbose_name=_("Ends at"),
         null=True,
         blank=True,
     )
 
     is_active = models.BooleanField(
+        verbose_name=_("Active"),
         default=True,
     )
 
     class Meta:
         ordering = ("-created_at",)
-        verbose_name = "Discount code"
-        verbose_name_plural = "Discount codes"
+        verbose_name = _("Discount code")
+        verbose_name_plural = _("Discount codes")
         indexes = [
             models.Index(fields=("code",)),
             models.Index(fields=("is_active",)),

@@ -221,6 +221,68 @@ class AdminPermissionTests(TestCase):
         self.assertContains(persian_response, 'value="fa"')
         self.assertContains(persian_response, "is-active")
 
+    def test_admin_inner_pages_use_persian_model_labels_and_choices(self):
+        self.client.force_login(self.superuser)
+
+        response = self.client.get(
+            reverse("admin:customers_sitefeedback_changelist")
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "بازخورد سایت")
+        self.assertContains(response, "امتیاز")
+        self.assertContains(response, "نظر")
+        self.assertContains(response, "عالی")
+        self.assertContains(response, "خیلی بد")
+        for label in (
+            "مشتری‌ها",
+            "محصولات",
+            "دسته‌بندی‌ها",
+            "سفارش‌ها",
+            "آیتم‌های سفارش",
+            "تخفیف‌ها",
+            "فهرست سیاه توکن",
+        ):
+            self.assertContains(response, label)
+        self.assertNotContains(response, "Site feedback")
+        self.assertNotContains(response, "Excellent")
+        self.assertNotContains(response, "Very bad")
+        self.assertContains(response, "Vazirmatn")
+        self.assertContains(response, "fonts.googleapis.com/css2?family=Vazirmatn")
+
+    def test_admin_header_has_one_ordered_control_bar_in_both_languages(self):
+        self.client.force_login(self.superuser)
+
+        persian_response = self.client.get(reverse("admin:index"))
+        self.assertContains(persian_response, "nexora-admin-user-tools")
+        self.assertContains(persian_response, "nexora-admin-links")
+        self.assertContains(persian_response, "nexora-admin-controls")
+        self.assertContains(persian_response, "data-theme-icon")
+        self.assertContains(persian_response, "Vazirmatn")
+        self.assertEqual(
+            persian_response.content.decode().count("data-admin-theme-toggle"),
+            1,
+        )
+        self.assertNotContains(persian_response, 'class="theme-toggle"')
+
+        english_response = self.client.post(
+            reverse("set_language"),
+            {
+                "language": "en",
+                "next": reverse("admin:customers_sitefeedback_changelist"),
+            },
+            follow=True,
+        )
+        self.assertContains(english_response, "Site feedback")
+        self.assertContains(english_response, "Excellent")
+        self.assertContains(english_response, "View site")
+        self.assertContains(english_response, "Change password")
+        self.assertContains(english_response, "Log out")
+        self.assertEqual(
+            english_response.content.decode().count("data-admin-theme-toggle"),
+            1,
+        )
+
     def test_customer_admin_delete_action_deactivates_account(self):
         customer_admin = self.admin_for(Customer)
         request = self.request_for(self.superuser)

@@ -16,7 +16,8 @@
     localStorage.setItem("theme", dark ? "dark" : "light");
     root.style.colorScheme = dark ? "dark" : "light";
     document.querySelectorAll("[data-admin-theme-toggle]").forEach((button) => {
-      button.textContent = dark ? "☼" : "☾";
+      const icon = button.querySelector("[data-theme-icon]");
+      if (icon) icon.textContent = dark ? "☼" : "☾";
       const labels = isEnglish()
         ? { light: "Switch to light mode", dark: "Switch to dark mode" }
         : { light: "فعال‌کردن حالت روشن", dark: "فعال‌کردن حالت تیره" };

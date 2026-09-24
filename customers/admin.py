@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.html import format_html
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils.translation import gettext_lazy as _
 
 from core.admin_permissions import RolePermissionAdminMixin
 
@@ -72,7 +73,7 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
                 "password",
             ),
         }),
-        ("Personal information", {
+        (_("Personal information"), {
             "fields": (
                 "first_name",
                 "last_name",
@@ -82,7 +83,7 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
                 "role",
             ),
         }),
-        ("Permissions", {
+        (_("Permissions"), {
             "fields": (
                 "is_active",
                 "is_staff",
@@ -91,7 +92,7 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
                 "user_permissions",
             ),
         }),
-        ("Important dates", {
+        (_("Important dates"), {
             "fields": (
                 "last_login",
                 "date_joined",
@@ -128,19 +129,19 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
             )
         return tuple(dict.fromkeys(readonly_fields))
 
-    @admin.display(description="Role", ordering="role")
+    @admin.display(description=_("Role"), ordering="role")
     def role_badge(self, obj):
         if obj.is_superuser:
-            label, color = ("Administrator", "#ef8f78")
+            label, color = (_("Administrator"), "#ef8f78")
         elif obj.is_staff and not obj.role:
-            label, color = ("Administrator", "#ef8f78")
+            label, color = (_("Administrator"), "#ef8f78")
         else:
             labels = {
-                Customer.Role.PRODUCT_MANAGER: ("Product manager", "#7150b4"),
-                Customer.Role.SUPERVISOR: ("Supervisor", "#39739d"),
-                Customer.Role.OPERATOR: ("Operator", "#4d8a5c"),
+                Customer.Role.PRODUCT_MANAGER: (_("Product manager"), "#7150b4"),
+                Customer.Role.SUPERVISOR: (_("Supervisor"), "#39739d"),
+                Customer.Role.OPERATOR: (_("Operator"), "#4d8a5c"),
             }
-            label, color = labels.get(obj.role, ("Customer", "#77727f"))
+            label, color = labels.get(obj.role, (_("Customer"), "#77727f"))
         return format_html(
             '<span style="color:{};font-weight:700">● {}</span>',
             color,
