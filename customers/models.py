@@ -1,9 +1,10 @@
 from decimal import Decimal
+import uuid
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models.functions import Lower
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -137,14 +138,62 @@ class Customer(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     def delete(self, using=None, keep_parents=False):
-        """Deactivate the customer instead of physically deleting the account."""
-        self.is_active = False
-        update_fields = ["is_active"]
-        if not self.is_superuser:
+        """Anonymize and deactivate the account while preserving order history.
+
+        Orders use ``PROTECT`` for their customer relation, so a physical
+        delete would destroy the relationship needed for receipts and order
+        history.  We therefore keep the customer row as an anonymized,
+        inactive record and release the original username/email immediately.
+        This also works with databases created before the conditional unique
+        constraints were added.
+        """
+        if self.is_superuser:
+            return
+
+        token = uuid.uuid4().hex
+        deleted_username = f"deleted-{self.pk or token[:12]}-{token[:20]}"
+        deleted_email = f"deleted-{self.pk or token[:12]}-{token}@nexora.invalid"
+
+        with transaction.atomic(using=using):
+            self.addresses.filter(is_active=True).update(
+                is_active=False,
+                is_default=False,
+            )
+            self.favorites.filter(is_active=True).update(is_active=False)
+            self.product_watches.filter(is_active=True).update(is_active=False)
+            self.carts.filter(is_active=True).update(is_active=False)
+            self.personal_discount_codes.filter(is_active=True).update(is_active=False)
+            self.notifications.all().delete()
+            self.groups.clear()
+            self.user_permissions.clear()
+
+            self.username = deleted_username[:150]
+            self.email = deleted_email[:254]
+            self.first_name = ""
+            self.last_name = ""
+            self.phone_number = ""
+            self.date_of_birth = ""
+            self.email_verified = False
+            self.is_active = False
             self.is_staff = False
             self.role = ""
-            update_fields.extend(("is_staff", "role"))
-        self.save(update_fields=update_fields)
+            self.set_unusable_password()
+            self.save(
+                using=using,
+                update_fields=[
+                    "username",
+                    "email",
+                    "first_name",
+                    "last_name",
+                    "phone_number",
+                    "date_of_birth",
+                    "email_verified",
+                    "is_active",
+                    "is_staff",
+                    "role",
+                    "password",
+                ],
+            )
 
 class Address(models.Model):
     customer = models.ForeignKey(

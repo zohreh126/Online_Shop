@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.db import transaction
 from django.utils.html import format_html
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
@@ -161,18 +162,12 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
     def delete_model(self, request, obj):
         if obj.is_superuser:
             return
-        type(obj).objects.filter(pk=obj.pk).update(
-            is_active=False,
-            is_staff=False,
-            role="",
-        )
+        obj.delete()
 
     def delete_queryset(self, request, queryset):
-        queryset.filter(is_superuser=False).update(
-            is_active=False,
-            is_staff=False,
-            role="",
-        )
+        with transaction.atomic():
+            for customer in queryset.filter(is_superuser=False).select_for_update():
+                customer.delete()
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)

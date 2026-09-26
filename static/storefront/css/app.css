@@ -489,9 +489,25 @@ html[dir="ltr"] .contact-note .primary-button { margin-left:auto; margin-right:0
 .profile-section-action-row .secondary-button { margin-top:0; }
 .security-callout { margin-top:22px; border-color:rgba(113,80,180,.16); }
 .security-callout .profile-insight-icon { color:#4d8a5c; background:#eaf6ed; }
+.account-danger-zone { margin-top:30px; padding:18px; border:1px solid rgba(179,79,92,.22); border-radius:16px; background:linear-gradient(135deg,rgba(251,233,232,.72),rgba(255,255,255,.7)); }
+.account-danger-heading { display:flex; align-items:flex-start; gap:11px; }
+.account-danger-heading .profile-insight-icon { color:#a54857; background:#fbe4e3; }
+.account-danger-heading strong,.account-danger-heading small { display:block; }
+.account-danger-heading strong { color:#8f3e4b; font-size:12px; }
+.account-danger-heading small { margin-top:5px; color:#9b6870; font-size:10px; line-height:1.8; }
+.account-danger-zone form { margin-top:18px; }
+.danger-confirm { display:flex; align-items:center; gap:8px; margin-top:14px; color:#8f3e4b; font-size:10px; }
+.danger-confirm input { width:15px; height:15px; margin:0; accent-color:#b34f5c; }
+.danger-button { display:inline-flex; align-items:center; justify-content:center; gap:18px; margin-top:18px; padding:12px 16px; border:1px solid rgba(179,79,92,.35); border-radius:10px; color:#fff; background:#a54857; font-size:11px; font-weight:800; cursor:pointer; transition:transform .2s ease,box-shadow .2s ease,background .2s ease; }
+.danger-button:hover { transform:translateY(-2px); background:#8f3e4b; box-shadow:0 10px 20px rgba(165,72,87,.2); }
+.danger-button:disabled { opacity:.65; cursor:wait; transform:none; }
 .dark .profile-hero { box-shadow:0 24px 50px rgba(0,0,0,.25); }
 .dark .profile-stat-card,.dark .profile-section { box-shadow:0 14px 32px rgba(0,0,0,.18); }
 .dark .profile-insight-card,.dark .security-callout,.dark .profile-sidebar-note { background:linear-gradient(135deg,#3b304a,#302a3b); }
+.dark .account-danger-zone { border-color:#70424f; background:linear-gradient(135deg,rgba(83,42,55,.62),rgba(48,42,59,.82)); }
+.dark .account-danger-heading .profile-insight-icon { color:#ffc0c0; background:#5b3542; }
+.dark .account-danger-heading strong,.dark .danger-confirm { color:#ffc0c0; }
+.dark .account-danger-heading small { color:#d9a9b1; }
 .dark .profile-nav-icon { background:#3a3048; }
 html[dir="ltr"] .profile-hero-side { justify-items:start; text-align:left; }
 html[dir="ltr"] .profile-nav button:hover { transform:translateX(2px); }

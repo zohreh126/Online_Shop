@@ -127,6 +127,34 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class AccountDeletionSerializer(serializers.Serializer):
+    current_password = serializers.CharField(
+        write_only=True,
+        trim_whitespace=False,
+    )
+    confirm = serializers.BooleanField(write_only=True)
+
+    def validate(self, attrs):
+        customer = self.context["request"].user
+
+        if customer.is_staff or customer.is_superuser:
+            raise serializers.ValidationError(
+                "Administrative accounts cannot be deleted from the storefront."
+            )
+
+        if not attrs["confirm"]:
+            raise serializers.ValidationError(
+                {"confirm": "Account deletion must be confirmed."}
+            )
+
+        if not customer.check_password(attrs["current_password"]):
+            raise serializers.ValidationError(
+                {"current_password": "Current password is incorrect."}
+            )
+
+        return attrs
+
+
 class CustomerProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer

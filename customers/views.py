@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
@@ -5,12 +6,15 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import generics, mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from orders.models import RewardTransaction
 from products.models import Product
 
 from .models import Address, CustomerNotification, Favorite, ProductWatch, SiteFeedback
 from .serializers import (
+    AccountDeletionSerializer,
     AddressSerializer,
     CustomerProfileSerializer,
     CustomerRegistrationSerializer,
@@ -29,7 +33,7 @@ class CustomerRegistrationView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
 
 
-class CustomerProfileView(generics.RetrieveUpdateAPIView):
+class CustomerProfileView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
@@ -40,6 +44,37 @@ class CustomerProfileView(generics.RetrieveUpdateAPIView):
             from .serializers import CustomerProfileUpdateSerializer
             return CustomerProfileUpdateSerializer
         return CustomerProfileSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        customer = self.get_object()
+        serializer = AccountDeletionSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+
+        customer.delete()
+
+        refresh_token = request.COOKIES.get(settings.AUTH_COOKIE_REFRESH)
+        if refresh_token:
+            try:
+                RefreshToken(refresh_token).blacklist()
+            except TokenError:
+                pass
+
+        response = Response(
+            {
+                "detail": "Account deleted successfully.",
+                "clear_client_state": True,
+            },
+            status=status.HTTP_200_OK,
+        )
+        response.delete_cookie(settings.AUTH_COOKIE_ACCESS, path="/")
+        response.delete_cookie(
+            settings.AUTH_COOKIE_REFRESH,
+            path="/api/v1/auth/",
+        )
+        return response
 
 
 class SiteFeedbackListCreateView(generics.ListCreateAPIView):

@@ -311,6 +311,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'data-profile-shortcut="addresses"')
         self.assertContains(response, 'data-profile-shortcut="favorites"')
         self.assertContains(response, 'id="profile-verified"')
+        self.assertContains(response, 'id="delete-account-form"')
+        self.assertContains(response, 'data-i18n="deleteAccountTitle"')
         self.assertContains(response, 'class="profile-hero"')
         self.assertContains(response, 'class="favorite-nav-link"')
         self.assertContains(response, "/static/storefront/js/favorites.js")

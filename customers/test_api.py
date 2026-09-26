@@ -165,3 +165,66 @@ class CustomerAuthAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         customer.refresh_from_db()
         self.assertEqual(customer.first_name, "زهره")
+
+    def test_customer_can_delete_account_and_reuse_identity(self):
+        customer = Customer.objects.create_user(
+            username="delete-me",
+            email="delete-me@example.com",
+            password="SecurePass#2026",
+            first_name="Delete",
+            last_name="Me",
+            phone_number="09120000000",
+        )
+        self.client.force_authenticate(user=customer)
+
+        response = self.client.delete(
+            reverse("customer-profile"),
+            {
+                "current_password": "SecurePass#2026",
+                "confirm": True,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["clear_client_state"])
+
+        customer.refresh_from_db()
+        self.assertFalse(customer.is_active)
+        self.assertNotEqual(customer.email, "delete-me@example.com")
+        self.assertNotEqual(customer.username, "delete-me")
+        self.assertFalse(customer.has_usable_password())
+
+        registration = self.client.post(
+            reverse("customer-register"),
+            {
+                "username": "delete-me",
+                "email": "delete-me@example.com",
+                "password": "SecurePass#2026",
+                "password_confirm": "SecurePass#2026",
+            },
+            format="json",
+        )
+
+        self.assertEqual(registration.status_code, status.HTTP_201_CREATED)
+
+    def test_customer_account_delete_requires_password_and_confirmation(self):
+        customer = Customer.objects.create_user(
+            username="protected-delete",
+            email="protected-delete@example.com",
+            password="SecurePass#2026",
+        )
+        self.client.force_authenticate(user=customer)
+
+        response = self.client.delete(
+            reverse("customer-profile"),
+            {
+                "current_password": "WrongPass#2026",
+                "confirm": False,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        customer.refresh_from_db()
+        self.assertTrue(customer.is_active)
