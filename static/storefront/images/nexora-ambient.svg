@@ -60,7 +60,7 @@
     <ellipse cx="260" cy="1960" rx="470" ry="380" fill="url(#bottomOrb)"/>
   </g>
 
-  <rect width="1600" height="2200" fill="url(#grid)" opacity=".48"/>
+  <rect width="1600" height="2200" fill="url(#grid)" opacity=".38"/>
 
   <!-- Large editorial ribbon / wave. -->
   <path d="M-260 720C40 300 330 340 570 650C790 936 1060 1110 1880 650" stroke="url(#violetRibbon)" stroke-width="180" stroke-linecap="round" opacity=".24" filter="url(#blurMedium)"/>
@@ -119,7 +119,7 @@
   </g>
 
   <!-- Commerce constellation: quiet line-art motifs for a digital storefront. -->
-  <g id="commerce-motifs" opacity=".42" stroke-linecap="round" stroke-linejoin="round">
+  <g id="commerce-motifs" opacity=".26" stroke-linecap="round" stroke-linejoin="round">
     <!-- Shopping bag -->
     <g transform="translate(120 820) rotate(-8 150 150)">
       <path d="M66 76h178l-15 220H81L66 76Z" fill="url(#violetGlass)" fill-opacity=".3" stroke="#7150B4" stroke-opacity=".58" stroke-width="3"/>
@@ -163,5 +163,46 @@
     </g>
     <path d="M690 1930c160-126 294-155 436-114 103 30 180 12 246-48" stroke="#EF9C83" stroke-opacity=".38" stroke-width="3" stroke-dasharray="10 18"/>
     <path d="m1352 1744 25 24-31 14" stroke="#EF9C83" stroke-opacity=".5" stroke-width="4"/>
+
+    <!-- Computer accessory silhouettes -->
+    <g id="computer-accessories" opacity=".62">
+      <!-- Mechanical keyboard -->
+      <g transform="translate(205 410) rotate(-7 190 80)">
+        <rect width="380" height="154" rx="26" fill="url(#violetGlass)" fill-opacity=".26" stroke="#7150B4" stroke-opacity=".52" stroke-width="3"/>
+        <path d="M25 38h330M25 78h330M25 118h330" stroke="#7150B4" stroke-opacity=".24" stroke-width="2"/>
+        <path d="M45 26v20M75 26v20M105 26v20M135 26v20M165 26v20M195 26v20M225 26v20M255 26v20M285 26v20M315 26v20M345 26v20M45 66v20M75 66v20M105 66v20M135 66v20M165 66v20M195 66v20M225 66v20M255 66v20M285 66v20M315 66v20M345 66v20M45 106v20M75 106v20M105 106v20M135 106v20M165 106v20M195 106v20M225 106v20M255 106v20M285 106v20M315 106v20" stroke="#EF9C83" stroke-opacity=".34" stroke-width="3"/>
+        <rect x="274" y="91" width="72" height="28" rx="8" fill="#EF9C83" fill-opacity=".2" stroke="#EF9C83" stroke-opacity=".5" stroke-width="2"/>
+      </g>
+
+      <!-- Wireless mouse -->
+      <g transform="translate(1250 1160) rotate(18 70 96)">
+        <path d="M70 8c42 0 70 35 70 82v42c0 47-28 82-70 82S0 179 0 132V90C0 43 28 8 70 8Z" fill="url(#coralGlass)" fill-opacity=".27" stroke="#EF9C83" stroke-opacity=".6" stroke-width="3"/>
+        <path d="M70 12v88M45 73h50" stroke="#7150B4" stroke-opacity=".46" stroke-width="3"/>
+        <rect x="61" y="40" width="18" height="28" rx="9" fill="#7150B4" fill-opacity=".24" stroke="#7150B4" stroke-opacity=".5" stroke-width="2"/>
+      </g>
+
+      <!-- Headset -->
+      <g transform="translate(525 860) rotate(-9 140 120)">
+        <path d="M24 132c0-91 52-144 116-144s116 53 116 144" stroke="#7150B4" stroke-opacity=".56" stroke-width="17"/>
+        <rect x="5" y="112" width="46" height="92" rx="18" fill="url(#violetGlass)" fill-opacity=".3" stroke="#EF9C83" stroke-opacity=".55" stroke-width="3"/>
+        <rect x="229" y="112" width="46" height="92" rx="18" fill="url(#violetGlass)" fill-opacity=".3" stroke="#EF9C83" stroke-opacity=".55" stroke-width="3"/>
+        <path d="M50 184c-6 46 28 69 70 69h55" stroke="#EF9C83" stroke-opacity=".46" stroke-width="5"/>
+        <circle cx="188" cy="253" r="8" fill="#EF9C83" fill-opacity=".55"/>
+      </g>
+
+      <!-- Monitor and desk display -->
+      <g transform="translate(660 1390) rotate(5 160 130)">
+        <rect width="320" height="192" rx="20" fill="url(#violetGlass)" fill-opacity=".24" stroke="#7150B4" stroke-opacity=".52" stroke-width="3"/>
+        <path d="M32 38h256M32 145h256" stroke="#EF9C83" stroke-opacity=".3" stroke-width="3"/>
+        <circle cx="70" cy="88" r="28" stroke="#EF9C83" stroke-opacity=".45" stroke-width="3"/>
+        <path d="M58 88h24M70 76v24M126 78h124M126 104h88" stroke="#7150B4" stroke-opacity=".42" stroke-width="4"/>
+        <path d="M126 192v46M72 238h108" stroke="#7150B4" stroke-opacity=".52" stroke-width="5"/>
+      </g>
+
+      <!-- USB / charging cable -->
+      <path d="M945 1530c-76-60-143-28-118 46 22 65 137 36 156 105 14 53-42 84-96 48" stroke="#EF9C83" stroke-opacity=".48" stroke-width="5" stroke-dasharray="14 12"/>
+      <rect x="826" y="1518" width="34" height="23" rx="5" fill="url(#coralGlass)" fill-opacity=".3" stroke="#EF9C83" stroke-opacity=".58" stroke-width="3"/>
+      <path d="M858 1524h18v11h-18" stroke="#7150B4" stroke-opacity=".45" stroke-width="3"/>
+    </g>
   </g>
 </svg>

@@ -1382,13 +1382,13 @@ html.nexora-admin-dark #main::after { opacity: .46; }
    brand language. */
 #main {
   background:
-    radial-gradient(ellipse 68% 48% at 3% 4%, rgba(155,123,210,.22), transparent 68%),
-    radial-gradient(ellipse 52% 42% at 98% 24%, rgba(239,156,131,.16), transparent 70%),
+    radial-gradient(ellipse 68% 48% at 3% 4%, rgba(155,123,210,.19), transparent 68%),
+    radial-gradient(ellipse 52% 42% at 98% 24%, rgba(239,156,131,.13), transparent 70%),
     linear-gradient(135deg, #f1ebfa 0%, #fcfafd 42%, #fff6f1 100%) !important;
 }
 
 #main::before {
-  opacity: .7;
+  opacity: .58;
   background-size: min(1640px, 138vw) auto, auto;
   background-position: center top, center;
   mix-blend-mode: multiply;
@@ -1401,7 +1401,7 @@ html.nexora-admin-dark #main::after { opacity: .46; }
   height: 900px;
   inset-inline-end: -260px;
   top: 60px;
-  opacity: .66;
+  opacity: .54;
   background:
     radial-gradient(circle at 36% 40%, rgba(239,156,131,.34), transparent 34%),
     radial-gradient(circle at 58% 52%, rgba(155,123,210,.32), transparent 64%);
@@ -1421,18 +1421,18 @@ html.nexora-admin-dark #main::after { opacity: .46; }
 
 html.nexora-admin-dark #main {
   background:
-    radial-gradient(ellipse 68% 48% at 3% 4%, rgba(113,80,180,.29), transparent 68%),
-    radial-gradient(ellipse 52% 42% at 98% 24%, rgba(239,156,131,.1), transparent 70%),
+    radial-gradient(ellipse 68% 48% at 3% 4%, rgba(113,80,180,.24), transparent 68%),
+    radial-gradient(ellipse 52% 42% at 98% 24%, rgba(239,156,131,.08), transparent 70%),
     linear-gradient(135deg, #231e2d 0%, #191520 52%, #2c222e 100%) !important;
 }
 
 html.nexora-admin-dark #main::before {
-  opacity: .34;
+  opacity: .25;
   filter: brightness(.68) saturate(1.02) contrast(1.08);
   mix-blend-mode: screen;
 }
 
-html.nexora-admin-dark #main::after { opacity: .44; }
+html.nexora-admin-dark #main::after { opacity: .36; }
 html.nexora-admin-dark .nexora-kpi-card,
 html.nexora-admin-dark .nexora-dashboard-panel,
 html.nexora-admin-dark .nexora-app-card,
@@ -1464,7 +1464,7 @@ html.nexora-admin-dark #content-main {
 }
 
 html.nexora-admin-dark #main::before {
-  opacity: .56;
+  opacity: .45;
   background:
     url('../../storefront/images/nexora-ambient.svg') center top / min(1640px, 138vw) 2500px repeat-y,
     radial-gradient(ellipse 62% 46% at 7% 8%, rgba(155,123,210,.32), transparent 68%),
@@ -1478,7 +1478,7 @@ html.nexora-admin-dark #main::before {
 }
 
 html.nexora-admin-dark #main::after {
-  opacity: .58;
+  opacity: .46;
   background:
     radial-gradient(circle at 32% 36%, rgba(239,156,131,.36), transparent 33%),
     radial-gradient(circle at 61% 52%, rgba(155,123,210,.42), transparent 64%);
