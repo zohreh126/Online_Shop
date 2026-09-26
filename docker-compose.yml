@@ -1,13 +1,11 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-nexora}
       POSTGRES_USER: ${POSTGRES_USER:-nexora}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nexora-dev-password}
-    ports:
-      - "5432:5432"
     volumes:
       - nexora_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,10 +15,8 @@ services:
       retries: 10
 
   redis:
-    image: redis:7-alpine
+    image: ${REDIS_IMAGE:-redis:7-alpine}
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - nexora_redis_data:/data
     healthcheck:
@@ -42,7 +38,7 @@ services:
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       USE_REDIS: "true"
     ports:
-      - "8000:8000"
+      - "127.0.0.1:${WEB_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
