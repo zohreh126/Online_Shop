@@ -848,3 +848,314 @@ html.nexora-admin-dark .messagelist li.error { background: #542530 !important; c
   .nexora-dashboard .nexora-admin-hero-art { position: absolute; inset-inline-end: 0; opacity: .28; }
   .nexora-dashboard .nexora-dashboard-panels { grid-template-columns: 1fr; }
 }
+
+/* -------------------------------------------------------------------------
+   Final responsive/admin-directory pass
+
+   Django's default dashboard uses a table and expects a single short line in
+   the header.  Nexora has bilingual labels, action buttons and a theme
+   switcher, so both surfaces get an explicit layout that is independent of
+   dashboard.css and rtl.css.
+   ------------------------------------------------------------------------- */
+
+#header {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  min-width: 0 !important;
+}
+
+#branding {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+#user-tools.nexora-admin-user-tools {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: min(72%, 820px) !important;
+}
+
+.nexora-admin-welcome,
+.nexora-admin-actions,
+.nexora-admin-links,
+.nexora-admin-controls {
+  min-width: 0;
+}
+
+.nexora-admin-links a,
+.nexora-admin-links button,
+.nexora-admin-language button,
+.nexora-admin-theme-toggle {
+  line-height: 1.35 !important;
+}
+
+.nexora-app-directory {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+  gap: 18px;
+  width: 100%;
+  margin-top: 22px;
+}
+
+.nexora-app-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--nexora-line);
+  border-radius: 20px;
+  background: var(--nexora-card);
+  box-shadow: 0 12px 30px rgba(71, 51, 94, .08);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.nexora-app-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(115, 82, 181, .34);
+  box-shadow: 0 18px 38px rgba(71, 51, 94, .13);
+}
+
+.nexora-app-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 66px;
+  padding: 12px 16px;
+  color: #fff;
+  background: linear-gradient(135deg, #7352b5 0%, #684ca2 56%, #493660 100%);
+}
+
+.nexora-app-card-title {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+  color: #fff !important;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none !important;
+}
+
+.nexora-app-card-title > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nexora-app-card-icon {
+  display: inline-grid;
+  flex: 0 0 34px;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  color: var(--nexora-purple-dark);
+  background: var(--nexora-coral);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.nexora-app-card-icon::before { content: "◈"; }
+.nexora-app-card.app-customers .nexora-app-card-icon::before { content: "♙"; }
+.nexora-app-card.app-orders .nexora-app-card-icon::before { content: "▣"; }
+.nexora-app-card.app-auth .nexora-app-card-icon::before { content: "⚿"; }
+
+.nexora-app-card-count {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255,255,255,.12);
+  direction: ltr;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.nexora-app-models { padding: 5px 13px 9px; }
+
+.nexora-app-model-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--nexora-line);
+}
+
+.nexora-app-model-row:last-child { border-bottom: 0; }
+.nexora-app-model-row:hover { background: rgba(239, 156, 131, .08); }
+
+.nexora-app-model-name {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--nexora-ink) !important;
+  font-size: 11px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nexora-app-model-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.nexora-app-action {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 29px;
+  padding: 5px 9px !important;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font: 700 10px/1.35 "Vazirmatn", Tahoma, sans-serif;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+
+.nexora-app-action-icon { font-size: 13px; line-height: 1; }
+
+.nexora-app-action-add {
+  color: #fff !important;
+  background: var(--nexora-purple) !important;
+  box-shadow: 0 5px 12px rgba(115, 82, 181, .2);
+}
+
+.nexora-app-action-add:hover,
+.nexora-app-action-add:focus-visible {
+  color: #fff !important;
+  background: var(--nexora-purple-dark) !important;
+}
+
+.nexora-app-action-change,
+.nexora-app-action-view {
+  color: var(--nexora-purple) !important;
+  border-color: rgba(115, 82, 181, .18);
+  background: var(--nexora-lilac) !important;
+}
+
+.nexora-app-action-change:hover,
+.nexora-app-action-change:focus-visible,
+.nexora-app-action-view:hover,
+.nexora-app-action-view:focus-visible {
+  color: var(--nexora-purple-dark) !important;
+  border-color: rgba(115, 82, 181, .38);
+  background: #e3d7f7 !important;
+}
+
+.nexora-app-directory-empty {
+  margin: 22px 0 0;
+  padding: 22px;
+  border: 1px dashed var(--nexora-line);
+  border-radius: 16px;
+  color: var(--nexora-muted);
+  background: var(--nexora-card);
+  text-align: center;
+}
+
+html[dir="ltr"] .nexora-app-directory,
+html[dir="ltr"] .nexora-app-card { direction: ltr; text-align: left; }
+html[dir="rtl"] .nexora-app-directory,
+html[dir="rtl"] .nexora-app-card { direction: rtl; text-align: right; }
+
+html.nexora-admin-dark .nexora-app-card {
+  border-color: var(--nexora-line);
+  background: var(--nexora-card);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .22);
+}
+
+html.nexora-admin-dark .nexora-app-card-head {
+  background: linear-gradient(135deg, #7352b5 0%, #493660 100%);
+}
+
+html.nexora-admin-dark .nexora-app-model-row:hover { background: rgba(239, 156, 131, .09); }
+html.nexora-admin-dark .nexora-app-action-change,
+html.nexora-admin-dark .nexora-app-action-view {
+  color: #eadff5 !important;
+  border-color: var(--nexora-line);
+  background: #392d4b !important;
+}
+
+html.nexora-admin-dark .nexora-app-action-change:hover,
+html.nexora-admin-dark .nexora-app-action-change:focus-visible,
+html.nexora-admin-dark .nexora-app-action-view:hover,
+html.nexora-admin-dark .nexora-app-action-view:focus-visible {
+  color: #fff !important;
+  background: #493660 !important;
+}
+
+@media (max-width: 820px) {
+  #header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 15px 18px !important;
+  }
+
+  #branding {
+    display: flex !important;
+    align-items: center;
+    width: 100% !important;
+    min-height: 46px;
+  }
+
+  #user-tools.nexora-admin-user-tools {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: none !important;
+    gap: 9px;
+    text-align: start !important;
+  }
+
+  .nexora-admin-welcome {
+    justify-content: flex-start;
+    width: 100%;
+    padding-bottom: 7px;
+    border-bottom: 1px solid rgba(255,255,255,.14);
+  }
+
+  .nexora-admin-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+  }
+
+  .nexora-admin-links {
+    width: 100%;
+    justify-content: flex-start !important;
+    gap: 8px 18px;
+  }
+
+  .nexora-admin-controls {
+    align-self: flex-start;
+    justify-content: flex-start;
+  }
+
+  .nexora-app-directory { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .nexora-admin-brand-copy strong { font-size: 17px; }
+  .nexora-admin-links { gap: 7px 12px; }
+  .nexora-app-model-row { align-items: flex-start; flex-direction: column; gap: 9px; }
+  .nexora-app-model-actions { width: 100%; justify-content: flex-start; }
+}

@@ -182,6 +182,20 @@ class AdminPermissionTests(TestCase):
         self.assertContains(response, "/static/admin/js/nexora-admin.js")
         self.assertContains(response, "data-admin-theme-toggle")
 
+    def test_admin_dashboard_uses_readable_bilingual_app_cards(self):
+        self.client.force_login(self.superuser)
+
+        response = self.client.get(reverse("admin:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "nexora-app-directory")
+        self.assertContains(response, "nexora-app-card")
+        self.assertContains(response, "nexora-app-action-add")
+        self.assertContains(response, "nexora-app-action-change")
+        self.assertContains(response, "اضافه کردن")
+        self.assertContains(response, "تغییر")
+        self.assertContains(response, "محصولات")
+
     def test_admin_dashboard_switches_between_persian_and_english(self):
         self.client.force_login(self.superuser)
 

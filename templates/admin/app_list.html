@@ -1,0 +1,58 @@
+{% load i18n %}
+
+{% if app_list %}
+  <section class="nexora-app-directory" aria-label="{% translate 'Applications' %}">
+    {% for app in app_list %}
+      <article class="nexora-app-card app-{{ app.app_label }}{% if app.app_url in request.path|urlencode %} is-current{% endif %}">
+        <header class="nexora-app-card-head">
+          <a class="nexora-app-card-title" href="{{ app.app_url }}" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">
+            <span class="nexora-app-card-icon" aria-hidden="true"></span>
+            <span>{{ app.name }}</span>
+          </a>
+          <span class="nexora-app-card-count">{{ app.models|length }}</span>
+        </header>
+
+        <div class="nexora-app-models">
+          {% for model in app.models %}
+            {% with model_name=model.object_name|lower %}
+              <div class="nexora-app-model-row{% if model.admin_url in request.path|urlencode %} is-current{% endif %}">
+                {% if model.admin_url %}
+                  <a class="nexora-app-model-name" href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>{{ model.name }}</a>
+                {% else %}
+                  <span class="nexora-app-model-name">{{ model.name }}</span>
+                {% endif %}
+
+                {% if model.add_url or model.admin_url and show_changelinks %}
+                  <div class="nexora-app-model-actions">
+                    {% if model.add_url %}
+                      <a class="nexora-app-action nexora-app-action-add" href="{{ model.add_url }}" aria-describedby="{{ app.app_label }}-{{ model_name }}">
+                        <span class="nexora-app-action-icon" aria-hidden="true">＋</span>
+                        <span>{% translate 'Add' %}</span>
+                      </a>
+                    {% endif %}
+
+                    {% if model.admin_url and show_changelinks %}
+                      {% if model.view_only %}
+                        <a class="nexora-app-action nexora-app-action-view" href="{{ model.admin_url }}" aria-describedby="{{ app.app_label }}-{{ model_name }}">
+                          <span class="nexora-app-action-icon" aria-hidden="true">↗</span>
+                          <span>{% translate 'View' %}</span>
+                        </a>
+                      {% else %}
+                        <a class="nexora-app-action nexora-app-action-change" href="{{ model.admin_url }}" aria-describedby="{{ app.app_label }}-{{ model_name }}">
+                          <span class="nexora-app-action-icon" aria-hidden="true">✎</span>
+                          <span>{% translate 'Change' %}</span>
+                        </a>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+{% else %}
+  <p class="nexora-app-directory-empty">{% translate 'You don’t have permission to view or edit anything.' %}</p>
+{% endif %}
