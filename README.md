@@ -85,6 +85,23 @@ docker compose exec web python manage.py seed_roles
 docker compose exec web python manage.py seed_nexora
 ```
 
+برای بررسی اولیه‌ی زیرساخت بدون اجرای taskهای زمان‌بندی‌شده، ابتدا فقط سرویس‌های
+`db`، `redis` و `web` را اجرا کن:
+
+```bash
+docker compose up -d --build db redis web
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py seed_roles
+docker compose exec web python manage.py seed_nexora
+```
+
+پس از اطمینان از تنظیم SMTP، می‌توانی `worker` و `beat` را هم اجرا کنی تا
+اعلان‌ها و پاک‌سازی‌های زمان‌بندی‌شده فعال شوند:
+
+```bash
+docker compose up -d worker beat
+```
+
 در compose، PostgreSQL و Redis فقط داخل شبکه‌ی Docker در دسترس‌اند و فقط web روی
 `127.0.0.1:8000` منتشر می‌شود. اگر Docker Hub از شبکه‌ی تو در دسترس نیست، imageها
 را با mirror مورداعتماد خودت از طریق متغیرهای زیر override کن؛ این تغییر نیازی به

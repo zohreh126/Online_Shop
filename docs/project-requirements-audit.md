@@ -46,9 +46,9 @@
 | پیشنهادهای مرتبط محصول | انجام شده | دریافت محصولات هم‌دسته از API و رتبه‌بندی سبک بر اساس امتیاز/تخفیف |
 | اعلان کاهش قیمت و برگشت موجودی | انجام شده | اشتراک کاربر، آستانه‌ی قیمت، ایمیل و اجرای دوره‌ای با Celery |
 | باشگاه امتیازی مشتری | انجام شده | ثبت خودکار امتیاز برای سفارش پرداخت‌شده، API موجودی/تاریخچه و نمایش در پروفایل |
-| تست مدل، API، نقش و Admin | انجام شده | suite فعلی ۲۲۱ تست موفق دارد |
-| پوشش تست بالای ۸۰٪ | انجام شده | پوشش فعلی ۹۳٪ |
-| Selenium مسیر خرید | انجام شده و در محیط محلی اجرا شده | `config/test_selenium.py`؛ اجرای موفق با Chrome/ChromeDriver و `RUN_SELENIUM=1` |
+| تست مدل، API، نقش و Admin | انجام شده | suite فعلی ۲۲۴ تست موفق دارد |
+| پوشش تست بالای ۸۰٪ | انجام شده | پوشش فعلی ۹۲٪ |
+| Selenium مسیر خرید | کد آماده؛ نیازمند driver هم‌نسخه‌ی مرورگر | تست‌ها با ChromeDriver ۱۵۲ قبلاً موفق بودند؛ مرورگر محیط فعلی `154.0.8037.57` است و driver ۱۵۴ لازم دارد |
 | ERD داخل مخزن | انجام شده | `docs/ERD.md` با Mermaid |
 | README تحویل | انجام شده | اجرای local، Docker، API، تست و وضعیت محیطی مستند شده |
 | شاخه‌ی `develop` | انجام شده | شاخه‌ی توسعه‌ی فعلی |
@@ -76,12 +76,13 @@
 2. اجرای PostgreSQL، Redis، Celery worker و Celery beat.
 3. اجرای migration، `seed_roles` و `seed_nexora` روی محیط مقصد.
 4. ایجاد/به‌روزرسانی شاخه‌ی `master` و push commitها به remote.
+5. دسترسی به registry معتبر Docker؛ در محیط فعلی pull مستقیم `postgres:16-alpine` و `redis:7-alpine` با خطای 403/RBAC متوقف می‌شود.
 
 ## اعتبارسنجی آخرین دور
 
 - `manage.py check`: موفق
 - `makemigrations --check --dry-run`: بدون migration جاافتاده
-- `manage.py test`: ۲۲۱ تست موفق؛ ۸ تست Selenium عمومی به‌صورت skip نگه داشته شده‌اند و مسیر خرید Selenium جداگانه با ChromeDriver اجرا شده است
-- Coverage: ۹۳٪ (`coverage report -m --fail-under=80`)
+- `manage.py test`: ۲۲۴ تست موفق؛ ۸ تست Selenium عمومی به‌صورت skip نگه داشته شده‌اند و اجرای دوباره‌ی آن‌ها به ChromeDriver هم‌نسخه با Chrome فعلی نیاز دارد
+- Coverage: ۹۲٪ (`coverage report -m --fail-under=80`)
 - syntax تمام فایل‌های JavaScript: موفق
 - `git diff --check`: موفق
