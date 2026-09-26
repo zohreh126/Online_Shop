@@ -60,7 +60,7 @@
     <ellipse cx="260" cy="1960" rx="470" ry="380" fill="url(#bottomOrb)"/>
   </g>
 
-  <rect width="1600" height="2200" fill="url(#grid)" opacity=".38"/>
+  <rect width="1600" height="2200" fill="url(#grid)" opacity=".43"/>
 
   <!-- Large editorial ribbon / wave. -->
   <path d="M-260 720C40 300 330 340 570 650C790 936 1060 1110 1880 650" stroke="url(#violetRibbon)" stroke-width="180" stroke-linecap="round" opacity=".24" filter="url(#blurMedium)"/>
@@ -119,7 +119,7 @@
   </g>
 
   <!-- Commerce constellation: quiet line-art motifs for a digital storefront. -->
-  <g id="commerce-motifs" opacity=".26" stroke-linecap="round" stroke-linejoin="round">
+  <g id="commerce-motifs" opacity=".36" stroke-linecap="round" stroke-linejoin="round">
     <!-- Shopping bag -->
     <g transform="translate(120 820) rotate(-8 150 150)">
       <path d="M66 76h178l-15 220H81L66 76Z" fill="url(#violetGlass)" fill-opacity=".3" stroke="#7150B4" stroke-opacity=".58" stroke-width="3"/>

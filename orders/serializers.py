@@ -244,6 +244,7 @@ class CartSerializer(serializers.ModelSerializer):
             return Decimal("0.00")
         return cart.discount_code.calculate_discount(cart.subtotal - self.get_product_discount_amount(cart))
 
+    @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_shipping_amount(self, cart):
         merchandise_total = (
             cart.subtotal

@@ -1610,6 +1610,21 @@ html.nexora-admin-dark .nexora-kpi-card,
 html.nexora-admin-dark .nexora-dashboard-panel,
 html.nexora-admin-dark .nexora-app-card { box-shadow: 0 20px 44px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.07); }
 html.nexora-admin-dark .nexora-panel-heading { background: linear-gradient(90deg, rgba(58,48,72,.62), rgba(48,40,61,.2)); }
+
+/* Contrast pass: the accessory artwork should read as intentional atmosphere
+   in both admin themes while cards and forms remain easy to scan. */
+#main {
+  background:
+    radial-gradient(ellipse 68% 48% at 3% 4%, rgba(155,123,210,.22), transparent 68%),
+    radial-gradient(ellipse 52% 42% at 98% 24%, rgba(239,156,131,.16), transparent 70%),
+    linear-gradient(135deg, #f0e9fa 0%, #fbf8fd 42%, #fff3ed 100%) !important;
+}
+
+#main::before { opacity: .7; }
+#main::after { opacity: .62; }
+
+html.nexora-admin-dark #main::before { opacity: .55; }
+html.nexora-admin-dark #main::after { opacity: .52; }
 html.nexora-admin-dark #nav-sidebar { box-shadow: 8px 0 30px rgba(0,0,0,.18); }
 
 @media (prefers-reduced-motion: reduce) {

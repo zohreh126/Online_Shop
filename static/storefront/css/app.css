@@ -2702,3 +2702,26 @@ main.storefront-home > .ambient-art { opacity: .74; }
   .trust-items span { justify-content: center; }
   .hero-note { margin-inline: auto; }
 }
+
+/* Contrast pass: keep the commerce artwork visible on light screens without
+   letting it compete with product content. */
+body:not(.dark) {
+  background:
+    radial-gradient(ellipse 54% 42% at 4% 4%, rgba(155,123,210,.22), transparent 69%),
+    radial-gradient(ellipse 48% 38% at 98% 22%, rgba(239,156,131,.16), transparent 70%),
+    linear-gradient(135deg, #f2ecf9 0%, #fbf8fd 43%, #fff3ed 100%);
+}
+
+body::before { opacity: .62; }
+main.storefront-home::before { opacity: .78; }
+main.storefront-home::after { opacity: .28; }
+main.storefront-home > .ambient-art { opacity: .82; }
+
+.dark main.storefront-home::before { opacity: .48; }
+.dark main.storefront-home::after { opacity: .16; }
+.dark main.storefront-home > .ambient-art { opacity: .56; }
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  main.storefront-home > .ambient-art { animation: none; }
+}
