@@ -2419,13 +2419,13 @@ main.storefront-home::after {
    palette while giving the canvas a clear editorial identity. */
 body:not(.dark) {
   background:
-    radial-gradient(ellipse 54% 42% at 4% 4%, rgba(155,123,210,.29), transparent 69%),
-    radial-gradient(ellipse 48% 38% at 98% 22%, rgba(239,156,131,.22), transparent 70%),
+    radial-gradient(ellipse 54% 42% at 4% 4%, rgba(155,123,210,.25), transparent 69%),
+    radial-gradient(ellipse 48% 38% at 98% 22%, rgba(239,156,131,.19), transparent 70%),
     linear-gradient(135deg, #f0e9fa 0%, #fbf9fd 43%, #fff1eb 100%);
 }
 
 body::before {
-  opacity: .82;
+  opacity: .74;
   background-size: 34px 34px;
   mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 96%);
 }
@@ -2441,11 +2441,11 @@ body::after {
     radial-gradient(circle at 82% 64%, rgba(255,255,255,.54) 0 2px, transparent 3px),
     linear-gradient(115deg, transparent 0 36%, rgba(113,80,180,.035) 36.1% 36.25%, transparent 36.4% 100%);
   background-size: 170px 170px, 230px 230px, 100% 100%;
-  opacity: .7;
+  opacity: .58;
 }
 
 main.storefront-home::before {
-  opacity: 1;
+  opacity: .9;
   background-size: min(1740px, 145vw) 2500px;
   background-position: center top;
   background-repeat: repeat-y;
@@ -2459,7 +2459,7 @@ main.storefront-home::after {
   height: 980px;
   inset-inline-start: -12%;
   top: 180px;
-  opacity: .42;
+  opacity: .36;
   filter: blur(88px);
   background:
     radial-gradient(circle at 42% 42%, rgba(155,123,210,.46), transparent 37%),
@@ -2484,14 +2484,14 @@ main.storefront-home > .ambient-art { opacity: .74; }
 .dark body,
 .dark {
   background:
-    radial-gradient(ellipse 55% 42% at 4% 5%, rgba(113,80,180,.34), transparent 68%),
-    radial-gradient(ellipse 48% 38% at 98% 24%, rgba(239,156,131,.18), transparent 70%),
+    radial-gradient(ellipse 55% 42% at 4% 5%, rgba(113,80,180,.3), transparent 68%),
+    radial-gradient(ellipse 48% 38% at 98% 24%, rgba(239,156,131,.15), transparent 70%),
     linear-gradient(135deg, #211a2b 0%, #1c1823 48%, #30202d 100%);
 }
 
-.dark body::after { opacity: .3; mix-blend-mode: screen; }
-.dark main.storefront-home::before { opacity: .62; mix-blend-mode: screen; filter: brightness(.76) saturate(1.05) contrast(1.08); }
-.dark main.storefront-home::after { opacity: .25; }
+.dark body::after { opacity: .24; mix-blend-mode: screen; }
+.dark main.storefront-home::before { opacity: .56; mix-blend-mode: screen; filter: brightness(.76) saturate(1.05) contrast(1.08); }
+.dark main.storefront-home::after { opacity: .22; }
 .dark main.storefront-home > .ambient-art { opacity: .5; }
 .dark .hero,
 .dark .special-offers,
