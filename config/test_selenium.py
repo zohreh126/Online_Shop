@@ -1,9 +1,11 @@
 import os
 import unittest
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -36,6 +38,13 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
+        # DRF copies DEFAULT_THROTTLE_CLASSES onto APIView when the module is
+        # imported, so override_settings alone does not affect the live
+        # server's already-loaded view classes. Disable throttling only for
+        # this browser smoke suite; production settings remain unchanged.
+        cls._selenium_throttle_patch = patch.object(APIView, "throttle_classes", ())
+        cls._selenium_throttle_patch.start()
+        cls.addClassCleanup(cls._selenium_throttle_patch.stop)
         super().setUpClass()
         options = Options()
         options.binary_location = os.environ.get("CHROME_BINARY", "/usr/bin/google-chrome")
