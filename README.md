@@ -85,6 +85,17 @@ docker compose exec web python manage.py seed_roles
 docker compose exec web python manage.py seed_nexora
 ```
 
+در compose، PostgreSQL و Redis فقط داخل شبکه‌ی Docker در دسترس‌اند و فقط web روی
+`127.0.0.1:8000` منتشر می‌شود. اگر Docker Hub از شبکه‌ی تو در دسترس نیست، imageها
+را با mirror مورداعتماد خودت از طریق متغیرهای زیر override کن؛ این تغییر نیازی به
+ویرایش فایل compose ندارد:
+
+```bash
+POSTGRES_IMAGE=your-trusted-mirror/postgres:16-alpine \
+REDIS_IMAGE=your-trusted-mirror/redis:7-alpine \
+docker compose up -d --build
+```
+
 برای ایمیل واقعی در production باید `EMAIL_HOST`، `EMAIL_PORT`، `EMAIL_HOST_USER`، `EMAIL_HOST_PASSWORD`، `DEFAULT_FROM_EMAIL` و `CSRF_TRUSTED_ORIGINS` واقعی تنظیم شوند. در local ایمیل‌ها به console backend می‌روند.
 
 ## بررسی کیفیت
