@@ -2377,3 +2377,126 @@ main.storefront-home > .ambient-art {
   main.storefront-home::before,
   main.storefront-home::after { animation: none; }
 }
+
+/* Artwork pass v2: the previous layer was too timid on light screens. */
+main.storefront-home::before {
+  opacity: .92;
+  background-size: min(1480px, 122vw) auto;
+  mix-blend-mode: multiply;
+  filter: saturate(1.12) contrast(1.04);
+  animation-duration: 36s;
+}
+
+main.storefront-home::after {
+  width: 840px;
+  height: 840px;
+  inset-inline-start: 2%;
+  top: 250px;
+  opacity: .34;
+  filter: blur(82px);
+}
+
+.hero,
+.special-offers,
+.feature-banner,
+.feedback-section {
+  background-color: rgba(255,255,255,.64);
+}
+
+.dark main.storefront-home::before {
+  opacity: .52;
+  filter: brightness(.64) saturate(.9) contrast(1.05);
+}
+
+.dark .hero,
+.dark .special-offers,
+.dark .feature-banner,
+.dark .feedback-section { background-color: rgba(48,40,61,.64); }
+
+/* Artwork pass v3: the atmosphere must be visible at first glance.  The
+   earlier pass was technically present, but the white glass layers diluted it
+   until the page looked empty.  These layers keep the same purple/coral
+   palette while giving the canvas a clear editorial identity. */
+body:not(.dark) {
+  background:
+    radial-gradient(ellipse 54% 42% at 4% 4%, rgba(155,123,210,.29), transparent 69%),
+    radial-gradient(ellipse 48% 38% at 98% 22%, rgba(239,156,131,.22), transparent 70%),
+    linear-gradient(135deg, #f0e9fa 0%, #fbf9fd 43%, #fff1eb 100%);
+}
+
+body::before {
+  opacity: .82;
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 96%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 17% 21%, rgba(255,255,255,.7) 0 2px, transparent 3px),
+    radial-gradient(circle at 82% 64%, rgba(255,255,255,.54) 0 2px, transparent 3px),
+    linear-gradient(115deg, transparent 0 36%, rgba(113,80,180,.035) 36.1% 36.25%, transparent 36.4% 100%);
+  background-size: 170px 170px, 230px 230px, 100% 100%;
+  opacity: .7;
+}
+
+main.storefront-home::before {
+  opacity: 1;
+  background-size: min(1740px, 145vw) auto;
+  background-position: center top;
+  mix-blend-mode: multiply;
+  filter: saturate(1.18) contrast(1.08);
+  animation-duration: 42s;
+}
+
+main.storefront-home::after {
+  width: 980px;
+  height: 980px;
+  inset-inline-start: -12%;
+  top: 180px;
+  opacity: .42;
+  filter: blur(88px);
+  background:
+    radial-gradient(circle at 42% 42%, rgba(155,123,210,.46), transparent 37%),
+    radial-gradient(circle at 64% 58%, rgba(239,156,131,.24), transparent 64%);
+}
+
+main.storefront-home > .ambient-art { opacity: .74; }
+.ambient-piece { border-width: 1.5px; background: linear-gradient(135deg, rgba(155,123,210,.2), rgba(239,156,131,.15)); box-shadow: 0 22px 64px rgba(113,80,180,.13); }
+
+.hero,
+.special-offers,
+.feature-banner,
+.feedback-section {
+  background-color: rgba(255,255,255,.54);
+  backdrop-filter: blur(7px);
+}
+
+.hero { box-shadow: 0 28px 80px rgba(75,55,100,.1), inset 0 1px 0 rgba(255,255,255,.72); }
+.special-offers,
+.feedback-section { box-shadow: 0 20px 56px rgba(75,55,100,.075), inset 0 1px 0 rgba(255,255,255,.72); }
+
+.dark body,
+.dark {
+  background:
+    radial-gradient(ellipse 55% 42% at 4% 5%, rgba(113,80,180,.34), transparent 68%),
+    radial-gradient(ellipse 48% 38% at 98% 24%, rgba(239,156,131,.18), transparent 70%),
+    linear-gradient(135deg, #211a2b 0%, #1c1823 48%, #30202d 100%);
+}
+
+.dark body::after { opacity: .3; mix-blend-mode: screen; }
+.dark main.storefront-home::before { opacity: .62; mix-blend-mode: screen; filter: brightness(.76) saturate(1.05) contrast(1.08); }
+.dark main.storefront-home::after { opacity: .25; }
+.dark main.storefront-home > .ambient-art { opacity: .5; }
+.dark .hero,
+.dark .special-offers,
+.dark .feature-banner,
+.dark .feedback-section { background-color: rgba(48,40,61,.63); backdrop-filter: blur(9px); }
+
+@media (prefers-reduced-motion: reduce) {
+  body::after { opacity: .45; }
+}
