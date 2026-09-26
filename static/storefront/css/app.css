@@ -84,6 +84,7 @@ input[aria-invalid=true], textarea[aria-invalid=true] { border-color:#d46a76; bo
 .summary-panel .drawer-total { margin-top:22px; padding-top:18px; border-top:1px solid var(--line); }
 .checkout-submit { width:100%; justify-content:space-between; border:0; cursor:pointer; margin-top:6px; }
 .checkout-submit:disabled { opacity:.55; cursor:wait; }
+.account-login-hint { display:block; margin-top:10px; color:var(--muted); font-size:10px; line-height:1.8; text-align:center; }
 .checkout-alert { margin:20px 0; padding:35px; }
 .checkout-alert.success .state-icon { background:#6b9b77; }
 .empty-inline { padding:22px; background:var(--soft); color:var(--muted); font-size:12px; text-align:center; }

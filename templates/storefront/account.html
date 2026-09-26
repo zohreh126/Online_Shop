@@ -23,6 +23,7 @@
         <label class="password-field"><span data-i18n="password">رمز عبور</span><span class="password-input-wrap"><input id="login-password" name="password" type="password" required autocomplete="current-password"><button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="نمایش رمز عبور" title="نمایش رمز عبور">◉</button></span></label>
         <button class="primary-button account-submit" type="submit"><span data-i18n="loginWithPassword">ورود با نام کاربری و رمز</span> <span>←</span></button>
         <button class="secondary-button account-otp-request" id="request-login-otp" type="button"><span data-i18n="loginWithEmailCode">ورود با ایمیل و کد</span> <span aria-hidden="true">✉</span></button>
+        <small class="account-login-hint" data-i18n="emailLoginHint">برای ورود با کد، ایمیل کامل حساب کاربری را در همین کادر وارد کن.</small>
       </form>
       <form id="login-otp-form" hidden>
         <p class="account-subtitle"><span data-i18n="otpSubtitle">کد شش‌رقمی ارسال‌شده به</span> <strong id="login-otp-email"></strong></p>
@@ -37,7 +38,7 @@
       <button class="account-switch" id="account-switch" type="button" data-i18n="noAccount">حساب ندارم؛ ثبت‌نام می‌کنم</button>
     </section>
   </main>
-  <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/cart-nav.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/notifications.js' %}" defer></script><script src="{% static 'storefront/js/password-toggle.js' %}" defer></script><script src="{% static 'storefront/js/account.js' %}" defer></script>
+  <script src="{% static 'storefront/js/i18n.js' %}?v=20260926-auth" defer></script><script src="{% static 'storefront/js/cart-nav.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/notifications.js' %}" defer></script><script src="{% static 'storefront/js/password-toggle.js' %}" defer></script><script src="{% static 'storefront/js/account.js' %}?v=20260926-auth" defer></script>
   <script src="{% static 'storefront/js/navigation.js' %}" defer></script>
 </body>
 </html>

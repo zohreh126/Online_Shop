@@ -221,6 +221,29 @@ class CookieJWTAuthAPITests(APITestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_login_otp_rate_limit_returns_a_clear_response(self):
+        csrf_token = self.get_csrf_token()
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+        url = reverse("auth-login-otp-request")
+
+        for _ in range(3):
+            response = self.client.post(
+                url,
+                {"email": self.customer.email},
+                format="json",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(
+            url,
+            {"email": self.customer.email},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+        self.assertEqual(response.data["error_code"], "otp_rate_limited")
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_staff_cannot_use_customer_email_otp_login(self):
         staff = Customer.objects.create_superuser(
             username="otp-admin",

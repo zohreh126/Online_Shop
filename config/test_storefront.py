@@ -282,6 +282,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, 'autocomplete="current-password"')
         self.assertContains(response, 'id="request-login-otp"')
         self.assertContains(response, 'data-i18n="loginWithPassword"')
+        self.assertContains(response, 'data-i18n="emailLoginHint"')
+        self.assertContains(response, "?v=20260926-auth")
 
     def test_legacy_dashboard_route_redirects_to_unified_profile_orders(self):
         response = self.client.get(reverse("storefront-dashboard"))

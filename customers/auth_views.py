@@ -189,6 +189,14 @@ class LoginOTPRequestView(APIView):
 
         try:
             request_otp(user.email)
+        except ValueError as exc:
+            return Response(
+                {
+                    "error_code": "otp_rate_limited",
+                    "detail": "تعداد درخواست‌های کد ورود بیش از حد مجاز است؛ چند دقیقه بعد دوباره تلاش کن.",
+                },
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
         except OTPDeliveryError:
             return Response(
                 {

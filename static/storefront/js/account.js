@@ -44,16 +44,24 @@ async function request(path, method, payload) {
     },
     body: JSON.stringify(payload),
   });
-  const data = await response.json().catch(() => ({}));
+  const responseText = await response.text();
+  let data = {};
+  try {
+    data = responseText ? JSON.parse(responseText) : {};
+  } catch (_error) {
+    data = {};
+  }
   if (!response.ok) {
     const codeMessage = data.error_code === "email_delivery_failed"
       ? tr("emailDeliveryFailed")
+      : data.error_code === "otp_rate_limited"
+        ? tr("otpRateLimited")
       : "";
     const messages = Object.entries(data).flatMap(([field, value]) => (
       Array.isArray(value) ? value : [value]
     ).map((item) => `${field}: ${item}`));
     throw Object.assign(
-      new Error(codeMessage || messages.join(" | ") || data.detail || tr("operationFailed")),
+      new Error(codeMessage || messages.join(" | ") || data.detail || `${tr("operationFailed")} (${response.status})`),
       { data, status: response.status },
     );
   }
