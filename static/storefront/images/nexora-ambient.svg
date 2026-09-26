@@ -51,6 +51,9 @@
     <filter id="blurSmall" x="-30%" y="-30%" width="160%" height="160%">
       <feGaussianBlur stdDeviation="8"/>
     </filter>
+    <filter id="blurPanel" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="3.5"/>
+    </filter>
   </defs>
 
   <!-- Soft light fields keep the page colorful even between content blocks. -->
@@ -60,7 +63,7 @@
     <ellipse cx="260" cy="1960" rx="470" ry="380" fill="url(#bottomOrb)"/>
   </g>
 
-  <rect width="1600" height="2200" fill="url(#grid)" opacity=".43"/>
+  <rect width="1600" height="2200" fill="url(#grid)" opacity=".48"/>
 
   <!-- Large editorial ribbon / wave. -->
   <path d="M-260 720C40 300 330 340 570 650C790 936 1060 1110 1880 650" stroke="url(#violetRibbon)" stroke-width="180" stroke-linecap="round" opacity=".24" filter="url(#blurMedium)"/>
@@ -69,7 +72,7 @@
   <path d="M-200 850C92 480 350 530 560 792C786 1070 1086 1230 1830 820" stroke="#7150B4" stroke-width="2" stroke-opacity=".22" stroke-dasharray="16 18"/>
 
   <!-- Translucent glass panels make the background read as a designed scene. -->
-  <g filter="url(#blurSmall)" opacity=".62">
+  <g filter="url(#blurPanel)" opacity=".72">
     <rect x="-100" y="70" width="500" height="660" rx="132" transform="rotate(-15 -100 70)" fill="url(#violetGlass)" stroke="#7150B4" stroke-opacity=".5" stroke-width="3"/>
     <rect x="1120" y="390" width="430" height="600" rx="120" transform="rotate(18 1120 390)" fill="url(#coralGlass)" stroke="#EF9C83" stroke-opacity=".58" stroke-width="3"/>
     <rect x="230" y="1300" width="540" height="560" rx="120" transform="rotate(12 230 1300)" fill="url(#deepPanel)" stroke="#9B7BD2" stroke-opacity=".46" stroke-width="3"/>
@@ -119,7 +122,7 @@
   </g>
 
   <!-- Commerce constellation: quiet line-art motifs for a digital storefront. -->
-  <g id="commerce-motifs" opacity=".36" stroke-linecap="round" stroke-linejoin="round">
+  <g id="commerce-motifs" opacity=".58" stroke-linecap="round" stroke-linejoin="round">
     <!-- Shopping bag -->
     <g transform="translate(120 820) rotate(-8 150 150)">
       <path d="M66 76h178l-15 220H81L66 76Z" fill="url(#violetGlass)" fill-opacity=".3" stroke="#7150B4" stroke-opacity=".58" stroke-width="3"/>
@@ -165,7 +168,7 @@
     <path d="m1352 1744 25 24-31 14" stroke="#EF9C83" stroke-opacity=".5" stroke-width="4"/>
 
     <!-- Computer accessory silhouettes -->
-    <g id="computer-accessories" opacity=".62">
+    <g id="computer-accessories" opacity=".7">
       <!-- Mechanical keyboard -->
       <g transform="translate(205 410) rotate(-7 190 80)">
         <rect width="380" height="154" rx="26" fill="url(#violetGlass)" fill-opacity=".26" stroke="#7150B4" stroke-opacity=".52" stroke-width="3"/>

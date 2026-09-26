@@ -1620,10 +1620,16 @@ html.nexora-admin-dark .nexora-panel-heading { background: linear-gradient(90deg
     linear-gradient(135deg, #f0e9fa 0%, #fbf8fd 42%, #fff3ed 100%) !important;
 }
 
-#main::before { opacity: .7; }
-#main::after { opacity: .62; }
+#main::before {
+  opacity: .86;
+  filter: saturate(1.28) contrast(1.12);
+}
+#main::after { opacity: .68; }
 
-html.nexora-admin-dark #main::before { opacity: .55; }
+html.nexora-admin-dark #main::before {
+  opacity: .68;
+  filter: brightness(.72) saturate(1.05) contrast(1.08);
+}
 html.nexora-admin-dark #main::after { opacity: .52; }
 html.nexora-admin-dark #nav-sidebar { box-shadow: 8px 0 30px rgba(0,0,0,.18); }
 

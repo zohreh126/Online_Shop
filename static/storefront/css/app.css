@@ -2729,13 +2729,19 @@ body:not(.dark) {
 }
 
 body::before { opacity: .62; }
-main.storefront-home::before { opacity: .78; }
-main.storefront-home::after { opacity: .28; }
-main.storefront-home > .ambient-art { opacity: .82; }
+main.storefront-home::before {
+  opacity: .96;
+  filter: saturate(1.3) contrast(1.14);
+}
+main.storefront-home::after { opacity: .32; }
+main.storefront-home > .ambient-art { opacity: .92; }
 
-.dark main.storefront-home::before { opacity: .48; }
+.dark main.storefront-home::before {
+  opacity: .62;
+  filter: brightness(.74) saturate(1.02) contrast(1.08);
+}
 .dark main.storefront-home::after { opacity: .16; }
-.dark main.storefront-home > .ambient-art { opacity: .56; }
+.dark main.storefront-home > .ambient-art { opacity: .62; }
 
 @media (prefers-reduced-motion: reduce) {
   body::before,

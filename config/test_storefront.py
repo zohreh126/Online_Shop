@@ -61,6 +61,16 @@ class StorefrontPageTests(TestCase):
         self.assertIn("../images/nexora-ambient.svg", css_source)
         self.assertIn(".storefront-home::before", css_source)
 
+    def test_ambient_commerce_artwork_keeps_visible_light_and_dark_contrast(self):
+        project_root = Path(__file__).resolve().parents[1]
+        css_source = (project_root / "static/storefront/css/app.css").read_text()
+        artwork_source = (project_root / "static/storefront/images/nexora-ambient.svg").read_text()
+
+        self.assertIn("opacity: .96", css_source)
+        self.assertIn(".dark main.storefront-home::before", css_source)
+        self.assertIn('id="commerce-motifs" opacity=".58"', artwork_source)
+        self.assertIn('id="computer-accessories" opacity=".7"', artwork_source)
+
     def test_storefront_pages_include_shared_mobile_navigation(self):
         project_root = Path(__file__).resolve().parents[1]
         navigation_source = (project_root / "static/storefront/js/navigation.js").read_text()
