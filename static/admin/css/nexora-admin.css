@@ -1254,3 +1254,80 @@ html.nexora-admin-dark .nexora-app-action-view:focus-visible {
     justify-content: flex-start;
   }
 }
+
+/* Final visual canvas: bring the Nexora atmosphere into the admin workspace
+   without reducing contrast of the dashboard cards and forms. */
+#main {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background:
+    radial-gradient(ellipse 54% 34% at 8% 8%, rgba(155,123,210,.13), transparent 70%),
+    radial-gradient(ellipse 40% 28% at 94% 35%, rgba(239,156,131,.1), transparent 72%),
+    var(--nexora-paper) !important;
+}
+
+#main::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  opacity: .28;
+  background:
+    url('../../storefront/images/nexora-ambient.svg') center top / min(1180px, 100vw) auto no-repeat,
+    repeating-linear-gradient(135deg, rgba(115,82,181,.025) 0 1px, transparent 1px 36px);
+  mix-blend-mode: multiply;
+  animation: nexora-admin-background-drift 34s ease-in-out infinite;
+}
+
+#main::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 560px;
+  height: 560px;
+  inset-inline-end: -180px;
+  top: 180px;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239,156,131,.14), rgba(155,123,210,.08) 42%, transparent 72%);
+  filter: blur(60px);
+  animation: nexora-admin-aurora-breathe 18s ease-in-out infinite;
+}
+
+#main > #nav-sidebar,
+#main > .content {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes nexora-admin-background-drift {
+  0%, 100% { transform: translate3d(-.4%, 0, 0) scale(1.01); }
+  50% { transform: translate3d(.7%, -1%, 0) scale(1.025); }
+}
+
+@keyframes nexora-admin-aurora-breathe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(.94); opacity: .65; }
+  50% { transform: translate3d(-4%, 3%, 0) scale(1.08); opacity: 1; }
+}
+
+html.nexora-admin-dark #main {
+  background:
+    radial-gradient(ellipse 54% 34% at 8% 8%, rgba(113,80,180,.2), transparent 70%),
+    radial-gradient(ellipse 40% 28% at 94% 35%, rgba(239,156,131,.08), transparent 72%),
+    var(--nexora-paper) !important;
+}
+
+html.nexora-admin-dark #main::before {
+  opacity: .16;
+  filter: brightness(.62) saturate(.75);
+  mix-blend-mode: screen;
+}
+
+html.nexora-admin-dark #main::after { opacity: .42; }
+
+@media (prefers-reduced-motion: reduce) {
+  #main::before,
+  #main::after { animation: none; }
+}

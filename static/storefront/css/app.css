@@ -2307,3 +2307,73 @@ body { overflow-x: hidden; }
   .hero { box-shadow: 0 18px 42px rgba(75,55,100,.07); }
   .feedback-section::before { font-size: 120px; }
 }
+
+/* Final visual canvas: a visible but quiet Nexora atmosphere.  The artwork
+   sits behind the page sections, while the content itself stays on top. */
+body {
+  background:
+    radial-gradient(ellipse 55% 32% at 8% 7%, rgba(155,123,210,.18), transparent 70%),
+    radial-gradient(ellipse 42% 28% at 94% 31%, rgba(239,156,131,.14), transparent 72%),
+    linear-gradient(135deg, rgba(242,237,249,.62), transparent 42%),
+    var(--paper);
+  background-attachment: fixed;
+}
+
+main.storefront-home::before {
+  z-index: 0 !important;
+  opacity: .7;
+  background-size: min(1320px, 108vw) auto;
+  mix-blend-mode: multiply;
+  animation: nexora-background-drift 30s ease-in-out infinite;
+}
+
+main.storefront-home::after {
+  z-index: 0 !important;
+  width: 720px;
+  height: 720px;
+  inset-inline-start: 8%;
+  top: 360px;
+  opacity: .26;
+  filter: blur(78px);
+  animation: nexora-aurora-breathe 16s ease-in-out infinite;
+}
+
+main.storefront-home > *:not(.ambient-art) {
+  position: relative;
+  z-index: 1;
+}
+
+main.storefront-home > .ambient-art {
+  z-index: 0;
+  opacity: .34;
+}
+
+@keyframes nexora-background-drift {
+  0%, 100% { transform: translate3d(-.6%, 0, 0) scale(1.01); }
+  50% { transform: translate3d(.8%, -1.1%, 0) scale(1.035); }
+}
+
+@keyframes nexora-aurora-breathe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(.94); opacity: .18; }
+  50% { transform: translate3d(3%, 2%, 0) scale(1.08); opacity: .3; }
+}
+
+.dark body {
+  background:
+    radial-gradient(ellipse 55% 32% at 8% 7%, rgba(113,80,180,.24), transparent 70%),
+    radial-gradient(ellipse 42% 28% at 94% 31%, rgba(239,156,131,.12), transparent 72%),
+    #1f1b26;
+}
+
+.dark main.storefront-home::before {
+  opacity: .38;
+  mix-blend-mode: screen;
+  filter: brightness(.72) saturate(.78);
+}
+
+.dark main.storefront-home::after { opacity: .16; }
+
+@media (prefers-reduced-motion: reduce) {
+  main.storefront-home::before,
+  main.storefront-home::after { animation: none; }
+}
