@@ -1159,3 +1159,98 @@ html.nexora-admin-dark .nexora-app-action-view:focus-visible {
   .nexora-app-model-row { align-items: flex-start; flex-direction: column; gap: 9px; }
   .nexora-app-model-actions { width: 100%; justify-content: flex-start; }
 }
+
+/* The language switcher must never shrink into overlapping labels.  The
+   medium breakpoint also catches compact laptop/browser windows whose CSS
+   viewport is wider than the physical screenshot. */
+.nexora-admin-controls {
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap;
+}
+
+.nexora-admin-language {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  width: max-content;
+  min-width: 112px;
+  gap: 4px;
+  margin: 0 !important;
+  padding: 3px !important;
+  direction: ltr;
+  overflow: visible;
+}
+
+.nexora-admin-language button,
+#user-tools.nexora-admin-user-tools .nexora-admin-language button {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  min-width: 48px;
+  min-height: 28px;
+  box-sizing: border-box;
+  padding: 5px 9px !important;
+  border-radius: 8px;
+  font: 700 11px/1.2 "Vazirmatn", Tahoma, sans-serif !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap;
+}
+
+.nexora-admin-language button[value="en"] { min-width: 62px; }
+.nexora-admin-language button[value="fa"] { min-width: 43px; }
+
+@media (max-width: 1100px) {
+  #header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 15px 22px !important;
+  }
+
+  #branding {
+    display: flex !important;
+    align-items: center;
+    width: 100% !important;
+    min-height: 46px;
+  }
+
+  #user-tools.nexora-admin-user-tools {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: none !important;
+    gap: 9px;
+    text-align: start !important;
+  }
+
+  .nexora-admin-welcome {
+    justify-content: flex-start;
+    width: 100%;
+    padding-bottom: 7px;
+    border-bottom: 1px solid rgba(255,255,255,.14);
+  }
+
+  .nexora-admin-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+  }
+
+  .nexora-admin-links {
+    width: 100%;
+    justify-content: flex-start !important;
+    gap: 8px 18px;
+  }
+
+  .nexora-admin-controls {
+    align-self: flex-start;
+    justify-content: flex-start;
+  }
+}

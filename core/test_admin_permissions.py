@@ -272,6 +272,8 @@ class AdminPermissionTests(TestCase):
         self.assertContains(persian_response, "nexora-admin-links")
         self.assertContains(persian_response, "nexora-admin-controls")
         self.assertContains(persian_response, "data-theme-icon")
+        self.assertContains(persian_response, 'value="fa"')
+        self.assertContains(persian_response, 'value="en"')
         self.assertContains(persian_response, "Vazirmatn")
         self.assertEqual(
             persian_response.content.decode().count("data-admin-theme-toggle"),
