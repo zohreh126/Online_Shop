@@ -25,6 +25,7 @@ from .serializers import (
     OTPVerifySerializer,
     PasswordChangeSerializer,
 )
+from .models import Customer
 from rest_framework.exceptions import AuthenticationFailed
 from unicodedata import normalize
 
@@ -140,14 +141,52 @@ class LoginOTPRequestView(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
 
-    @extend_schema(request=inline_serializer(name="LoginOTPRequest", fields={"identifier": serializers.CharField(), "password": serializers.CharField()}), responses={200: OpenApiTypes.OBJECT, 401: OpenApiTypes.OBJECT})
+    @extend_schema(
+        request=inline_serializer(
+            name="LoginOTPRequest",
+            fields={
+                "email": serializers.EmailField(required=False),
+                "identifier": serializers.CharField(required=False),
+                "password": serializers.CharField(required=False),
+            },
+        ),
+        responses={200: OpenApiTypes.OBJECT, 401: OpenApiTypes.OBJECT},
+    )
     def post(self, request):
         _enforce_csrf(request)
-        identifier = normalize("NFC", str(request.data.get("identifier", ""))).strip()
+
+        raw_email = request.data.get("email")
+        raw_identifier = request.data.get("identifier")
         password = request.data.get("password")
-        user = authenticate(request, username=identifier, password=password)
+        identifier = normalize(
+            "NFC",
+            str(raw_identifier or raw_email or ""),
+        ).strip()
+
+        # The customer-facing OTP flow intentionally needs only the email.
+        # Keep identifier + password support for existing API clients while
+        # preventing staff accounts from using the customer login route.
+        if raw_email or (identifier and "@" in identifier and not password):
+            email = normalize("NFC", str(raw_email or identifier)).strip().lower()
+            user = (
+                Customer.objects.filter(
+                    email__iexact=email,
+                    is_active=True,
+                )
+                .first()
+            )
+        else:
+            user = authenticate(request, username=identifier, password=password)
+
         if user is None:
             return Response({"detail": "نام کاربری/ایمیل یا رمز عبور صحیح نیست."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if user.is_staff or user.is_superuser or user.role:
+            return Response(
+                {"detail": "ورود با کد ایمیل فقط برای مشتریان فعال است."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         try:
             request_otp(user.email)
         except OTPDeliveryError:

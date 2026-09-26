@@ -206,6 +206,40 @@ class CookieJWTAuthAPITests(APITestCase):
         self.assertIsNotNone(verify_response.cookies.get(settings.AUTH_COOKIE_ACCESS))
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_customer_can_request_otp_with_email_only(self):
+        csrf_token = self.get_csrf_token()
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+
+        response = self.client.post(
+            reverse("auth-login-otp-request"),
+            {"email": self.customer.email},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["email"], self.customer.email)
+        self.assertEqual(len(mail.outbox), 1)
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_staff_cannot_use_customer_email_otp_login(self):
+        staff = Customer.objects.create_superuser(
+            username="otp-admin",
+            email="otp-admin@example.com",
+            password=self.password,
+        )
+        csrf_token = self.get_csrf_token()
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+
+        response = self.client.post(
+            reverse("auth-login-otp-request"),
+            {"email": staff.email},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(mail.outbox)
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_two_step_login_rejects_invalid_code(self):
         csrf_token = self.get_csrf_token()
         self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)

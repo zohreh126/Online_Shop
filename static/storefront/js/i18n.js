@@ -818,6 +818,14 @@ translations.fa.mobileNavigation = "ناوبری موبایل";
 translations.en.openMenu = "Open menu";
 translations.en.closeMenu = "Close menu";
 translations.en.mobileNavigation = "Mobile navigation";
+translations.fa.loginStepSubtitle = "با نام کاربری و رمز وارد شو یا کد یک‌بارمصرف را به ایمیلت بفرست.";
+translations.fa.loginWithPassword = "ورود با نام کاربری و رمز";
+translations.fa.loginWithEmailCode = "ورود با ایمیل و کد";
+translations.fa.otpEmailOnly = "برای ورود با کد، ایمیل حساب کاربری را وارد کن.";
+translations.en.loginStepSubtitle = "Sign in with your username and password, or use a one-time email code.";
+translations.en.loginWithPassword = "Sign in with username and password";
+translations.en.loginWithEmailCode = "Sign in with email code";
+translations.en.otpEmailOnly = "Enter the email address linked to your account to use a login code.";
 
 const productVisualThemes = {
   "keyboards-mice": { icon: "⌘", fa: "میزکار", en: "DESK" },

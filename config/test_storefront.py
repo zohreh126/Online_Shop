@@ -278,6 +278,8 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/static/storefront/js/password-toggle.js")
         self.assertContains(response, 'data-password-toggle="register-password"')
         self.assertContains(response, 'autocomplete="current-password"')
+        self.assertContains(response, 'id="request-login-otp"')
+        self.assertContains(response, 'data-i18n="loginWithPassword"')
 
     def test_legacy_dashboard_route_redirects_to_unified_profile_orders(self):
         response = self.client.get(reverse("storefront-dashboard"))
