@@ -1483,3 +1483,136 @@ html.nexora-admin-dark #main::after {
     radial-gradient(circle at 32% 36%, rgba(239,156,131,.36), transparent 33%),
     radial-gradient(circle at 61% 52%, rgba(155,123,210,.42), transparent 64%);
 }
+
+/* Premium admin polish: the dashboard should feel like a product workspace,
+   not a collection of default Django boxes. */
+#header {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255,255,255,.14);
+}
+
+#header::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -90px 12% -180px auto;
+  width: 720px;
+  background: url('../../storefront/images/nexora-ambient.svg') center 12% / 720px auto no-repeat;
+  opacity: .16;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: nexora-admin-header-drift 24s ease-in-out infinite;
+}
+
+#header::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--nexora-coral), #c8b1ed, transparent);
+  opacity: .8;
+}
+
+@keyframes nexora-admin-header-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg); }
+  50% { transform: translate3d(-18px, 8px, 0) rotate(2deg); }
+}
+
+#content {
+  position: relative;
+  isolation: isolate;
+}
+
+#content::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 520px;
+  height: 520px;
+  inset-inline-start: -280px;
+  top: 260px;
+  border: 1px solid rgba(155,123,210,.22);
+  border-radius: 50%;
+  box-shadow: 0 0 0 26px rgba(155,123,210,.045), 0 0 0 54px rgba(239,156,131,.035);
+  pointer-events: none;
+}
+
+.nexora-admin-hero {
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 26px 58px rgba(73,54,96,.24), inset 0 1px 0 rgba(255,255,255,.16);
+}
+
+.nexora-admin-hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 300px;
+  height: 300px;
+  inset-inline-start: 32%;
+  top: -180px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 50%;
+  box-shadow: 0 0 0 24px rgba(255,255,255,.04), 0 0 0 48px rgba(239,156,131,.05);
+  animation: nexora-admin-orbit-pulse 9s ease-in-out infinite;
+}
+
+@keyframes nexora-admin-orbit-pulse {
+  0%, 100% { transform: scale(.94); opacity: .55; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.nexora-kpi-card,
+.nexora-dashboard-panel,
+.nexora-app-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(115,82,181,.18);
+}
+
+.nexora-kpi-card::before,
+.nexora-dashboard-panel::before,
+.nexora-app-card::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset-inline-start: 0;
+  top: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--nexora-coral), var(--nexora-purple), transparent 86%);
+  opacity: .8;
+}
+
+.nexora-kpi-card > *,
+.nexora-dashboard-panel > *,
+.nexora-app-card > * { position: relative; z-index: 1; }
+.nexora-kpi-card { box-shadow: 0 16px 36px rgba(71,51,94,.11), inset 0 1px 0 rgba(255,255,255,.72); }
+.nexora-kpi-card:hover { transform: translateY(-5px) scale(1.008); box-shadow: 0 24px 46px rgba(71,51,94,.17), 0 0 0 4px rgba(155,123,210,.07); }
+.nexora-dashboard-panel { box-shadow: 0 16px 38px rgba(71,51,94,.1), inset 0 1px 0 rgba(255,255,255,.72); }
+.nexora-panel-heading { background: linear-gradient(90deg, rgba(242,237,249,.38), rgba(255,255,255,.16)); }
+.nexora-app-card-head { box-shadow: inset 0 -1px 0 rgba(255,255,255,.08); }
+.nexora-app-card:hover { transform: translateY(-4px); box-shadow: 0 24px 46px rgba(71,51,94,.17), 0 0 0 4px rgba(155,123,210,.07); }
+.nexora-app-model-row { transition: background .2s ease, padding-inline .2s ease; }
+.nexora-app-model-row:hover { padding-inline: 9px; background: linear-gradient(90deg, rgba(239,156,131,.08), rgba(155,123,210,.08)); }
+
+#nav-sidebar {
+  border-inline-end: 1px solid rgba(115,82,181,.12);
+  box-shadow: 8px 0 28px rgba(71,51,94,.045);
+}
+
+html.nexora-admin-dark #header::before { opacity: .28; }
+html.nexora-admin-dark #content::before { border-color: rgba(200,177,237,.22); box-shadow: 0 0 0 26px rgba(155,123,210,.08), 0 0 0 54px rgba(239,156,131,.05); }
+html.nexora-admin-dark .nexora-kpi-card,
+html.nexora-admin-dark .nexora-dashboard-panel,
+html.nexora-admin-dark .nexora-app-card { box-shadow: 0 20px 44px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.07); }
+html.nexora-admin-dark .nexora-panel-heading { background: linear-gradient(90deg, rgba(58,48,72,.62), rgba(48,40,61,.2)); }
+html.nexora-admin-dark #nav-sidebar { box-shadow: 8px 0 30px rgba(0,0,0,.18); }
+
+@media (prefers-reduced-motion: reduce) {
+  #header::before,
+  .nexora-admin-hero::before { animation: none; }
+}
