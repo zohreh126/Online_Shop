@@ -66,7 +66,7 @@ class StorefrontPageTests(TestCase):
         css_source = (project_root / "static/storefront/css/app.css").read_text()
         artwork_source = (project_root / "static/storefront/images/nexora-ambient.svg").read_text()
 
-        self.assertIn("opacity: .96", css_source)
+        self.assertIn("opacity: .88", css_source)
         self.assertIn(".dark main.storefront-home::before", css_source)
         self.assertIn('id="commerce-motifs" opacity=".58"', artwork_source)
         self.assertIn('id="computer-accessories" opacity=".7"', artwork_source)
