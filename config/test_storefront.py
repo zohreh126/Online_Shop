@@ -52,6 +52,15 @@ class StorefrontPageTests(TestCase):
         self.assertContains(response, "/contact/")
         self.assertContains(response, "/static/storefront/js/navigation.js")
 
+    def test_storefront_home_has_a_local_ambient_background_asset(self):
+        project_root = Path(__file__).resolve().parents[1]
+        css_source = (project_root / "static/storefront/css/app.css").read_text()
+        artwork = project_root / "static/storefront/images/nexora-ambient.svg"
+
+        self.assertTrue(artwork.is_file())
+        self.assertIn("../images/nexora-ambient.svg", css_source)
+        self.assertIn(".storefront-home::before", css_source)
+
     def test_storefront_pages_include_shared_mobile_navigation(self):
         project_root = Path(__file__).resolve().parents[1]
         navigation_source = (project_root / "static/storefront/js/navigation.js").read_text()

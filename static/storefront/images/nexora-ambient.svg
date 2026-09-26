@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1800" viewBox="0 0 1200 1800" fill="none">
+  <defs>
+    <radialGradient id="purpleGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(220 240) rotate(54) scale(420 360)">
+      <stop stop-color="#9B7BD2" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#9B7BD2" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="coralGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1010 840) rotate(133) scale(360 330)">
+      <stop stop-color="#EF9C83" stop-opacity=".36"/>
+      <stop offset="1" stop-color="#EF9C83" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lowerGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(250 1540) rotate(45) scale(390 340)">
+      <stop stop-color="#7150B4" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#7150B4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="orbitStroke" x1="80" y1="140" x2="1090" y2="1510" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7150B4" stop-opacity=".26"/>
+      <stop offset=".52" stop-color="#EF9C83" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#7150B4" stop-opacity=".08"/>
+    </linearGradient>
+    <linearGradient id="glassFill" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFFFFF" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#9B7BD2" stop-opacity=".04"/>
+    </linearGradient>
+    <filter id="blur-ambient" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="42"/>
+    </filter>
+    <filter id="blur-soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <pattern id="microGrid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" stroke="#7150B4" stroke-opacity=".045"/>
+    </pattern>
+  </defs>
+
+  <g filter="url(#blur-ambient)">
+    <ellipse cx="180" cy="210" rx="340" ry="260" fill="url(#purpleGlow)"/>
+    <ellipse cx="1080" cy="820" rx="300" ry="260" fill="url(#coralGlow)"/>
+    <ellipse cx="160" cy="1580" rx="350" ry="280" fill="url(#lowerGlow)"/>
+  </g>
+
+  <rect width="1200" height="1800" fill="url(#microGrid)" opacity=".62"/>
+
+  <g opacity=".6" stroke="url(#orbitStroke)" stroke-width="1.4">
+    <ellipse cx="240" cy="340" rx="270" ry="110" transform="rotate(-28 240 340)"/>
+    <ellipse cx="240" cy="340" rx="330" ry="164" transform="rotate(-28 240 340)"/>
+    <ellipse cx="960" cy="770" rx="260" ry="112" transform="rotate(31 960 770)"/>
+    <ellipse cx="960" cy="770" rx="340" ry="185" transform="rotate(31 960 770)"/>
+    <ellipse cx="270" cy="1500" rx="290" ry="120" transform="rotate(22 270 1500)"/>
+  </g>
+
+  <g opacity=".34" stroke="#EF9C83" stroke-width="1">
+    <circle cx="180" cy="280" r="7" fill="#EF9C83" fill-opacity=".4"/>
+    <circle cx="180" cy="280" r="18"/>
+    <circle cx="1010" cy="850" r="6" fill="#EF9C83" fill-opacity=".4"/>
+    <circle cx="1010" cy="850" r="16"/>
+    <path d="M1010 828V872M988 850H1032"/>
+  </g>
+
+  <g filter="url(#blur-soft)" opacity=".3">
+    <rect x="760" y="300" width="170" height="170" rx="48" transform="rotate(24 760 300)" fill="url(#glassFill)"/>
+    <rect x="70" y="1120" width="132" height="132" rx="40" transform="rotate(-22 70 1120)" fill="url(#glassFill)"/>
+  </g>
+
+  <path d="M-80 570C150 420 300 520 440 670C610 853 798 945 1260 720" stroke="#7150B4" stroke-opacity=".1" stroke-width="2"/>
+  <path d="M-80 610C150 460 300 560 440 710C610 893 798 985 1260 760" stroke="#EF9C83" stroke-opacity=".07" stroke-width="1"/>
+</svg>
