@@ -14,6 +14,7 @@
 - باشگاه امتیازی Nexora Club با ثبت خودکار امتیاز برای سفارش پرداخت‌شده و تاریخچه‌ی امتیازها
 - مقایسهٔ حداکثر سه محصول با نمایش کنارهمی مشخصات، قیمت، موجودی و تخفیف
 - سبد خرید مهمان و کاربر، ادغام سبد بعد از ورود، کوپن و تسویه‌حساب
+- زمان‌بندی تحویل در checkout؛ انتخاب تاریخ از دو تا هفت روز بعد و بازه‌ی صبح یا عصر
 - سفارش با snapshot اطلاعات محصول و کنترل موجودی هنگام پرداخت
 - خرید مجدد سریع از تاریخچه سفارش با کنترل دوباره‌ی موجودی و وضعیت محصول
 - داشبورد مشتری، تاریخچه سفارش و پنل Admin سفارشی
@@ -52,7 +53,7 @@ python manage.py runserver
 | بخش | مسیر |
 |---|---|
 | محصولات و دسته‌بندی‌ها | `/api/v1/products/` و `/api/v1/categories/` |
-| احراز هویت و پروفایل | `/api/v1/auth/` |
+| احراز هویت و پروفایل | `/api/v1/auth/`؛ ورود با username/password یا email/OTP برای مشتری |
 | علاقه‌مندی، اعلان محصول، نظر، پرسش‌وپاسخ و بازخورد مشتری | `/api/v1/auth/favorites/`، `/api/v1/auth/product-watches/`، `/api/v1/products/{slug}/reviews/`، `/api/v1/products/{slug}/reviews/{review_id}/helpful/`، `/api/v1/products/{slug}/questions/`، `/api/v1/products/{slug}/questions/{question_id}/answer/` و `/api/v1/auth/feedback/` |
 | سبد خرید | `/api/v1/cart/` |
 | سفارش‌های مشتری و خرید مجدد | `/api/v1/orders/` و `/api/v1/orders/{order_number}/reorder/` |
