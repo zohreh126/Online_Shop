@@ -2446,8 +2446,9 @@ body::after {
 
 main.storefront-home::before {
   opacity: 1;
-  background-size: min(1740px, 145vw) auto;
+  background-size: min(1740px, 145vw) 2500px;
   background-position: center top;
+  background-repeat: repeat-y;
   mix-blend-mode: multiply;
   filter: saturate(1.18) contrast(1.08);
   animation-duration: 42s;

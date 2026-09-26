@@ -1442,3 +1442,44 @@ html.nexora-admin-dark .inline-group {
   background: rgba(43,34,56,.78);
   box-shadow: 0 16px 38px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.06);
 }
+
+/* Keep the artwork visible through Django's full-width #content wrapper. */
+#main > .content,
+#content,
+#content-start,
+#content-main {
+  background: transparent !important;
+}
+
+#main::before {
+  background-repeat: repeat-y, repeat;
+  background-size: min(1640px, 138vw) 2500px, auto;
+}
+
+html.nexora-admin-dark #main > .content,
+html.nexora-admin-dark #content,
+html.nexora-admin-dark #content-start,
+html.nexora-admin-dark #content-main {
+  background: transparent !important;
+}
+
+html.nexora-admin-dark #main::before {
+  opacity: .72;
+  background:
+    url('../../storefront/images/nexora-ambient.svg') center top / min(1640px, 138vw) 2500px repeat-y,
+    radial-gradient(ellipse 62% 46% at 7% 8%, rgba(155,123,210,.32), transparent 68%),
+    radial-gradient(ellipse 52% 42% at 94% 32%, rgba(239,156,131,.26), transparent 70%),
+    repeating-linear-gradient(135deg, rgba(180,151,232,.09) 0 1px, transparent 1px 40px);
+  background-repeat: repeat-y, no-repeat, no-repeat, repeat;
+  background-size: min(1640px, 138vw) 2500px, 100% 100%, 100% 100%, 100% 100%;
+  background-position: center top, center, center, center;
+  filter: brightness(.92) saturate(1.22) contrast(1.08);
+  mix-blend-mode: screen;
+}
+
+html.nexora-admin-dark #main::after {
+  opacity: .78;
+  background:
+    radial-gradient(circle at 32% 36%, rgba(239,156,131,.36), transparent 33%),
+    radial-gradient(circle at 61% 52%, rgba(155,123,210,.42), transparent 64%);
+}
