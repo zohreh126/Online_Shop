@@ -31,10 +31,12 @@ class OrderAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
         "customer",
         "status",
         "payment_status",
+        "delivery_date",
+        "delivery_time_slot",
         "total_amount",
         "created_at",
     )
-    list_filter = ("status", "payment_status", "payment_method")
+    list_filter = ("status", "payment_status", "payment_method", "delivery_time_slot")
     search_fields = (
         "order_number",
         "customer__username",
@@ -66,7 +68,7 @@ class OrderAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
         (_("Order"), {"fields": ("order_number", "customer", "status", "created_at", "updated_at")}),
         (_("Payment"), {"fields": ("payment_method", "payment_status", "payment_reference", "paid_at")}),
         (_("Totals"), {"fields": ("currency", "subtotal", "product_discount_amount", "coupon_discount_amount", "shipping_amount", "total_amount", "discount_code", "discount_code_text")}),
-        (_("Shipping"), {"fields": ("shipping_title", "shipping_province", "shipping_city", "shipping_address_line", "shipping_postal_code", "shipping_recipient_name", "shipping_recipient_phone")}),
+        (_("Shipping"), {"fields": ("shipping_title", "shipping_province", "shipping_city", "shipping_address_line", "shipping_postal_code", "shipping_recipient_name", "shipping_recipient_phone", "delivery_date", "delivery_time_slot")}),
         (_("Notes"), {"fields": ("notes", "cancelled_at")}),
     )
     inlines = (OrderItemInline,)

@@ -8,6 +8,17 @@ const money = (value) => `${localizedNumber(Math.round(Number(value)))} ${tr("to
 const state = { cart: null, addresses: [], selectedAddress: null, order: null };
 const latinizeDigits = (value) => String(value).replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit)).replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
 const normalizeText = (value) => String(value).normalize("NFC").replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/\s+/g, " ").trim();
+function localDateISO(date) { return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-"); }
+function setupDeliverySchedule() {
+  const input = document.querySelector("#delivery-date");
+  if (!input) return;
+  const today = new Date();
+  const minimum = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2);
+  const maximum = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
+  input.min = localDateISO(minimum);
+  input.max = localDateISO(maximum);
+  if (!input.value) input.value = input.min;
+}
 function setupTheme() { const root = document.documentElement; const button = document.querySelector("#theme-toggle"); if (localStorage.getItem("nexora-theme") === "dark") root.classList.add("dark"); const update = () => { if (button) button.textContent = root.classList.contains("dark") ? "☼" : "☾"; }; button?.addEventListener("click", () => { root.classList.toggle("dark"); localStorage.setItem("nexora-theme", root.classList.contains("dark") ? "dark" : "light"); update(); }); update(); }
 
 function getCookie(name) {
@@ -59,7 +70,7 @@ function showFieldErrors(form, data) {
   Object.entries(data || {}).forEach(([field, messages]) => {
     const input = form.querySelector(`[name="${field}"]`);
     if (!input) return;
-    const message = Array.isArray(messages) ? messages[0] : messages;
+    const message = field === "delivery_date" ? tr("deliveryDateError") : (Array.isArray(messages) ? messages[0] : messages);
     input.setAttribute("aria-invalid", "true");
     const error = document.createElement("small");
     error.className = "field-error";
@@ -181,14 +192,28 @@ document.querySelector("#address-form").addEventListener("submit", async (event)
 });
 document.querySelector("#checkout-submit").addEventListener("click", async () => {
   if (!state.selectedAddress) { showAlert(tr("chooseAddress")); return; }
-  const button = document.querySelector("#checkout-submit"); button.disabled = true;
+  const button = document.querySelector("#checkout-submit");
+  const deliveryForm = document.querySelector(".delivery-schedule");
+  clearFieldErrors(deliveryForm);
+  button.disabled = true;
   try {
-    state.order = await request("cart/checkout/", { method: "POST", body: JSON.stringify({ address_id: state.selectedAddress }) });
+    state.order = await request("cart/checkout/", {
+      method: "POST",
+      body: JSON.stringify({
+        address_id: state.selectedAddress,
+        delivery_date: document.querySelector("#delivery-date").value,
+        delivery_time_slot: document.querySelector("#delivery-time-slot").value,
+      }),
+    });
     const paid = await request(`orders/${state.order.order_number}/mock-payment/`, { method: "POST", body: JSON.stringify({ result: "success" }) });
     document.querySelector("#checkout-content").hidden = true;
     window.location.href = `/order-result/?order=${encodeURIComponent(paid.order_number)}&status=${encodeURIComponent(paid.payment_status || "paid")}`;
-  } catch (error) { showAlert(error.message); button.disabled = false; }
+  } catch (error) {
+    if (!showFieldErrors(deliveryForm, error.data)) showAlert(error.message);
+    button.disabled = false;
+  }
 });
 window.addEventListener("nexora-language-changed", () => { if (state.addresses.length) renderAddresses(); if (state.cart?.items?.length) renderCart(); });
+setupDeliverySchedule();
 load();
 setupTheme();

@@ -163,6 +163,10 @@ class Order(TimeStampedModel):
         MOCK = "mock", _("Mock payment")
         CASH_ON_DELIVERY = "cash_on_delivery", _("Cash on delivery")
 
+    class DeliveryTimeSlot(models.TextChoices):
+        MORNING = "morning", _("09:00 - 12:00")
+        EVENING = "evening", _("15:00 - 20:00")
+
     order_number = models.UUIDField(
         verbose_name=_("Order number"),
         default=uuid.uuid4,
@@ -271,6 +275,19 @@ class Order(TimeStampedModel):
     shipping_postal_code = models.CharField(_("Shipping postal code"), max_length=10)
     shipping_recipient_name = models.CharField(_("Recipient name"), max_length=150)
     shipping_recipient_phone = models.CharField(_("Recipient phone"), max_length=20)
+
+    delivery_date = models.DateField(
+        verbose_name=_("Delivery date"),
+        null=True,
+        blank=True,
+        help_text=_("Delivery can be scheduled from two to seven days after checkout."),
+    )
+    delivery_time_slot = models.CharField(
+        verbose_name=_("Delivery time slot"),
+        max_length=20,
+        choices=DeliveryTimeSlot.choices,
+        default=DeliveryTimeSlot.MORNING,
+    )
 
     notes = models.TextField(verbose_name=_("Notes"), blank=True)
     paid_at = models.DateTimeField(verbose_name=_("Paid at"), null=True, blank=True)

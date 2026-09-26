@@ -11,6 +11,7 @@ const roleLabels = { product_manager: "roleProductManager", supervisor: "roleSup
 const dashboardRoleKey = (profile) => profile?.is_superuser || (profile?.is_staff && !profile?.role) ? "roleAdministrator" : (roleLabels[profile?.role] || "normalCustomer");
 let dashboardOrders = [];
 let dashboardSnapshot = null;
+function deliverySummary(order) { if (!order.delivery_date) return ""; const date = new Date(`${order.delivery_date}T12:00:00`).toLocaleDateString(document.documentElement.lang === "en" ? "en-US" : "fa-IR", { year: "numeric", month: "short", day: "numeric" }); const slot = order.delivery_time_slot === "evening" ? tr("deliveryEvening") : tr("deliveryMorning"); return formatMessage("deliveryTimeSummary", { date, slot }); }
 function setupTheme() { const root = document.documentElement; const button = document.querySelector("#theme-toggle"); if (localStorage.getItem("nexora-theme") === "dark") root.classList.add("dark"); const update = () => { if (button) button.textContent = root.classList.contains("dark") ? "☼" : "☾"; }; button?.addEventListener("click", () => { root.classList.toggle("dark"); localStorage.setItem("nexora-theme", root.classList.contains("dark") ? "dark" : "light"); update(); }); update(); }
 
 async function request(path) {
@@ -31,7 +32,8 @@ function showAlert(message) {
 }
 
 function renderOrderDetail(container, order) {
-  container.innerHTML = `<div class="order-detail"><div class="order-address"><strong>${tr("shippingAddressLabel")}</strong><p>${order.shipping_province}، ${order.shipping_city}، ${order.shipping_address_line}</p><small>${order.shipping_recipient_name} · ${order.shipping_recipient_phone}</small></div><div class="order-items">${order.items.map((item) => `<div class="checkout-item"><span>${productName(item)} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("")}</div></div>`;
+  const delivery = deliverySummary(order);
+  container.innerHTML = `<div class="order-detail"><div class="order-address"><strong>${tr("shippingAddressLabel")}</strong><p>${order.shipping_province}، ${order.shipping_city}، ${order.shipping_address_line}</p><small>${order.shipping_recipient_name} · ${order.shipping_recipient_phone}</small>${delivery ? `<small class="order-delivery-summary">${delivery}</small>` : ""}</div><div class="order-items">${order.items.map((item) => `<div class="checkout-item"><span>${productName(item)} × ${localizedNumber(item.quantity)}</span><strong>${money(item.line_total)}</strong></div>`).join("")}</div></div>`;
 }
 
 function renderOrders(orders) {

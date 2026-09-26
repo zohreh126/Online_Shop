@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django.db import transaction
@@ -306,6 +307,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "shipping_postal_code",
             "shipping_recipient_name",
             "shipping_recipient_phone",
+            "delivery_date",
+            "delivery_time_slot",
             "notes",
             "items",
             "reward_points",
@@ -386,10 +389,31 @@ class CheckoutSerializer(serializers.Serializer):
         allow_blank=True,
         max_length=50,
     )
+    delivery_date = serializers.DateField(required=False)
+    delivery_time_slot = serializers.ChoiceField(
+        choices=Order.DeliveryTimeSlot.choices,
+        required=False,
+        default=Order.DeliveryTimeSlot.MORNING,
+    )
 
     def validate(self, attrs):
         customer = self.context["request"].user
         address = attrs.get("address")
+        today = timezone.localdate()
+        minimum_delivery_date = today + timedelta(days=2)
+        maximum_delivery_date = today + timedelta(days=7)
+        delivery_date = attrs.get("delivery_date", minimum_delivery_date)
+
+        if delivery_date < minimum_delivery_date or delivery_date > maximum_delivery_date:
+            raise serializers.ValidationError(
+                {
+                    "delivery_date": (
+                        "Choose a delivery date between two and seven days "
+                        "after today."
+                    )
+                }
+            )
+        attrs["delivery_date"] = delivery_date
 
         if address is None:
             address = (
@@ -533,6 +557,11 @@ class CheckoutSerializer(serializers.Serializer):
             shipping_postal_code=address.postal_code,
             shipping_recipient_name=address.recipient_name,
             shipping_recipient_phone=address.recipient_phone,
+            delivery_date=validated_data["delivery_date"],
+            delivery_time_slot=validated_data.get(
+                "delivery_time_slot",
+                Order.DeliveryTimeSlot.MORNING,
+            ),
             notes=validated_data.get("notes", ""),
         )
 

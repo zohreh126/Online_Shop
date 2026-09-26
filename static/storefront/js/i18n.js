@@ -826,6 +826,26 @@ translations.en.loginStepSubtitle = "Sign in with your username and password, or
 translations.en.loginWithPassword = "Sign in with username and password";
 translations.en.loginWithEmailCode = "Sign in with email code";
 translations.en.otpEmailOnly = "Enter the email address linked to your account to use a login code.";
+translations.fa.deliverySchedule = "زمان‌بندی تحویل";
+translations.fa.deliveryScheduleTitle = "تحویل را برای زمان مناسب خودت انتخاب کن";
+translations.fa.deliveryScheduleHint = "تاریخ تحویل از دو روز بعد تا هفت روز بعد از ثبت سفارش قابل انتخاب است.";
+translations.fa.deliveryDate = "تاریخ تحویل";
+translations.fa.deliveryTimeSlot = "بازه زمانی تحویل";
+translations.fa.deliveryMorning = "صبح · ۹ تا ۱۲";
+translations.fa.deliveryEvening = "عصر · ۱۵ تا ۲۰";
+translations.fa.deliveryWindowHint = "ارسال در بازه انتخاب‌شده انجام می‌شود؛ لطفاً حضور گیرنده را هماهنگ کن.";
+translations.fa.deliveryDateError = "تاریخ تحویل باید بین دو تا هفت روز بعد از امروز باشد.";
+translations.fa.deliveryTimeSummary = "تحویل: {date} · {slot}";
+translations.en.deliverySchedule = "Delivery schedule";
+translations.en.deliveryScheduleTitle = "Choose a delivery time that works for you";
+translations.en.deliveryScheduleHint = "Choose a delivery date from two to seven days after placing your order.";
+translations.en.deliveryDate = "Delivery date";
+translations.en.deliveryTimeSlot = "Delivery time window";
+translations.en.deliveryMorning = "Morning · 09:00–12:00";
+translations.en.deliveryEvening = "Evening · 15:00–20:00";
+translations.en.deliveryWindowHint = "Your order will arrive in the selected window; please coordinate the recipient’s availability.";
+translations.en.deliveryDateError = "The delivery date must be between two and seven days from today.";
+translations.en.deliveryTimeSummary = "Delivery: {date} · {slot}";
 
 const productVisualThemes = {
   "keyboards-mice": { icon: "⌘", fa: "میزکار", en: "DESK" },

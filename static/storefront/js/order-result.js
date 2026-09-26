@@ -6,6 +6,12 @@ const orderNumber = params.get("order");
 const requestedStatus = params.get("status");
 const localizedNumber = (value) => new Intl.NumberFormat(document.documentElement.lang === "en" ? "en-US" : "fa-IR").format(Math.round(Number(value || 0)));
 const money = (value) => `${localizedNumber(value)} ${tr("toman")}`;
+function deliverySummary(order) {
+  if (!order.delivery_date) return "";
+  const date = new Date(`${order.delivery_date}T12:00:00`).toLocaleDateString(document.documentElement.lang === "en" ? "en-US" : "fa-IR", { year: "numeric", month: "long", day: "numeric" });
+  const slot = order.delivery_time_slot === "evening" ? tr("deliveryEvening") : tr("deliveryMorning");
+  return formatMessage("deliveryTimeSummary", { date, slot });
+}
 
 function setupTheme() {
   const root = document.documentElement;
@@ -32,7 +38,8 @@ function renderResult(order) {
   const couponDiscount = Number(order.coupon_discount_amount || 0);
   const shipping = Number(order.shipping_amount || 0);
   const summary = `<div class="result-summary"><div><span>${tr("cartSubtotal")}</span><strong>${money(order.subtotal)}</strong></div>${productDiscount > 0 ? `<div class="is-discount"><span>${tr("productDiscount")}</span><strong>−${money(productDiscount)}</strong></div>` : ""}${couponDiscount > 0 ? `<div class="is-discount"><span>${tr("couponDiscount")}</span><strong>−${money(couponDiscount)}</strong></div>` : ""}<div><span>${tr("shippingFee")}</span><strong>${shipping > 0 ? money(shipping) : tr("free")}</strong></div><div class="is-total"><span>${tr("profileOrderTotal")}</span><strong>${money(order.total_amount)}</strong></div></div>`;
-  card.innerHTML = "<div class=\"result-icon\">" + (failed ? "!" : "✓") + "</div><p class=\"eyebrow\"><span></span><span>" + tr("orderResult") + "</span></p><h1>" + (failed ? tr("orderFailed") : tr("orderConfirmed")) + "</h1><p class=\"result-description\">" + (failed ? tr("orderResultFailedText") : tr("orderResultSuccessText")) + "</p><div class=\"result-order-number\"><span>" + tr("orderNumber") + "</span><strong>" + order.order_number + "</strong></div>" + summary + "<div class=\"result-actions\"><a class=\"primary-button\" href=\"/profile/?section=orders\">" + tr("viewOrders") + " <span>←</span></a><a class=\"secondary-button\" href=\"/\">" + tr("continueShopping") + "</a></div>";
+  const delivery = deliverySummary(order);
+  card.innerHTML = "<div class=\"result-icon\">" + (failed ? "!" : "✓") + "</div><p class=\"eyebrow\"><span></span><span>" + tr("orderResult") + "</span></p><h1>" + (failed ? tr("orderFailed") : tr("orderConfirmed")) + "</h1><p class=\"result-description\">" + (failed ? tr("orderResultFailedText") : tr("orderResultSuccessText")) + "</p><div class=\"result-order-number\"><span>" + tr("orderNumber") + "</span><strong>" + order.order_number + "</strong></div>" + (delivery ? `<div class="result-delivery"><span aria-hidden="true">⌁</span><strong>${delivery}</strong></div>` : "") + summary + "<div class=\"result-actions\"><a class=\"primary-button\" href=\"/profile/?section=orders\">" + tr("viewOrders") + " <span>←</span></a><a class=\"secondary-button\" href=\"/\">" + tr("continueShopping") + "</a></div>";
   card.hidden = false;
   document.querySelector("#order-result-loading").hidden = true;
   document.title = (failed ? tr("orderFailed") : tr("orderConfirmed")) + " | Nexora";

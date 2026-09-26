@@ -261,6 +261,8 @@ class StorefrontPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "تکمیل سفارش")
         self.assertContains(response, "/static/storefront/js/checkout.js")
+        self.assertContains(response, 'id="delivery-date"')
+        self.assertContains(response, 'id="delivery-time-slot"')
 
     def test_order_result_page_is_available(self):
         response = self.client.get(reverse("storefront-order-result"))

@@ -1,5 +1,7 @@
+from datetime import timedelta
 from decimal import Decimal
 
+from django.utils import timezone
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -62,10 +64,101 @@ class CheckoutAPITests(APITestCase):
         self.assertEqual(order.subtotal, Decimal("500.00"))
         self.assertEqual(order.shipping_amount, Decimal("120000.00"))
         self.assertEqual(order.total_amount, Decimal("120500.00"))
+        self.assertEqual(order.delivery_date, timezone.localdate() + timedelta(days=2))
+        self.assertEqual(order.delivery_time_slot, Order.DeliveryTimeSlot.MORNING)
         self.assertEqual(order.items.get().product_name, self.product.name)
         self.product.refresh_from_db()
         self.assertEqual(self.product.stock_quantity, 4)
         self.assertTrue(CartItem.objects.exists())
+
+    def test_checkout_persists_custom_delivery_schedule(self):
+        self.add_to_cart()
+        delivery_date = timezone.localdate() + timedelta(days=4)
+
+        response = self.client.post(
+            self.checkout_url,
+            {
+                "address_id": self.address.pk,
+                "delivery_date": delivery_date.isoformat(),
+                "delivery_time_slot": Order.DeliveryTimeSlot.EVENING,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        order = Order.objects.get()
+        self.assertEqual(order.delivery_date, delivery_date)
+        self.assertEqual(order.delivery_time_slot, Order.DeliveryTimeSlot.EVENING)
+        self.assertEqual(response.data["delivery_date"], delivery_date.isoformat())
+        self.assertEqual(response.data["delivery_time_slot"], Order.DeliveryTimeSlot.EVENING)
+
+    def test_checkout_accepts_seven_day_delivery_boundary(self):
+        self.add_to_cart()
+        delivery_date = timezone.localdate() + timedelta(days=7)
+
+        response = self.client.post(
+            self.checkout_url,
+            {
+                "address_id": self.address.pk,
+                "delivery_date": delivery_date.isoformat(),
+                "delivery_time_slot": Order.DeliveryTimeSlot.MORNING,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_checkout_rejects_delivery_date_before_two_day_boundary(self):
+        self.add_to_cart()
+        delivery_date = timezone.localdate() + timedelta(days=1)
+
+        response = self.client.post(
+            self.checkout_url,
+            {
+                "address_id": self.address.pk,
+                "delivery_date": delivery_date.isoformat(),
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("delivery_date", response.data)
+        self.assertFalse(Order.objects.exists())
+
+    def test_checkout_rejects_delivery_date_after_seven_day_boundary(self):
+        self.add_to_cart()
+        delivery_date = timezone.localdate() + timedelta(days=8)
+
+        response = self.client.post(
+            self.checkout_url,
+            {
+                "address_id": self.address.pk,
+                "delivery_date": delivery_date.isoformat(),
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("delivery_date", response.data)
+        self.assertFalse(Order.objects.exists())
+
+    def test_checkout_rejects_unknown_delivery_time_slot(self):
+        self.add_to_cart()
+        delivery_date = timezone.localdate() + timedelta(days=2)
+
+        response = self.client.post(
+            self.checkout_url,
+            {
+                "address_id": self.address.pk,
+                "delivery_date": delivery_date.isoformat(),
+                "delivery_time_slot": "night",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("delivery_time_slot", response.data)
+        self.assertFalse(Order.objects.exists())
 
     def test_checkout_uses_default_address_when_address_is_omitted(self):
         self.add_to_cart()
