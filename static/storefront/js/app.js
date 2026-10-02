@@ -3,6 +3,10 @@ const state = { products: [], categories: [], category: "", search: "", sort: "n
 let offerSpotlightProducts = [];
 let offerSpotlightIndex = 0;
 let offerSpotlightTimer = null;
+let heroCarouselProducts = [];
+let heroCarouselIndex = 0;
+let heroCarouselTimer = null;
+let heroCarouselPaused = false;
 let campaignExpiryTimer = null;
 const expandedCategorySlugs = new Set();
 const COMPARE_STORAGE_KEY = "nexora-compare";
@@ -133,6 +137,60 @@ function renderHeroOrbit() {
     const tag = Number(product.discount_amount || 0) > 0 ? discountLabel(product) : (product.brand || "NEXORA");
     return `<a class="hero-product-tile tile-${index + 1}" href="${escapeHTML(href)}" aria-label="${escapeHTML(name)}"><span class="hero-product-tile-image">${image}</span><span class="hero-product-tile-copy"><small>${escapeHTML(tag)}</small><strong>${escapeHTML(name)}</strong><b>${escapeHTML(money(product.final_price))}</b></span></a>`;
   }).join("");
+}
+
+function renderHeroCarousel() {
+  const carousel = document.querySelector("#hero-carousel");
+  const slide = document.querySelector("#hero-carousel-slide");
+  const dots = document.querySelector("#hero-carousel-dots");
+  if (!carousel || !slide || !dots) return;
+
+  heroCarouselProducts = [...state.products]
+    .filter((product) => product.is_in_stock)
+    .sort((first, second) => featuredScore(second) - featuredScore(first))
+    .slice(0, 5);
+
+  if (!heroCarouselProducts.length) {
+    carousel.hidden = true;
+    window.clearInterval(heroCarouselTimer);
+    return;
+  }
+
+  carousel.hidden = false;
+  heroCarouselIndex = heroCarouselIndex % heroCarouselProducts.length;
+  const product = heroCarouselProducts[heroCarouselIndex];
+  const name = productName(product);
+  const href = `/products/${encodeURIComponent(product.slug || "")}/`;
+  const discount = Number(product.discount_amount || 0);
+  const productCategory = product.category ? categoryName(product.category) : t("digitalAccessories");
+  const eyebrow = discount > 0 ? discountLabel(product) : productCategory;
+  const price = `<strong>${escapeHTML(money(product.final_price))}</strong>${discount > 0 ? `<del>${escapeHTML(money(product.price))}</del>` : ""}`;
+  const savings = discount > 0 ? `<small class="hero-carousel-saving">${escapeHTML(formatMessage("youSave", { amount: money(discount) }))}</small>` : `<small class="hero-carousel-saving">${escapeHTML(t("selectedForYou"))}</small>`;
+
+  slide.innerHTML = `<a class="hero-carousel-product" href="${escapeHTML(href)}"><div class="hero-carousel-image">${productImage(product)}<span class="hero-carousel-glint" aria-hidden="true"></span></div><div class="hero-carousel-copy"><p class="hero-carousel-eyebrow"><span aria-hidden="true">✦</span>${escapeHTML(eyebrow)}</p><h2>${escapeHTML(name)}</h2><p>${escapeHTML(window.NexoraI18n?.productDescription(product) || product.description || t("carefulChoiceText"))}</p><div class="hero-carousel-price"><span class="price-stack">${price}${savings}</span><span class="hero-carousel-arrow" aria-hidden="true">↗</span></div></div></a>`;
+  slide.classList.remove("is-entering");
+  window.requestAnimationFrame(() => slide.classList.add("is-entering"));
+  carousel.setAttribute("aria-label", formatMessage("heroCarouselPosition", { number: localizedNumber(heroCarouselIndex + 1), total: localizedNumber(heroCarouselProducts.length) }));
+
+  dots.innerHTML = heroCarouselProducts.map((item, index) => `<button class="hero-carousel-dot${index === heroCarouselIndex ? " is-active" : ""}" data-hero-index="${index}" type="button" role="tab" aria-selected="${index === heroCarouselIndex}" aria-label="${escapeHTML(formatMessage("heroCarouselGoTo", { number: localizedNumber(index + 1) }))}"></button>`).join("");
+  dots.querySelectorAll("[data-hero-index]").forEach((button) => button.addEventListener("click", () => {
+    heroCarouselIndex = Number(button.dataset.heroIndex);
+    renderHeroCarousel();
+    startHeroCarouselTimer();
+  }));
+}
+
+function moveHeroCarousel(step) {
+  if (!heroCarouselProducts.length) return;
+  heroCarouselIndex = (heroCarouselIndex + step + heroCarouselProducts.length) % heroCarouselProducts.length;
+  renderHeroCarousel();
+}
+
+function startHeroCarouselTimer() {
+  window.clearInterval(heroCarouselTimer);
+  if (!heroCarouselPaused && heroCarouselProducts.length > 1) {
+    heroCarouselTimer = window.setInterval(() => moveHeroCarousel(1), 5600);
+  }
 }
 
 function placeholderIcon(categorySlug) {
@@ -971,6 +1029,8 @@ async function loadCatalog() {
     startOfferSpotlightTimer();
     renderFeaturedProducts();
     renderHeroOrbit();
+    renderHeroCarousel();
+    startHeroCarouselTimer();
     renderSearchSuggestions();
   } catch (error) {
     document.querySelector("#product-grid").innerHTML = `<div class="state-card"><span class="state-icon">!</span><h3>${t("storefrontConnectionFailed")}</h3><p>${t("serverCheck")}</p><button class="retry-button" onclick="loadCatalog()">${t("tryAgain")}</button></div>`;
@@ -1082,6 +1142,17 @@ document.querySelector("#category-toggle").addEventListener("click", () => {
 document.querySelector("#theme-toggle").addEventListener("click", () => { document.documentElement.classList.toggle("dark"); localStorage.setItem("nexora-theme", document.documentElement.classList.contains("dark") ? "dark" : "light"); updateThemeButton(); });
 document.querySelector("#offer-spotlight-prev")?.addEventListener("click", () => { moveOfferSpotlight(-1); startOfferSpotlightTimer(); });
 document.querySelector("#offer-spotlight-next")?.addEventListener("click", () => { moveOfferSpotlight(1); startOfferSpotlightTimer(); });
+document.querySelector("#hero-carousel-prev")?.addEventListener("click", () => { moveHeroCarousel(-1); startHeroCarouselTimer(); });
+document.querySelector("#hero-carousel-next")?.addEventListener("click", () => { moveHeroCarousel(1); startHeroCarouselTimer(); });
+const heroCarousel = document.querySelector("#hero-carousel");
+heroCarousel?.addEventListener("mouseenter", () => { heroCarouselPaused = true; window.clearInterval(heroCarouselTimer); });
+heroCarousel?.addEventListener("mouseleave", () => { heroCarouselPaused = false; startHeroCarouselTimer(); });
+heroCarousel?.addEventListener("focusin", () => { heroCarouselPaused = true; window.clearInterval(heroCarouselTimer); });
+heroCarousel?.addEventListener("focusout", (event) => { if (!heroCarousel.contains(event.relatedTarget)) { heroCarouselPaused = false; startHeroCarouselTimer(); } });
+heroCarousel?.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowLeft") { event.preventDefault(); moveHeroCarousel(document.documentElement.dir === "rtl" ? 1 : -1); startHeroCarouselTimer(); }
+  if (event.key === "ArrowRight") { event.preventDefault(); moveHeroCarousel(document.documentElement.dir === "rtl" ? -1 : 1); startHeroCarouselTimer(); }
+});
 if (localStorage.getItem("nexora-theme") === "dark") document.documentElement.classList.add("dark");
 function updateThemeButton() { document.querySelector("#theme-toggle").textContent = document.documentElement.classList.contains("dark") ? "☼" : "☾"; }
 updateThemeButton();
@@ -1104,6 +1175,7 @@ window.addEventListener("nexora-language-changed", () => {
   renderOfferSpotlight();
   renderFeaturedProducts();
   renderHeroOrbit();
+  renderHeroCarousel();
   renderRecentlyViewed();
   refreshCart();
   renderCatalogFilters();
@@ -1111,6 +1183,7 @@ window.addEventListener("nexora-language-changed", () => {
   updateDiscountCountdowns();
   updateCompareUI();
   startOfferSpotlightTimer();
+  startHeroCarouselTimer();
   loadCampaign();
   if (quickViewProduct && !document.querySelector("#quick-view-modal")?.hidden) renderQuickView(quickViewProduct);
 });

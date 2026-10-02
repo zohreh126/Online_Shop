@@ -311,7 +311,9 @@ class Command(BaseCommand):
                     product_count += 1
 
         campaign_started_at = timezone.now() - timedelta(minutes=1)
-        campaign_ends_at = timezone.now() + timedelta(days=7)
+        # Keep demo campaigns visible long enough for local review and handoff;
+        # the campaign remains time-bounded so expiry behavior is still testable.
+        campaign_ends_at = timezone.now() + timedelta(days=30)
         for sku, discount_data in SEED_PRODUCT_DISCOUNTS.items():
             product = products_by_sku[sku]
             Discount.objects.update_or_create(

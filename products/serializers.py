@@ -1,11 +1,50 @@
 from decimal import Decimal
 
 from django.db.models import Avg
+from django.templatetags.static import static
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import Category, Discount, Product, ProductQuestion, ProductReview
+
+
+SEEDED_PRODUCT_ART = {
+    "NX-FLUX-KB-001": "keyboard.svg",
+    "NX-ARC-MOUSE-001": "mouse.svg",
+    "NX-PULSE-ANC-001": "audio.svg",
+    "NX-ECHO-MIC-001": "microphone.svg",
+    "NX-LINK-C100-001": "cable-hub.svg",
+    "NX-DOCK-7IN1-001": "cable-hub.svg",
+    "NX-CORE-MAT-001": "gaming.svg",
+    "NX-SHIFT-RGB-001": "gaming.svg",
+    "NX-NOVA-KB-001": "keyboard.svg",
+    "NX-TYPEC-KB-001": "keyboard.svg",
+    "NX-GLIDE-MOUSE-001": "mouse.svg",
+    "NX-MINI-MOUSE-001": "mouse.svg",
+    "NX-VECTOR-MOUSE-001": "mouse.svg",
+    "NX-AIR-EARBUDS-001": "audio.svg",
+    "NX-STUDIO-HEADSET-001": "audio.svg",
+    "NX-BEAM-MIC-001": "microphone.svg",
+    "NX-WAVE-MIC-001": "microphone.svg",
+    "NX-ROOM-SPEAKER-001": "speaker.svg",
+    "NX-EDGE-CONTROLLER-001": "gaming.svg",
+    "NX-POCKET-GAMEPAD-001": "gaming.svg",
+    "NX-GLOW-LIGHT-001": "lighting.svg",
+    "NX-HALO-LIGHT-001": "lighting.svg",
+    "NX-VOLT-GAN-001": "charger.svg",
+    "NX-QUAD-CHARGER-001": "charger.svg",
+    "NX-VOLT-GAN-100-001": "charger.svg",
+    "NX-RESERVE-PB-001": "powerbank.svg",
+}
+
+CATEGORY_PRODUCT_ART = {
+    "keyboards-mice": "keyboard.svg",
+    "audio": "audio.svg",
+    "cables-charging": "cable-hub.svg",
+    "gaming": "gaming.svg",
+    "accessories": "accessories.svg",
+}
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -120,10 +159,24 @@ class ProductSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(OpenApiTypes.URI)
     def get_image_url(self, product):
-        if not product.image:
-            return None
+        if product.image:
+            image_url = product.image.url
+        else:
+            fallback_name = SEEDED_PRODUCT_ART.get(product.sku)
+            if not fallback_name:
+                category_slug = str(getattr(product.category, "slug", "") or "").lower()
+                fallback_name = next(
+                    (
+                        artwork
+                        for category, artwork in CATEGORY_PRODUCT_ART.items()
+                        if category in category_slug
+                    ),
+                    "accessories.svg",
+                )
+            if not fallback_name:
+                return None
+            image_url = static(f"storefront/images/products/{fallback_name}")
 
-        image_url = product.image.url
         request = self.context.get("request")
         if request is not None:
             return request.build_absolute_uri(image_url)

@@ -16,6 +16,36 @@ const translations = {
 
 translations.en.roleAdministrator = "Administrator";
 
+// Shared labels used by the storefront shell. Keeping these in the same
+// dictionary prevents the first paint from leaving Persian accessibility text
+// behind when the saved language is English.
+translations.fa.metaDescription = "Nexora؛ فروشگاه لوازم دیجیتال برای انتخاب‌های هوشمندانه.";
+translations.fa.homeLabel = "صفحه اصلی Nexora";
+translations.fa.primaryNavigation = "ناوبری اصلی";
+translations.fa.toggleTheme = "تغییر تم";
+translations.fa.heroVisualLabel = "تصویر تزئینی محصولات دیجیتال";
+translations.fa.heroCarouselLabel = "اسلاید محصولات منتخب نکستورا";
+translations.fa.heroCarouselPrevious = "محصول قبلی";
+translations.fa.heroCarouselNext = "محصول بعدی";
+translations.fa.heroCarouselPosition = "اسلاید {number} از {total}";
+translations.fa.heroCarouselGoTo = "رفتن به اسلاید {number}";
+translations.fa.closeCart = "بستن سبد خرید";
+translations.fa.productPagination = "صفحه‌بندی محصولات";
+translations.fa.feedbackRatingLabel = "امتیاز تجربهٔ خرید";
+translations.en.metaDescription = "Nexora; a considered digital accessories store for smarter everyday choices.";
+translations.en.homeLabel = "Nexora home page";
+translations.en.primaryNavigation = "Primary navigation";
+translations.en.toggleTheme = "Change theme";
+translations.en.heroVisualLabel = "Decorative digital products artwork";
+translations.en.heroCarouselLabel = "Nexora featured products carousel";
+translations.en.heroCarouselPrevious = "Previous product";
+translations.en.heroCarouselNext = "Next product";
+translations.en.heroCarouselPosition = "Slide {number} of {total}";
+translations.en.heroCarouselGoTo = "Go to slide {number}";
+translations.en.closeCart = "Close shopping cart";
+translations.en.productPagination = "Product pagination";
+translations.en.feedbackRatingLabel = "Shopping experience rating";
+
 translations.fa.specialOffersEyebrow = "انتخاب‌های هوشمند";
 translations.fa.specialOffersTitle = "پیشنهادهای ویژه برای تو";
 translations.fa.specialOffersIntro = "محصولات این بخش با ترکیب تخفیف، امتیاز کاربران، موجودی و تازگی انتخاب می‌شوند.";
@@ -155,7 +185,34 @@ const productNames = {
     "NX-VOLT-GAN-100-001": "شارژر GaN Nexora Volt 100W",
     "NX-RESERVE-PB-001": "پاوربانک Nexora Reserve 20000"
   },
-  en: {}
+  en: {
+    "NX-FLUX-KB-001": "Nexora Flux Mechanical Keyboard",
+    "NX-ARC-MOUSE-001": "Nexora Arc Wireless Mouse",
+    "NX-PULSE-ANC-001": "Nexora Pulse ANC Headphones",
+    "NX-ECHO-MIC-001": "Nexora Echo USB Microphone",
+    "NX-LINK-C100-001": "Nexora Link USB-C Cable 100W",
+    "NX-DOCK-7IN1-001": "Nexora Dock 7-in-1 USB-C Hub",
+    "NX-CORE-MAT-001": "Nexora Core Gaming Desk Mat",
+    "NX-SHIFT-RGB-001": "Nexora Shift RGB Controller",
+    "NX-NOVA-KB-001": "Nexora Nova Low-Profile Keyboard",
+    "NX-TYPEC-KB-001": "Nexora Type-C Compact Keyboard",
+    "NX-GLIDE-MOUSE-001": "Nexora Glide Ergonomic Mouse",
+    "NX-MINI-MOUSE-001": "Nexora Mini Travel Mouse",
+    "NX-VECTOR-MOUSE-001": "Nexora Vector Silent Mouse",
+    "NX-AIR-EARBUDS-001": "Nexora Air Mini Earbuds",
+    "NX-STUDIO-HEADSET-001": "Nexora Studio Pro Headset",
+    "NX-BEAM-MIC-001": "Nexora Beam Streaming Microphone",
+    "NX-WAVE-MIC-001": "Nexora Wave Podcast Microphone",
+    "NX-ROOM-SPEAKER-001": "Nexora Room Mini Speaker",
+    "NX-EDGE-CONTROLLER-001": "Nexora Edge Wireless Controller",
+    "NX-POCKET-GAMEPAD-001": "Nexora Pocket Gamepad",
+    "NX-GLOW-LIGHT-001": "Nexora Glow Desk Light",
+    "NX-HALO-LIGHT-001": "Nexora Halo Monitor Light",
+    "NX-VOLT-GAN-001": "Nexora Volt GaN Charger 65W",
+    "NX-QUAD-CHARGER-001": "Nexora Quad USB Charger",
+    "NX-VOLT-GAN-100-001": "Nexora Volt GaN Charger 100W",
+    "NX-RESERVE-PB-001": "Nexora Reserve Power Bank 20,000"
+  }
 };
 
 const productDescriptions = {
@@ -168,7 +225,24 @@ const productDescriptions = {
     "NX-DOCK-7IN1-001": "A versatile laptop hub with display output and built-in card readers.",
     "NX-CORE-MAT-001": "A large gaming mat with a controlled surface and stitched edges.",
     "NX-SHIFT-RGB-001": "A multi-platform wireless controller with lighting and low-latency connectivity.",
-    "NX-RESERVE-PB-001": "A high-capacity power bank designed for reliable everyday charging."
+    "NX-RESERVE-PB-001": "A high-capacity power bank designed for reliable everyday charging.",
+    "NX-NOVA-KB-001": "A slim low-profile keyboard for clean desks and comfortable daily typing.",
+    "NX-TYPEC-KB-001": "A compact Type-C keyboard that keeps your setup focused and portable.",
+    "NX-GLIDE-MOUSE-001": "An ergonomic mouse shaped for precise control during long work sessions.",
+    "NX-MINI-MOUSE-001": "A travel-friendly wireless mouse that slips easily into any laptop bag.",
+    "NX-VECTOR-MOUSE-001": "A quiet-click mouse for focused work, study, and shared spaces.",
+    "NX-AIR-EARBUDS-001": "Compact wireless earbuds with a comfortable fit for everyday listening.",
+    "NX-STUDIO-HEADSET-001": "A detailed headset for focused listening, calls, and creative work.",
+    "NX-BEAM-MIC-001": "A clear streaming microphone tuned for gaming, live sessions, and calls.",
+    "NX-WAVE-MIC-001": "A warm-sounding microphone for podcasts, voiceovers, and desk recording.",
+    "NX-ROOM-SPEAKER-001": "A compact desktop speaker that brings balanced sound to small spaces.",
+    "NX-EDGE-CONTROLLER-001": "A responsive wireless controller built for comfortable multi-platform play.",
+    "NX-POCKET-GAMEPAD-001": "A compact gamepad for quick sessions at home or on the move.",
+    "NX-GLOW-LIGHT-001": "A soft desk light that adds a focused glow to your workspace.",
+    "NX-HALO-LIGHT-001": "A slim monitor light that reduces screen glare and brightens your desk.",
+    "NX-VOLT-GAN-001": "A compact 65W GaN charger for fast, efficient everyday charging.",
+    "NX-QUAD-CHARGER-001": "A four-port charger for keeping your daily devices powered together.",
+    "NX-VOLT-GAN-100-001": "A powerful 100W GaN charger for laptops, tablets, and phones."
   }
 };
 
@@ -895,6 +969,10 @@ function applyLanguage(language) {
   document.documentElement.lang = selected;
   document.documentElement.dir = selected === "en" ? "ltr" : "rtl";
   document.title = selected === "en" ? "Nexora | Digital essentials for modern living" : "Nexora | لوازم دیجیتال برای زندگی مدرن";
+  document.querySelectorAll("[data-i18n-content]").forEach((element) => {
+    const value = translations[selected][element.dataset.i18nContent];
+    if (value) element.setAttribute("content", value);
+  });
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     const value = translations[selected][element.dataset.i18n];
     if (value) element.textContent = value;
@@ -926,11 +1004,20 @@ function applyLanguage(language) {
 }
 
 function normalizeContactDetails() {
-  const phone = "۰۲۱ ۴۳۶۵۸۷۹۱";
+  const isEnglish = document.documentElement.lang === "en";
+  const phone = isEnglish ? "+98 21 4365 8791" : "۰۲۱ ۴۳۶۵۸۷۹۱";
   document.querySelectorAll('a[href^="tel:"]').forEach((link) => {
     link.href = "tel:+982143658791";
     link.textContent = phone;
     link.dir = "ltr";
+  });
+  document.querySelectorAll("[data-contact-phone]").forEach((element) => {
+    element.textContent = phone;
+    element.dir = "ltr";
+  });
+  document.querySelectorAll("[data-current-year]").forEach((element) => {
+    element.textContent = isEnglish ? "2026" : "۲۰۲۶";
+    element.dir = "ltr";
   });
   document.querySelectorAll('a[href^="mailto:"], .footer-contact span:first-of-type').forEach((element) => {
     element.dir = "ltr";
@@ -950,7 +1037,13 @@ window.NexoraI18n = {
   productVisualMarkup,
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+function setupLanguage() {
   applyLanguage(localStorage.getItem("nexora-language") || "fa");
   document.querySelectorAll("[data-language-toggle]").forEach((button) => button.addEventListener("click", () => applyLanguage(document.documentElement.lang === "fa" ? "en" : "fa")));
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", setupLanguage, { once: true });
+} else {
+  setupLanguage();
+}

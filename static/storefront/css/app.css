@@ -1756,6 +1756,119 @@ html[dir="ltr"] .offer-spotlight-controls { inset-inline-start:auto; inset-inlin
   .offer-spotlight-badge { top:18px; inset-inline-end:18px; min-width:50px; min-height:50px; font-size:10px; }
 }
 
+/* Hero carousel: the featured slide is a real, keyboard-friendly showcase,
+   separate from the decorative artwork so the product story is always clear. */
+.hero-carousel {
+  position:absolute;
+  z-index:4;
+  inset:12px 0 0;
+  display:grid;
+  grid-template-rows:minmax(0,1fr) auto;
+  width:min(100%, 520px);
+  height:460px;
+  margin:auto;
+  padding:18px;
+  border:1px solid rgba(255,255,255,.32);
+  border-radius:30px;
+  outline:0;
+  background:linear-gradient(145deg, rgba(50,39,66,.92), rgba(93,67,121,.82));
+  box-shadow:0 26px 58px rgba(55,43,72,.26), inset 0 1px 0 rgba(255,255,255,.16);
+  overflow:hidden;
+}
+.hero-carousel::before,
+.hero-carousel::after {
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  border-radius:50%;
+}
+.hero-carousel::before {
+  width:250px;
+  height:250px;
+  inset-inline-end:-110px;
+  top:-100px;
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:0 0 0 30px rgba(239,156,131,.08), 0 0 0 60px rgba(255,255,255,.04);
+}
+.hero-carousel::after {
+  width:180px;
+  height:180px;
+  inset-inline-start:-80px;
+  bottom:-105px;
+  background:rgba(239,156,131,.2);
+  filter:blur(18px);
+}
+.hero-carousel-stage,
+.hero-carousel-controls { position:relative; z-index:2; }
+.hero-carousel-stage { min-height:0; overflow:hidden; border-radius:21px; }
+.hero-carousel-slide { height:100%; opacity:0; transform:translateY(8px) scale(.98); }
+.hero-carousel-slide.is-entering { animation:hero-slide-in .55s cubic-bezier(.2,.8,.2,1) forwards; }
+@keyframes hero-slide-in { to { opacity:1; transform:none; } }
+.hero-carousel-product {
+  display:grid;
+  grid-template-columns:minmax(0,1.06fr) minmax(150px,.94fr);
+  align-items:stretch;
+  height:100%;
+  color:#fff;
+  text-decoration:none;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:21px;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.035));
+  overflow:hidden;
+  transition:transform .25s ease, border-color .25s ease, background .25s ease;
+}
+.hero-carousel-product:hover { transform:translateY(-3px); border-color:rgba(239,156,131,.65); background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.05)); }
+.hero-carousel-image { position:relative; min-width:0; min-height:250px; overflow:hidden; background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.2),transparent 30%),linear-gradient(145deg,rgba(239,156,131,.18),rgba(38,29,54,.22)); }
+.hero-carousel-image::before { content:""; position:absolute; inset:16%; border:1px solid rgba(255,255,255,.18); border-radius:50%; transform:rotate(-18deg) scaleX(1.35); }
+.hero-carousel-image > .nexora-product-art { position:absolute; inset:0; background:transparent; }
+.hero-carousel-image > .nexora-product-art > img { object-fit:contain; padding:22px; filter:drop-shadow(0 23px 20px rgba(17,10,28,.35)); }
+.hero-carousel-image > .nexora-product-art .product-art-surface { background:linear-gradient(145deg,#403250,#8564bb); }
+.hero-carousel-glint { position:absolute; z-index:5; width:120px; height:300px; inset-inline-start:-65px; top:-40px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent); transform:rotate(28deg); animation:hero-glint 5.6s ease-in-out infinite; pointer-events:none; }
+@keyframes hero-glint { 0%,68% { transform:translateX(-50px) rotate(28deg); opacity:0; } 78% { opacity:1; } 100% { transform:translateX(360px) rotate(28deg); opacity:0; } }
+.hero-carousel-copy { display:flex; flex-direction:column; justify-content:center; min-width:0; padding:25px 22px; }
+.hero-carousel-eyebrow { display:flex; align-items:center; gap:7px; margin:0 0 12px; color:#f6c2b1; font-size:10px; font-weight:800; letter-spacing:.7px; text-transform:uppercase; }
+.hero-carousel-eyebrow span { color:var(--coral); font-size:14px; }
+.hero-carousel-copy h2 { margin:0; color:#fff; font-size:clamp(19px,2.2vw,28px); line-height:1.35; letter-spacing:-.5px; }
+.hero-carousel-copy > p:not(.hero-carousel-eyebrow) { display:-webkit-box; margin:12px 0 17px; color:rgba(255,255,255,.7); font-size:10px; line-height:1.9; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; }
+.hero-carousel-price { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-top:auto; }
+.hero-carousel-price .price-stack { align-items:flex-start; }
+.hero-carousel-price .price-stack strong { color:#fff; font-size:16px; }
+.hero-carousel-price .price-stack del { color:rgba(255,255,255,.48); font-size:9px; }
+.hero-carousel-saving { color:#f6c2b1; font-size:9px; font-weight:700; }
+.hero-carousel-arrow { display:grid; place-items:center; width:34px; height:34px; flex:0 0 34px; border:1px solid rgba(255,255,255,.22); border-radius:50%; color:#3b2d4a; background:var(--coral); font-size:18px; transition:transform .2s ease; }
+.hero-carousel-product:hover .hero-carousel-arrow { transform:translate(2px,-2px); }
+.hero-carousel-controls { display:flex; align-items:center; justify-content:center; gap:10px; padding-top:13px; }
+.hero-carousel-controls > button { display:grid; place-items:center; width:34px; height:34px; border:1px solid rgba(255,255,255,.25); border-radius:50%; color:#fff; background:rgba(255,255,255,.08); font-size:16px; transition:background .2s ease, transform .2s ease, border-color .2s ease; }
+.hero-carousel-controls > button:hover,.hero-carousel-controls > button:focus-visible { border-color:var(--coral); background:rgba(239,156,131,.25); transform:translateY(-2px); }
+.hero-carousel-dots { display:flex; align-items:center; gap:6px; min-height:10px; }
+.hero-carousel-dot { width:7px; height:7px; padding:0; border:0; border-radius:999px; background:rgba(255,255,255,.38); transition:width .25s ease, background .25s ease; }
+.hero-carousel-dot.is-active { width:23px; background:var(--coral); }
+.hero-carousel:focus-visible { box-shadow:0 0 0 3px rgba(239,156,131,.55), 0 26px 58px rgba(55,43,72,.26); }
+.dark .hero-carousel { border-color:rgba(255,255,255,.13); background:linear-gradient(145deg,rgba(35,29,47,.96),rgba(65,48,84,.93)); box-shadow:0 26px 58px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08); }
+.dark .hero-carousel-product { border-color:rgba(255,255,255,.08); background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.025)); }
+html[dir="ltr"] .hero-carousel-copy { text-align:left; }
+html[dir="ltr"] .hero-carousel-eyebrow { justify-content:flex-start; }
+html[dir="ltr"] .hero-carousel-arrow { transform:scaleX(-1); }
+html[dir="ltr"] .hero-carousel-product:hover .hero-carousel-arrow { transform:scaleX(-1) translate(2px,-2px); }
+@media (max-width:800px) {
+  .hero-carousel { inset:10px 0 0; height:430px; }
+  .hero-carousel-product { grid-template-columns:minmax(0,1fr) minmax(132px,.9fr); }
+  .hero-carousel-copy { padding:20px 16px; }
+  .hero-carousel-image > .nexora-product-art > img { padding:12px; }
+}
+@media (max-width:560px) {
+  .hero-carousel { width:calc(100% - 12px); height:420px; padding:12px; border-radius:24px; }
+  .hero-carousel-product { grid-template-columns:1fr; grid-template-rows:210px 1fr; }
+  .hero-carousel-image { min-height:0; }
+  .hero-carousel-copy { padding:17px 15px; }
+  .hero-carousel-copy h2 { font-size:20px; }
+  .hero-carousel-copy > p:not(.hero-carousel-eyebrow) { margin:8px 0 10px; -webkit-line-clamp:2; }
+  .hero-carousel-controls { padding-top:9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-carousel-slide.is-entering,.hero-carousel-glint { animation:none; }
+}
+
 .campaign-banner { position:relative; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:18px; margin-top:6px; padding:20px 24px; overflow:hidden; border:1px solid rgba(113,80,180,.15); border-radius:22px; background:linear-gradient(105deg, rgba(242,237,249,.94), rgba(255,255,255,.92) 58%, rgba(255,241,236,.94)); box-shadow:0 16px 34px rgba(75,55,100,.08); }
 .campaign-banner::before { content:""; position:absolute; width:190px; height:190px; inset-inline-end:-70px; top:-102px; border:1px solid rgba(113,80,180,.15); border-radius:50%; box-shadow:0 0 0 22px rgba(113,80,180,.035), 0 0 0 44px rgba(239,156,131,.04); pointer-events:none; }
 .campaign-mark { position:relative; z-index:1; display:grid; place-items:center; width:54px; height:54px; border-radius:17px; color:#5a3e6b; background:var(--coral); box-shadow:7px 8px 0 rgba(239,156,131,.2), 0 12px 22px rgba(239,156,131,.18); font-size:25px; font-weight:900; }

@@ -3,8 +3,10 @@ from io import StringIO
 from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
+from rest_framework.test import APIRequestFactory
 
 from .models import Category, Discount, DiscountCode, Product
+from .serializers import ProductSerializer
 
 
 class NexoraSeedCommandTests(TestCase):
@@ -40,3 +42,30 @@ class NexoraSeedCommandTests(TestCase):
                 is_active=True,
             ).exists()
         )
+
+    def test_every_seeded_product_has_catalog_artwork(self):
+        call_command("seed_nexora", stdout=StringIO())
+        request = APIRequestFactory().get("/")
+
+        for product in Product.objects.filter(sku__startswith="NX-"):
+            serialized = ProductSerializer(product, context={"request": request}).data
+            self.assertTrue(
+                serialized["image_url"],
+                msg=f"Missing artwork for {product.sku}",
+            )
+
+    def test_unseeded_product_without_upload_still_has_category_artwork(self):
+        category = Category.objects.create(name="Audio accessories", slug="audio-accessories")
+        product = Product.objects.create(
+            name="Unseeded audio product",
+            slug="unseeded-audio-product",
+            sku="UNSEEDED-AUDIO-001",
+            category=category,
+            price="100000.00",
+            stock_quantity=2,
+        )
+        request = APIRequestFactory().get("/")
+
+        serialized = ProductSerializer(product, context={"request": request}).data
+
+        self.assertIn("audio.svg", serialized["image_url"])

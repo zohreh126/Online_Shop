@@ -1,10 +1,12 @@
 import os
 import unittest
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from selenium import webdriver
@@ -16,7 +18,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from customers.models import Customer, Favorite, SiteFeedback
-from products.models import Category, Product
+from products.models import Category, Discount, Product
 
 
 @unittest.skipUnless(
@@ -144,6 +146,56 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
 
         self.assertEqual(artwork["opacity"], "0.22")
         self.assertEqual(artwork["blend"], "soft-light")
+
+    def test_english_mode_renders_ltr_shell_and_hero_carousel(self):
+        self.driver.get(f"{self.live_server_url}/")
+        self.driver.execute_script("window.localStorage.setItem('nexora-language', 'en');")
+        self.driver.refresh()
+
+        self.wait_for(
+            lambda driver: driver.find_element(By.TAG_NAME, "html").get_attribute("lang") == "en",
+        )
+        self.wait_for(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#hero-carousel:not([hidden]) .hero-carousel-product")),
+        )
+
+        html = self.driver.find_element(By.TAG_NAME, "html")
+        self.assertEqual(html.get_attribute("dir"), "ltr")
+        self.assertEqual(
+            self.driver.find_element(By.CSS_SELECTOR, "[data-contact-phone]").text,
+            "+98 21 4365 8791",
+        )
+        self.assertGreaterEqual(
+            len(self.driver.find_elements(By.CSS_SELECTOR, "#hero-carousel-dots .hero-carousel-dot")),
+            1,
+        )
+        self.assertTrue(
+            self.driver.find_element(By.CSS_SELECTOR, "#hero-carousel .hero-carousel-image img").get_attribute("src"),
+        )
+
+    def test_discounted_product_appears_in_discount_shelf_and_offer_carousel(self):
+        Discount.objects.create(
+            product=self.product,
+            discount_type=Discount.DiscountType.PERCENTAGE,
+            value="15.00",
+            starts_at=timezone.now() - timedelta(minutes=1),
+            ends_at=timezone.now() + timedelta(days=2),
+            is_active=True,
+        )
+        self.driver.get(f"{self.live_server_url}/")
+
+        self.wait_for(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#discounts:not([hidden]) #discount-grid .product-card")),
+        )
+        self.wait_for(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#offer-spotlight:not([hidden]) #offer-spotlight-product")),
+        )
+        self.assertTrue(
+            self.driver.find_element(By.CSS_SELECTOR, "#discount-grid .discount-badge").is_displayed(),
+        )
+        self.assertTrue(
+            self.driver.find_element(By.CSS_SELECTOR, "#discount-grid .price-stack del").is_displayed(),
+        )
 
     def wait_for(self, condition):
         return WebDriverWait(self.driver, 10).until(condition)

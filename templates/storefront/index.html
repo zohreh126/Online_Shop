@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Nexora؛ فروشگاه لوازم دیجیتال برای انتخاب‌های هوشمندانه.">
+  <meta name="description" data-i18n-content="metaDescription" content="Nexora؛ فروشگاه لوازم دیجیتال برای انتخاب‌های هوشمندانه.">
   <title>Nexora | لوازم دیجیتال برای زندگی مدرن</title>
   <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
 </head>
@@ -13,11 +13,11 @@
 
   <header class="site-header">
     <div class="container nav-wrap">
-      <a class="brand" href="/" aria-label="صفحه اصلی Nexora">
+      <a class="brand" href="/" data-i18n-aria-label="homeLabel" aria-label="صفحه اصلی Nexora">
         <span class="brand-mark">N</span>
         <span>NEXORA<small>SMART ESSENTIALS</small></span>
       </a>
-      <nav class="desktop-nav" aria-label="ناوبری اصلی">
+      <nav class="desktop-nav" data-i18n-aria-label="primaryNavigation" aria-label="ناوبری اصلی">
         <a class="active" href="#catalog"><span class="nav-link-icon" aria-hidden="true">◈</span><span data-i18n="shop">فروشگاه</span></a>
         <a href="#discounts"><span class="nav-link-icon" aria-hidden="true">%</span><span data-i18n="discounts">تخفیف‌ها</span></a>
         <a href="#why-us"><span class="nav-link-icon" aria-hidden="true">◎</span><span data-i18n="whyNexora">چرا نکستورا؟</span></a>
@@ -25,14 +25,14 @@
         <a href="/contact/"><span class="nav-link-icon" aria-hidden="true">⌖</span><span data-i18n="contact">ارتباط با ما</span></a>
       </nav>
       <div class="nav-actions">
-        <button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☼</button><button class="language-button" data-language-toggle type="button">English</button>
+        <button class="icon-button" id="theme-toggle" type="button" data-i18n-aria-label="toggleTheme" aria-label="تغییر تم">☼</button><button class="language-button" data-language-toggle type="button">English</button>
         {% include "storefront/favorites-nav.html" %}
-        <span id="account-area"><a class="account-link" href="/account/">ورود</a></span>
+        <span id="account-area"><a class="account-link" href="/account/" data-i18n="login">ورود</a></span>
         <button class="cart-button icon-action-button" id="cart-toggle" type="button" data-i18n-aria-label="cartIconLabel" data-i18n-title="cartIconLabel" aria-label="باز کردن سبد خرید" title="باز کردن سبد خرید"><span class="cart-icon" aria-hidden="true">🛒</span><span class="cart-label sr-only" data-i18n="cart">سبد خرید</span><b id="cart-count" data-cart-count>۰</b></button>
-        <button class="menu-button" id="menu-toggle" type="button" aria-label="باز کردن منو">☰</button>
+        <button class="menu-button" id="menu-toggle" type="button" data-i18n-aria-label="openMenu" aria-label="باز کردن منو">☰</button>
       </div>
     </div>
-    <nav class="mobile-nav container" id="mobile-nav" aria-label="ناوبری موبایل">
+    <nav class="mobile-nav container" id="mobile-nav" data-i18n-aria-label="mobileNavigation" aria-label="ناوبری موبایل">
       <a href="#catalog" data-i18n="shop">فروشگاه</a><a href="#discounts" data-i18n="discounts">تخفیف‌ها</a><a href="#why-us" data-i18n="whyNexora">چرا نکستورا؟</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a>
     </nav>
   </header>
@@ -49,12 +49,13 @@
         <a class="primary-button" href="#catalog"><span data-i18n="viewProducts">مشاهده محصولات</span> <span>←</span></a>
         <div class="hero-note"><span class="avatars">●●●</span> <span data-i18n="happyCustomers">بیش از ۲٬۵۰۰ مشتری راضی</span></div>
       </div>
-      <div class="hero-art" aria-label="تصویر تزئینی محصولات دیجیتال">
+      <div class="hero-art" data-i18n-aria-label="heroVisualLabel" aria-label="تصویر تزئینی محصولات دیجیتال">
         <div class="art-glow"></div><div class="art-ring"></div>
-        <div class="hero-product-orbit" id="hero-product-orbit" aria-label="محصولات منتخب نکستورا"></div>
-        <div class="floating-card card-one">NEXORA<br><strong>FLUX</strong></div>
-        <div class="headphone-shape"><div class="headband"></div><div class="ear left"></div><div class="ear right"></div></div>
-        <div class="floating-card card-two">NEW<br><strong>ARRIVAL</strong></div>
+        <div class="hero-carousel" id="hero-carousel" data-i18n-aria-label="heroCarouselLabel" aria-label="محصولات منتخب نکستورا" tabindex="0">
+          <div class="hero-carousel-stage"><div class="hero-carousel-slide" id="hero-carousel-slide" aria-live="polite"></div></div>
+          <div class="hero-carousel-controls"><button id="hero-carousel-prev" type="button" data-i18n-aria-label="heroCarouselPrevious" data-i18n-title="heroCarouselPrevious" aria-label="محصول قبلی" title="محصول قبلی">←</button><div id="hero-carousel-dots" class="hero-carousel-dots" role="tablist"></div><button id="hero-carousel-next" type="button" data-i18n-aria-label="heroCarouselNext" data-i18n-title="heroCarouselNext" aria-label="محصول بعدی" title="محصول بعدی">→</button></div>
+        </div>
+        <div class="hero-product-orbit" id="hero-product-orbit" hidden aria-hidden="true"></div>
         <span class="spark spark-one">✦</span><span class="spark spark-two">✦</span>
       </div>
     </section>
@@ -84,10 +85,10 @@
 
     <section class="catalog container" id="catalog">
       <div class="section-heading"><div><p class="eyebrow"><span></span> <span data-i18n="featuredCollection">مجموعه منتخب</span></p><h2 id="catalog-heading" data-i18n="betterDesk">برای میز کار بهتر</h2><p id="catalog-count" class="catalog-count" aria-live="polite"></p><small id="catalog-collection-note" class="catalog-collection-note" hidden></small></div><a href="#catalog" class="text-link" id="catalog-reset"><span data-i18n="catalogExplore">مرور ویترین</span> <span>←</span></a></div>
-      <div class="catalog-tools"><div class="category-filter" id="category-filter"><button class="category-filter-toggle" id="category-toggle" type="button" aria-expanded="false"><span class="filter-icon">☷</span><span data-i18n="categories">دسته‌بندی‌ها</span><span class="filter-chevron">⌄</span></button><div class="category-tabs" id="category-tabs" hidden></div></div><div class="search-box-wrap"><label class="search-box"><span aria-hidden="true">⌕</span><input id="product-search" type="search" data-i18n-placeholder="searchProducts" placeholder="جست‌وجوی محصول..." aria-label="جست‌وجوی محصول" autocomplete="off" aria-controls="search-suggestions" aria-autocomplete="list"></label><div class="search-suggestions" id="search-suggestions" role="listbox" hidden></div></div><label class="sort-box"><span data-i18n="sortBy">مرتب‌سازی</span><select id="product-sort"><option value="newest" data-i18n="sortNewest">جدیدترین</option><option value="price-low" data-i18n="sortPriceLow">ارزان‌ترین</option><option value="price-high" data-i18n="sortPriceHigh">گران‌ترین</option><option value="name" data-i18n="sortName">نام محصول</option></select></label></div>
+      <div class="catalog-tools"><div class="category-filter" id="category-filter"><button class="category-filter-toggle" id="category-toggle" type="button" aria-expanded="false"><span class="filter-icon">☷</span><span data-i18n="categories">دسته‌بندی‌ها</span><span class="filter-chevron">⌄</span></button><div class="category-tabs" id="category-tabs" hidden></div></div><div class="search-box-wrap"><label class="search-box"><span aria-hidden="true">⌕</span><input id="product-search" type="search" data-i18n-placeholder="searchProducts" data-i18n-aria-label="searchProducts" placeholder="جست‌وجوی محصول..." aria-label="جست‌وجوی محصول" autocomplete="off" aria-controls="search-suggestions" aria-autocomplete="list"></label><div class="search-suggestions" id="search-suggestions" role="listbox" hidden></div></div><label class="sort-box"><span data-i18n="sortBy">مرتب‌سازی</span><select id="product-sort"><option value="newest" data-i18n="sortNewest">جدیدترین</option><option value="price-low" data-i18n="sortPriceLow">ارزان‌ترین</option><option value="price-high" data-i18n="sortPriceHigh">گران‌ترین</option><option value="name" data-i18n="sortName">نام محصول</option></select></label></div>
       <div class="catalog-filter-row" id="catalog-filter-row"><span class="filter-row-label" data-i18n="quickFilters">فیلترهای سریع</span><button class="filter-chip" data-catalog-filter="discount" type="button" aria-pressed="false"><span class="filter-chip-mark">%</span><span data-i18n="onlyDiscounted">فقط تخفیف‌دارها</span></button><button class="filter-chip" data-catalog-filter="stock" type="button" aria-pressed="false"><span class="filter-chip-mark">✓</span><span data-i18n="onlyInStock">فقط موجودها</span></button><label class="price-filter"><span data-i18n="priceRange">بازه قیمت</span><select id="price-filter"><option value="all" data-i18n="priceAll">همه قیمت‌ها</option><option value="under-2m" data-i18n="priceUnder2">کمتر از ۲ میلیون</option><option value="2m-4m" data-i18n="price2to4">۲ تا ۴ میلیون</option><option value="over-4m" data-i18n="priceOver4">بیشتر از ۴ میلیون</option></select></label><button class="clear-filter-button" id="clear-catalog-filters" type="button" data-i18n="clearFilters" hidden>پاک کردن فیلترها</button></div>
       <div class="product-grid" id="product-grid" aria-live="polite"><div class="state-card loading-state"><span class="loader"></span><p data-i18n="loadingShowcase">در حال آماده‌سازی ویترین...</p></div></div>
-      <nav class="catalog-pagination" id="catalog-pagination" aria-label="صفحه‌بندی محصولات" hidden></nav>
+      <nav class="catalog-pagination" id="catalog-pagination" data-i18n-aria-label="productPagination" aria-label="صفحه‌بندی محصولات" hidden></nav>
     </section>
 
     <section class="recently-viewed container" id="recently-viewed" hidden>
@@ -120,7 +121,7 @@
     <section class="feedback-section container" id="feedback">
       <div class="feedback-copy"><p class="eyebrow"><span></span> <span data-i18n="feedback">نظر شما</span></p><h2 data-i18n-html="feedbackHeading">با نظر تو،<br><em>بهتر می‌شویم.</em></h2><p data-i18n="feedbackIntro">یک امتیاز کوتاه به تجربهٔ نکستورا بده؛ همین بازخوردهای کوچک مسیر فروشگاه را بهتر می‌کنند.</p><small data-i18n="feedbackPrivacy">این فرم اطلاعات حساسی نمی‌گیرد و پاسخ تو فقط برای بهبود تجربهٔ فروشگاه استفاده می‌شود.</small></div>
       <form class="feedback-form" id="feedback-form">
-        <fieldset><legend data-i18n="feedbackQuestion">تجربهٔ خریدت از نکستورا چطور بود؟</legend><div class="feedback-rating" role="radiogroup" aria-label="امتیاز تجربهٔ خرید"><label><input id="feedback-1" type="radio" name="rating" value="1" required><span>۱</span><small data-i18n="feedbackVeryBad">خیلی ضعیف</small></label><label><input id="feedback-2" type="radio" name="rating" value="2"><span>۲</span><small data-i18n="feedbackBad">ضعیف</small></label><label><input id="feedback-3" type="radio" name="rating" value="3"><span>۳</span><small data-i18n="feedbackAverage">متوسط</small></label><label><input id="feedback-4" type="radio" name="rating" value="4"><span>۴</span><small data-i18n="feedbackGood">خوب</small></label><label><input id="feedback-5" type="radio" name="rating" value="5"><span>۵</span><small data-i18n="feedbackExcellent">عالی</small></label></div></fieldset>
+        <fieldset><legend data-i18n="feedbackQuestion">تجربهٔ خریدت از نکستورا چطور بود؟</legend><div class="feedback-rating" role="radiogroup" data-i18n-aria-label="feedbackRatingLabel" aria-label="امتیاز تجربهٔ خرید"><label><input id="feedback-1" type="radio" name="rating" value="1" required><span>۱</span><small data-i18n="feedbackVeryBad">خیلی ضعیف</small></label><label><input id="feedback-2" type="radio" name="rating" value="2"><span>۲</span><small data-i18n="feedbackBad">ضعیف</small></label><label><input id="feedback-3" type="radio" name="rating" value="3"><span>۳</span><small data-i18n="feedbackAverage">متوسط</small></label><label><input id="feedback-4" type="radio" name="rating" value="4"><span>۴</span><small data-i18n="feedbackGood">خوب</small></label><label><input id="feedback-5" type="radio" name="rating" value="5"><span>۵</span><small data-i18n="feedbackExcellent">عالی</small></label></div></fieldset>
         <label class="feedback-comment"><span data-i18n="feedbackComment">اگر پیشنهادی داری، برایمان بنویس</span><textarea name="comment" maxlength="500" rows="4" data-i18n-placeholder="feedbackCommentPlaceholder" placeholder="چه چیزی را بهتر کنیم؟"></textarea></label>
         <input type="hidden" name="page" value="/">
         <div class="feedback-actions"><button class="primary-button" type="submit"><span data-i18n="feedbackSubmit">ثبت بازخورد</span><span>←</span></button><small id="feedback-message" role="status" aria-live="polite"></small></div>
@@ -134,7 +135,7 @@
 
   <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
   <aside class="cart-drawer" id="cart-drawer" aria-labelledby="cart-title" aria-hidden="true">
-    <div class="drawer-header"><div><p class="eyebrow"><span></span> <span data-i18n="yourCart">خریدهای شما</span></p><h2 id="cart-title" data-i18n="cart">سبد خرید</h2></div><button class="drawer-close" id="cart-close" type="button" aria-label="بستن سبد خرید">×</button></div>
+    <div class="drawer-header"><div><p class="eyebrow"><span></span> <span data-i18n="yourCart">خریدهای شما</span></p><h2 id="cart-title" data-i18n="cart">سبد خرید</h2></div><button class="drawer-close" id="cart-close" type="button" data-i18n-aria-label="closeCart" aria-label="بستن سبد خرید">×</button></div>
     <div class="drawer-body" id="cart-body"><div class="drawer-loading"><span class="loader"></span><p data-i18n="loadingCart">در حال بارگذاری سبد...</p></div></div>
     <div class="drawer-footer" id="cart-footer" hidden><form class="coupon-form" id="coupon-form"><label for="coupon-code" data-i18n="couponCode">کد تخفیف</label><div><input id="coupon-code" name="code" type="text" autocomplete="off" data-i18n-placeholder="couponPlaceholder" placeholder="کد تخفیف را وارد کن"><button id="coupon-submit" type="submit" data-i18n="applyCoupon">اعمال</button><button id="coupon-remove" type="button" data-i18n="removeCoupon" hidden>حذف کد</button></div><small id="coupon-message" aria-live="polite"></small></form><div class="shipping-progress" id="shipping-progress" hidden><div class="shipping-progress-head"><span data-i18n="shippingProgressTitle">ارسال رایگان</span><strong id="shipping-progress-amount"></strong></div><div class="shipping-progress-track"><span id="shipping-progress-bar"></span></div><small id="shipping-progress-message" aria-live="polite"></small></div><div class="drawer-total"><span data-i18n="cartSubtotal">جمع کالاها</span><strong id="cart-subtotal">۰ تومان</strong></div><div class="drawer-total discount-total" id="cart-product-discount-row" hidden><span data-i18n="productDiscount">تخفیف محصولات</span><strong id="cart-product-discount">−۰ تومان</strong></div><div class="drawer-total coupon-total" id="coupon-total" hidden><span data-i18n="couponDiscount">تخفیف کد</span><strong id="cart-coupon-discount">−۰ تومان</strong></div><div class="drawer-total shipping-total"><span data-i18n="shippingFee">هزینه ارسال</span><strong id="cart-shipping">۰ تومان</strong></div><div class="drawer-total"><span data-i18n="cartTotal">جمع نهایی</span><strong id="cart-total">۰ تومان</strong></div><a class="drawer-checkout" href="/checkout/"><span data-i18n="continueCheckout">ادامه و تسویه</span> <span>←</span></a></div>
   </aside>
@@ -149,7 +150,7 @@
 
   <div class="compare-backdrop" id="compare-backdrop" hidden></div>
   <aside class="compare-modal" id="compare-modal" aria-labelledby="compare-title" aria-hidden="true" hidden>
-    <div class="compare-modal-header"><div><p class="eyebrow"><span></span> <span data-i18n="compare">مقایسه</span></p><h2 id="compare-title" data-i18n="comparison">مقایسه محصولات</h2></div><button class="drawer-close" id="compare-close" type="button" aria-label="بستن">×</button></div>
+    <div class="compare-modal-header"><div><p class="eyebrow"><span></span> <span data-i18n="compare">مقایسه</span></p><h2 id="compare-title" data-i18n="comparison">مقایسه محصولات</h2></div><button class="drawer-close" id="compare-close" type="button" data-i18n-aria-label="close" aria-label="بستن">×</button></div>
     <div class="compare-modal-body" id="compare-content"></div>
   </aside>
 
@@ -159,7 +160,7 @@
     <div class="quick-view-content" id="quick-view-content"></div>
   </aside>
 
-  <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column"><h3 data-i18n="supportColumn">پشتیبانی</h3><a href="/account/" data-i18n="account">حساب کاربری</a><a href="/checkout/" data-i18n="checkoutTitle">تکمیل سفارش</a><a href="/contact/" data-i18n="faqLink">سؤالات متداول و راهنمای خرید</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span dir="ltr">nexorastore.zp@gmail.com</span><span dir="ltr">۰۲۱ ۴۳۶۵۸۷۹۱</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© ۲۰۲۶ Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
+  <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/" data-i18n-aria-label="homeLabel" aria-label="صفحه اصلی Nexora"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column"><h3 data-i18n="supportColumn">پشتیبانی</h3><a href="/account/" data-i18n="account">حساب کاربری</a><a href="/checkout/" data-i18n="checkoutTitle">تکمیل سفارش</a><a href="/contact/" data-i18n="faqLink">سؤالات متداول و راهنمای خرید</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span dir="ltr">nexorastore.zp@gmail.com</span><span data-contact-phone dir="ltr">۰۲۱ ۴۳۶۵۸۷۹۱</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© <span data-current-year>۲۰۲۶</span> Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
   <script src="{% static 'storefront/js/i18n.js' %}" defer></script><script src="{% static 'storefront/js/account-nav.js' %}" defer></script><script src="{% static 'storefront/js/cart-nav.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/notifications.js' %}" defer></script><script src="{% static 'storefront/js/feedback.js' %}" defer></script><script src="{% static 'storefront/js/app.js' %}" defer></script>
   <script src="{% static 'storefront/js/navigation.js' %}" defer></script>
 </body>

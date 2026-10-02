@@ -106,7 +106,7 @@ class ProductCatalogAPITests(APITestCase):
         self.assertIsNone(response.data["discount_ends_at"])
         self.assertEqual(response.data["brand"], "Nexora")
         self.assertEqual(response.data["specifications"]["layout"], "US")
-        self.assertIsNone(response.data["image_url"])
+        self.assertTrue(response.data["image_url"].endswith("/static/storefront/images/products/accessories.svg"))
         self.assertEqual(response.data["rating_average"], 0.0)
         self.assertEqual(response.data["rating_count"], 0)
         self.assertIsNone(response.data["discount_type"])
