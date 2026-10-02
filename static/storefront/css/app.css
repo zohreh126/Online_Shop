@@ -2445,7 +2445,7 @@ main.storefront-home::after {
    earlier pass was technically present, but the white glass layers diluted it
    until the page looked empty.  These layers keep the same purple/coral
    palette while giving the canvas a clear editorial identity. */
-body:not(.dark) {
+html:not(.dark) body {
   background:
     radial-gradient(ellipse 54% 42% at 4% 4%, rgba(155,123,210,.18), transparent 69%),
     radial-gradient(ellipse 48% 38% at 98% 22%, rgba(239,156,131,.13), transparent 70%),
@@ -2748,12 +2748,13 @@ main.storefront-home::before {
 main.storefront-home::after { opacity: .28; }
 main.storefront-home > .ambient-art { opacity: .84; }
 
-.dark main.storefront-home::before {
-  opacity: .56;
-  filter: brightness(.74) saturate(1.02) contrast(1.08);
+html.dark main.storefront-home::before {
+  opacity: .22;
+  mix-blend-mode: soft-light;
+  filter: brightness(.48) saturate(.72) contrast(1.12);
 }
-.dark main.storefront-home::after { opacity: .14; }
-.dark main.storefront-home > .ambient-art { opacity: .56; }
+html.dark main.storefront-home::after { opacity: .16; }
+html.dark main.storefront-home > .ambient-art { opacity: .34; }
 
 @media (prefers-reduced-motion: reduce) {
   body::before,

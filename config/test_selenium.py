@@ -10,8 +10,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -117,6 +117,33 @@ class StorefrontShoppingSeleniumTests(StaticLiveServerTestCase):
         self.assertIn(second_product.name, comparison)
         self.driver.find_element(By.ID, "compare-close").click()
         self.wait_for(EC.invisibility_of_element_located((By.CSS_SELECTOR, ".compare-modal.open")))
+
+    def test_dark_mode_keeps_the_page_canvas_dark(self):
+        self.driver.get(f"{self.live_server_url}/")
+        self.driver.execute_script("window.localStorage.removeItem('nexora-theme');")
+        self.driver.refresh()
+
+        theme_button = self.wait_for(
+            EC.element_to_be_clickable((By.ID, "theme-toggle")),
+        )
+        self.driver.execute_script("arguments[0].click();", theme_button)
+
+        self.wait_for(
+            lambda driver: "dark" in driver.find_element(
+                By.TAG_NAME,
+                "html",
+            ).get_attribute("class"),
+        )
+        artwork = self.driver.execute_script(
+            """
+            const canvas = document.querySelector('main.storefront-home');
+            const pseudo = getComputedStyle(canvas, '::before');
+            return { opacity: pseudo.opacity, blend: pseudo.mixBlendMode };
+            """
+        )
+
+        self.assertEqual(artwork["opacity"], "0.22")
+        self.assertEqual(artwork["blend"], "soft-light")
 
     def wait_for(self, condition):
         return WebDriverWait(self.driver, 10).until(condition)

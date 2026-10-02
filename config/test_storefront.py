@@ -357,3 +357,12 @@ class StorefrontPageTests(TestCase):
             response["Location"],
             "/static/storefront/images/favicon.svg",
         )
+
+    def test_storefront_dark_mode_uses_a_dark_canvas_and_soft_artwork(self):
+        project_root = Path(__file__).resolve().parents[1]
+        stylesheet = (project_root / "static/storefront/css/app.css").read_text()
+
+        self.assertIn("html:not(.dark) body", stylesheet)
+        self.assertIn("html.dark main.storefront-home::before", stylesheet)
+        self.assertIn("mix-blend-mode: soft-light", stylesheet)
+        self.assertIn("filter: brightness(.48) saturate(.72) contrast(1.12)", stylesheet)
