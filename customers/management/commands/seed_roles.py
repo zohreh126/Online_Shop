@@ -3,8 +3,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from customers.models import Address, Customer, SiteFeedback
-from orders.models import Order, OrderItem
+from customers.models import (
+    Address,
+    Customer,
+    CustomerNotification,
+    Favorite,
+    ProductWatch,
+    SiteFeedback,
+)
+from orders.models import Cart, CartItem, Order, OrderItem, RewardTransaction
 from products.models import (
     Category,
     Discount,
@@ -12,6 +19,31 @@ from products.models import (
     Product,
     ProductQuestion,
     ProductReview,
+    ProductReviewHelpfulVote,
+)
+
+# These are the application's own admin-managed models.  Keeping the list in
+# one place makes the supervisor role auditable: a supervisor can inspect every
+# business section without accidentally receiving write access.
+PROJECT_MODELS = (
+    Customer,
+    Address,
+    Favorite,
+    ProductWatch,
+    SiteFeedback,
+    CustomerNotification,
+    Category,
+    Product,
+    ProductReview,
+    ProductReviewHelpfulVote,
+    ProductQuestion,
+    Discount,
+    DiscountCode,
+    Cart,
+    CartItem,
+    Order,
+    OrderItem,
+    RewardTransaction,
 )
 
 
@@ -25,27 +57,18 @@ ROLE_PERMISSIONS = {
         ProductQuestion: ("view", "change"),
         SiteFeedback: ("view",),
     },
+    # The PDF defines the supervisor as a read-only observer of all sections
+    # of the admin panel.  The explicit map is generated from the complete
+    # project model list so newly registered business models cannot be missed.
     Customer.Role.SUPERVISOR: {
-        Customer: ("view",),
-        Address: ("view",),
-        Category: ("view",),
-        Product: ("view",),
-        Discount: ("view",),
-        DiscountCode: ("view",),
-        ProductReview: ("view", "change", "delete"),
-        ProductQuestion: ("view", "change", "delete"),
-        SiteFeedback: ("view", "change", "delete"),
-        Order: ("view",),
-        OrderItem: ("view",),
+        model: ("view",)
+        for model in PROJECT_MODELS
     },
     Customer.Role.OPERATOR: {
-        Customer: ("view", "change"),
+        Customer: ("view", "add", "change", "delete"),
         Address: ("view", "add", "change", "delete"),
-        Order: ("view", "change"),
+        Order: ("view", "add", "change", "delete"),
         OrderItem: ("view", "change"),
-        ProductReview: ("view",),
-        ProductQuestion: ("view",),
-        SiteFeedback: ("view",),
     },
 }
 

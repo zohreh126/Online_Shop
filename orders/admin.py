@@ -3,7 +3,77 @@ from django.utils.translation import gettext_lazy as _
 
 from core.admin_permissions import RolePermissionAdminMixin
 
-from .models import Order, OrderItem, RewardTransaction
+from .models import Cart, CartItem, Order, OrderItem, RewardTransaction
+
+
+class CartItemInline(admin.TabularInline):
+    model = CartItem
+    extra = 0
+    autocomplete_fields = ("product",)
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(Cart)
+class CartAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = (
+        "cart_owner",
+        "session_key",
+        "item_count",
+        "subtotal_display",
+        "discount_code",
+        "is_active",
+        "updated_at",
+    )
+    list_filter = ("is_active",)
+    search_fields = (
+        "customer__username",
+        "customer__email",
+        "session_key",
+        "discount_code__code",
+    )
+    autocomplete_fields = ("customer", "discount_code")
+    readonly_fields = ("created_at", "updated_at", "subtotal_display")
+    ordering = ("-updated_at",)
+    inlines = (CartItemInline,)
+
+    @admin.display(description=_("Owner"), ordering="customer__username")
+    def cart_owner(self, cart):
+        return cart.customer or cart.session_key or _("Unknown")
+
+    @admin.display(description=_("Items"))
+    def item_count(self, cart):
+        return cart.items.count()
+
+    @admin.display(description=_("Subtotal"))
+    def subtotal_display(self, cart):
+        return cart.subtotal
+
+
+@admin.register(CartItem)
+class CartItemAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = ("cart", "product", "quantity", "line_total_display", "updated_at")
+    search_fields = (
+        "cart__customer__username",
+        "cart__customer__email",
+        "cart__session_key",
+        "product__name",
+        "product__sku",
+    )
+    autocomplete_fields = ("cart", "product")
+    readonly_fields = ("created_at", "updated_at", "unit_discount_display", "unit_price_display", "line_total_display")
+    ordering = ("-updated_at",)
+
+    @admin.display(description=_("Unit discount"))
+    def unit_discount_display(self, item):
+        return item.unit_discount
+
+    @admin.display(description=_("Unit price"))
+    def unit_price_display(self, item):
+        return item.unit_price
+
+    @admin.display(description=_("Line total"))
+    def line_total_display(self, item):
+        return item.line_total
 
 
 class OrderItemInline(admin.TabularInline):

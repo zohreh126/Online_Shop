@@ -11,6 +11,7 @@ from .models import (
     Product,
     ProductQuestion,
     ProductReview,
+    ProductReviewHelpfulVote,
 )
 
 
@@ -69,6 +70,21 @@ class ProductReviewAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
     @admin.display(description=_("Helpful votes"))
     def helpful_votes_count(self, review):
         return review.helpful_votes.count()
+
+
+@admin.register(ProductReviewHelpfulVote)
+class ProductReviewHelpfulVoteAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = ("review", "customer", "created_at")
+    search_fields = (
+        "review__product__name",
+        "review__product__sku",
+        "review__customer__username",
+        "customer__username",
+        "customer__email",
+    )
+    autocomplete_fields = ("review", "customer")
+    readonly_fields = ("created_at", "updated_at")
+    ordering = ("-created_at",)
 
 
 @admin.register(ProductQuestion)

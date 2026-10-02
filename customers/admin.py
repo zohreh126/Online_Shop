@@ -1,14 +1,21 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils.html import format_html
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from core.admin_permissions import RolePermissionAdminMixin
 
 from .management.commands.seed_roles import ROLE_PERMISSIONS
-from .models import Address, Customer, CustomerNotification, ProductWatch, SiteFeedback
+from .models import (
+    Address,
+    Customer,
+    CustomerNotification,
+    Favorite,
+    ProductWatch,
+    SiteFeedback,
+)
 
 
 class AddressInline(admin.TabularInline):
@@ -52,7 +59,7 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
 
     ordering = ("username",)
 
-    inlines = [AddressInline]
+    inlines = (AddressInline,)
 
     def get_queryset(self, request):
         """Show only storefront customers in the customer directory.
@@ -132,9 +139,7 @@ class CustomerAdmin(RolePermissionAdminMixin, BaseUserAdmin):
 
     @admin.display(description=_("Role"), ordering="role")
     def role_badge(self, obj):
-        if obj.is_superuser:
-            label, color = (_("Administrator"), "#ef8f78")
-        elif obj.is_staff and not obj.role:
+        if obj.is_superuser or (obj.is_staff and not obj.role):
             label, color = (_("Administrator"), "#ef8f78")
         else:
             labels = {
@@ -226,6 +231,27 @@ class AddressAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
 
     def delete_queryset(self, request, queryset):
         queryset.update(is_active=False, is_default=False)
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(RolePermissionAdminMixin, admin.ModelAdmin):
+    list_display = ("customer", "product", "is_active", "created_at")
+    list_filter = ("is_active",)
+    search_fields = (
+        "customer__username",
+        "customer__email",
+        "product__name",
+        "product__sku",
+    )
+    autocomplete_fields = ("customer", "product")
+    readonly_fields = ("created_at", "updated_at")
+    ordering = ("-created_at",)
+
+    def delete_model(self, request, obj):
+        obj.delete()
+
+    def delete_queryset(self, request, queryset):
+        queryset.update(is_active=False)
 
 
 @admin.register(SiteFeedback)

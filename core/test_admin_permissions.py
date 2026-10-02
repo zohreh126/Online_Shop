@@ -1,15 +1,19 @@
 from io import StringIO
 
 from django.contrib import admin
-from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
 
+from customers.management.commands.seed_roles import PROJECT_MODELS
 from customers.models import Address, Customer
-from orders.models import Order
-from products.models import Product, ProductQuestion
+from orders.models import Cart, CartItem, Order
+from products.models import (
+    Product,
+    ProductQuestion,
+    ProductReviewHelpfulVote,
+)
 
 
 class AdminPermissionTests(TestCase):
@@ -72,8 +76,9 @@ class AdminPermissionTests(TestCase):
 
         self.assertTrue(product_admin.has_view_permission(request))
         self.assertFalse(product_admin.has_change_permission(request))
-        self.assertTrue(question_admin.has_change_permission(request))
-        self.assertTrue(question_admin.has_delete_permission(request))
+        self.assertTrue(question_admin.has_view_permission(request))
+        self.assertFalse(question_admin.has_change_permission(request))
+        self.assertFalse(question_admin.has_delete_permission(request))
 
     def test_operator_can_manage_customers_addresses_and_orders(self):
         customer_admin = self.admin_for(Customer)
@@ -84,11 +89,32 @@ class AdminPermissionTests(TestCase):
         request = self.request_for(self.operator)
 
         self.assertTrue(customer_admin.has_change_permission(request))
+        self.assertTrue(customer_admin.has_add_permission(request))
+        self.assertTrue(customer_admin.has_delete_permission(request))
         self.assertTrue(address_admin.has_add_permission(request))
         self.assertTrue(order_admin.has_change_permission(request))
+        self.assertTrue(order_admin.has_add_permission(request))
+        self.assertTrue(order_admin.has_delete_permission(request))
         self.assertFalse(product_admin.has_view_permission(request))
-        self.assertTrue(question_admin.has_view_permission(request))
+        self.assertFalse(question_admin.has_view_permission(request))
         self.assertFalse(question_admin.has_change_permission(request))
+
+    def test_every_project_model_has_a_custom_admin(self):
+        for model in PROJECT_MODELS:
+            self.assertIn(
+                model,
+                admin.site._registry,
+                f"{model.__name__} is missing from the custom admin panel",
+            )
+
+    def test_supervisor_can_view_new_cart_and_feedback_models_read_only(self):
+        request = self.request_for(self.supervisor)
+        for model in (Cart, CartItem, ProductReviewHelpfulVote):
+            model_admin = self.admin_for(model)
+            self.assertTrue(model_admin.has_view_permission(request))
+            self.assertFalse(model_admin.has_add_permission(request))
+            self.assertFalse(model_admin.has_change_permission(request))
+            self.assertFalse(model_admin.has_delete_permission(request))
 
     def test_superuser_has_full_admin_access(self):
         product_admin = self.admin_for(Product)
