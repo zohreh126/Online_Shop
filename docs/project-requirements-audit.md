@@ -47,7 +47,7 @@
 | پیشنهادهای مرتبط محصول | انجام شده | دریافت محصولات هم‌دسته از API و رتبه‌بندی سبک بر اساس امتیاز/تخفیف |
 | اعلان کاهش قیمت و برگشت موجودی | انجام شده | اشتراک کاربر، آستانه‌ی قیمت، ایمیل و اجرای دوره‌ای با Celery |
 | باشگاه امتیازی مشتری | انجام شده | ثبت خودکار امتیاز برای سفارش پرداخت‌شده، API موجودی/تاریخچه و نمایش در پروفایل |
-| تست مدل، API، نقش و Admin | انجام شده | suite فعلی ۲۴۰ تست موفق دارد |
+| تست مدل، API، نقش و Admin | انجام شده | suite فعلی ۲۴۲ تست موفق دارد |
 | پوشش تست بالای ۸۰٪ | انجام شده | پوشش فعلی ۹۲٪ |
 | Selenium مسیر خرید | انجام شده | هر ۸ سناریوی Selenium در ۲ اکتبر ۲۰۲۶ با Chrome `154.0.8037.97` و ChromeDriver `154.0.8037.57` پاس شدند |
 | ERD داخل مخزن | انجام شده | `docs/ERD.md` با Mermaid |
@@ -85,8 +85,8 @@
 
 - `manage.py check`: موفق
 - `makemigrations --check --dry-run`: بدون migration جاافتاده
-- `manage.py test`: ۲۴۰ تست موفق؛ ۸ تست Selenium در اجرای عادی به‌دلیل نیاز به مرورگر skip می‌شوند
-- `RUN_SELENIUM=1 ... manage.py test config.test_selenium`: هر ۸ تست Selenium موفق
+- `manage.py test`: ۲۴۲ تست موفق؛ ۹ تست Selenium در اجرای عادی به‌دلیل نیاز به مرورگر skip می‌شوند
+- `RUN_SELENIUM=1 ... manage.py test config.test_selenium`: هر ۹ تست Selenium موفق؛ شامل تست رگرسیون دارک‌مود
 - Coverage: ۹۲٪ (`coverage report -m --fail-under=80`)
 - `manage.py spectacular --validate`: موفق
 - `docker compose config --quiet`: موفق

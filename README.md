@@ -140,5 +140,5 @@ RUN_SELENIUM=1 CHROMEDRIVER_PATH=/path/to/chromedriver python manage.py test con
 ## موارد محیطی تحویل
 
 - production واقعی به Redis، PostgreSQL، worker/beat و SMTP معتبر نیاز دارد.
-- ۸ تست Selenium برای خرید، مقایسه، علاقه‌مندی، محصولات اخیراً دیده‌شده، پیشنهادهای مرتبط، بازخورد، فیلتر کاتالوگ و FAQ در `config/test_selenium.py` قرار دارد و با `RUN_SELENIUM=1` اجرا می‌شود.
+- ۹ تست Selenium برای خرید، مقایسه، دارک‌مود، علاقه‌مندی، محصولات اخیراً دیده‌شده، پیشنهادهای مرتبط، بازخورد، فیلتر کاتالوگ و FAQ در `config/test_selenium.py` قرار دارد و با `RUN_SELENIUM=1` اجرا می‌شود.
 - Docker Compose باید روی سیستم مقصد نصب و فعال باشد.
