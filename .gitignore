@@ -17,6 +17,9 @@ ENV/
 db.sqlite3
 db.sqlite3-journal
 staticfiles/
+docker/caddy/root.crt
+.local-certs/
+celerybeat-schedule*
 media/*
 !media/.gitkeep
 *.mo
@@ -60,4 +63,3 @@ htmlcov/
 .vscode/
 .idea/
 .DS_Store
-

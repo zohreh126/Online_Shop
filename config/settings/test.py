@@ -1,8 +1,7 @@
 from .base import *
 
-
 DEBUG = False
-SECRET_KEY = "test-only-secret-key"
+SECRET_KEY = "test-only-secret-key-for-nexora-suite-2026"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",

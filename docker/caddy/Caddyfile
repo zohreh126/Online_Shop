@@ -1,0 +1,12 @@
+{
+    # HTTPS is configured explicitly below with Caddy's local CA.  This keeps
+    # the local development stack self-contained and avoids ACME/network
+    # certificate issuance for localhost.
+    auto_https off
+}
+
+https://localhost:8443 {
+    tls internal
+    encode gzip
+    reverse_proxy web:8000
+}

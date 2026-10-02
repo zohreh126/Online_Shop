@@ -75,17 +75,53 @@ docker compose version
 
 ```bash
 cp .env.example .env
-docker compose up -d
+docker compose up -d --build
 docker compose ps
 ```
 
-سرویس `web` روی پورت `8000` اجرا می‌شود. بعد از بالا آمدن سرویس‌ها، migration و seed را اجرا کن:
+سرویس `web` روی پورت `8000` و HTTPS محلی از طریق Caddy روی پورت `8443` اجرا می‌شود.
+آدرس اصلی برای تست مرورگر:
+
+```text
+https://localhost:8443/
+```
+
+Caddy برای localhost یک گواهی داخلی می‌سازد؛ بنابراین ممکن است اولین بار مرورگر
+هشدار گواهی نشان دهد. برای خروجی گرفتن از CA داخلی Caddy و واردکردن آن در سیستم
+عامل یا مرورگر:
+
+```bash
+docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt ./docker/caddy/root.crt
+```
+
+در صورت نیاز، فایل `root.crt` را به عنوان گواهی ریشهٔ مورد اعتماد سیستم/مرورگر
+اضافه کن. مسیر HTTP روی `http://127.0.0.1:8000/` نیز برای عیب‌یابی مستقیم web
+در دسترس می‌ماند.
+
+بعد از بالا آمدن سرویس‌ها، migration و seed را اجرا کن:
 
 ```bash
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py seed_roles
 docker compose exec web python manage.py seed_nexora
 ```
+
+برای فعال بودن پردازش‌های پس‌زمینهٔ اعلان‌ها، امتیازها و cleanup کاربران، worker
+و beat را هم اجرا کن:
+
+```bash
+docker compose up -d worker beat
+```
+
+وضعیت health سرویس web را می‌توانی از این مسیر بررسی کنی:
+
+```text
+https://localhost:8443/health/
+```
+
+در Compose، web پشت Caddy با `X-Forwarded-Proto` اجرا می‌شود و کوکی‌های احراز
+هویت، session و CSRF برای مسیر HTTPS با `Secure=True` تنظیم می‌شوند. اجرای مستقیم
+`python manage.py runserver` همچنان از تنظیمات HTTP محلی استفاده می‌کند.
 
 برای بررسی اولیه‌ی زیرساخت بدون اجرای taskهای زمان‌بندی‌شده، ابتدا فقط سرویس‌های
 `db`، `redis` و `web` را اجرا کن:
@@ -97,13 +133,6 @@ docker compose exec web python manage.py seed_roles
 docker compose exec web python manage.py seed_nexora
 ```
 
-پس از اطمینان از تنظیم SMTP، می‌توانی `worker` و `beat` را هم اجرا کنی تا
-اعلان‌ها و پاک‌سازی‌های زمان‌بندی‌شده فعال شوند:
-
-```bash
-docker compose up -d worker beat
-```
-
 در compose، PostgreSQL و Redis فقط داخل شبکه‌ی Docker در دسترس‌اند و فقط web روی
 `127.0.0.1:8000` منتشر می‌شود. اگر Docker Hub از شبکه‌ی تو در دسترس نیست، imageها
 را با mirror مورداعتماد خودت از طریق متغیرهای زیر override کن؛ این تغییر نیازی به
@@ -112,10 +141,41 @@ docker compose up -d worker beat
 ```bash
 POSTGRES_IMAGE=your-trusted-mirror/postgres:16-alpine \
 REDIS_IMAGE=your-trusted-mirror/redis:7-alpine \
+CADDY_IMAGE=your-trusted-mirror/caddy:2-alpine \
 docker compose up -d --build
 ```
 
 برای ایمیل واقعی در production باید `EMAIL_HOST`، `EMAIL_PORT`، `EMAIL_HOST_USER`، `EMAIL_HOST_PASSWORD`، `DEFAULT_FROM_EMAIL` و `CSRF_TRUSTED_ORIGINS` واقعی تنظیم شوند. در local ایمیل‌ها به console backend می‌روند.
+
+## اجرای بدون Docker در محیط محلی
+
+اگر فعلاً Docker را اجرا نمی‌کنی، PostgreSQL و Redis را به‌صورت سرویس محلی
+بالا بیاور و سپس Celery را جداگانه اجرا کن. برای HTTPS توسعه‌ای نیز دستور
+`runhttps` با خود Python و `openssl` گواهی self-signed محلی می‌سازد و به package
+اضافی یا reverse proxy نیاز ندارد:
+
+```bash
+# بررسی Redis؛ باید PONG برگرداند
+redis-cli ping
+
+# ترمینال اول: Django روی HTTPS محلی
+./.venv/bin/python manage.py runhttps 127.0.0.1:8443
+
+# ترمینال دوم: Celery worker
+./.venv/bin/celery -A config worker -l INFO
+
+# ترمینال سوم: Celery beat
+./.venv/bin/celery -A config beat -l INFO
+```
+
+سایت در این حالت از مسیر زیر در دسترس است:
+
+```text
+https://127.0.0.1:8443/
+```
+
+مرورگر برای گواهی self-signed هشدار نشان می‌دهد؛ این رفتار برای محیط توسعه
+طبیعی است. گواهی و کلید در `.local-certs/` ساخته می‌شوند و وارد Git نمی‌شوند.
 
 ## بررسی کیفیت
 
@@ -140,5 +200,5 @@ RUN_SELENIUM=1 CHROMEDRIVER_PATH=/path/to/chromedriver python manage.py test con
 ## موارد محیطی تحویل
 
 - production واقعی به Redis، PostgreSQL، worker/beat و SMTP معتبر نیاز دارد.
-- ۹ تست Selenium برای خرید، مقایسه، دارک‌مود، علاقه‌مندی، محصولات اخیراً دیده‌شده، پیشنهادهای مرتبط، بازخورد، فیلتر کاتالوگ و FAQ در `config/test_selenium.py` قرار دارد و با `RUN_SELENIUM=1` اجرا می‌شود.
+- ۱۱ تست Selenium برای خرید، مقایسه، دارک‌مود، علاقه‌مندی، محصولات اخیراً دیده‌شده، پیشنهادهای مرتبط، بازخورد، فیلتر کاتالوگ و FAQ در `config/test_selenium.py` قرار دارد و با `RUN_SELENIUM=1` اجرا می‌شود.
 - Docker Compose باید روی سیستم مقصد نصب و فعال باشد.
