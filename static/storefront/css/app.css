@@ -2733,7 +2733,7 @@ main.storefront-home > .ambient-art { opacity: .74; }
 
 /* Contrast pass: keep the commerce artwork visible on light screens without
    letting it compete with product content. */
-body:not(.dark) {
+html:not(.dark) body {
   background:
     radial-gradient(ellipse 54% 42% at 4% 4%, rgba(155,123,210,.22), transparent 69%),
     radial-gradient(ellipse 48% 38% at 98% 22%, rgba(239,156,131,.16), transparent 70%),

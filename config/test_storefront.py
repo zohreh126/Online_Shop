@@ -363,6 +363,7 @@ class StorefrontPageTests(TestCase):
         stylesheet = (project_root / "static/storefront/css/app.css").read_text()
 
         self.assertIn("html:not(.dark) body", stylesheet)
+        self.assertNotIn("body:not(.dark)", stylesheet)
         self.assertIn("html.dark main.storefront-home::before", stylesheet)
         self.assertIn("mix-blend-mode: soft-light", stylesheet)
         self.assertIn("filter: brightness(.48) saturate(.72) contrast(1.12)", stylesheet)
