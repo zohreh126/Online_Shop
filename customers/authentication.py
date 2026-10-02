@@ -8,6 +8,24 @@ from rest_framework.authentication import CSRFCheck
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
+_DIGIT_TRANSLATION = str.maketrans(
+    "۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩",
+    "01234567890123456789",
+)
+
+
+def normalize_user_input(value):
+    """Normalize user-entered identifiers and numeric codes consistently."""
+
+    return normalize("NFC", str(value)).translate(_DIGIT_TRANSLATION).strip()
+
+
+def _input_candidates(value):
+    raw = normalize("NFC", str(value)).strip()
+    normalized = normalize_user_input(raw)
+    return tuple(dict.fromkeys((raw, normalized)))
+
+
 class CustomerAuthenticationBackend(BaseBackend):
     """Authenticate customers with either username or email."""
 
@@ -16,19 +34,30 @@ class CustomerAuthenticationBackend(BaseBackend):
         if not identifier or password is None:
             return None
 
-        identifier = normalize("NFC", str(identifier)).strip()
-
         customer_model = get_user_model()
-        customer = (
-            customer_model.objects.filter(
-                Q(username__iexact=identifier) | Q(email__iexact=identifier),
-                is_active=True,
+        password_candidates = tuple(
+            dict.fromkeys(
+                (
+                    str(password),
+                    normalize_user_input(password),
+                )
             )
-            .first()
         )
 
-        if customer and customer.check_password(password):
-            return customer
+        for candidate in _input_candidates(identifier):
+            customer = (
+                customer_model.objects.filter(
+                    Q(username__iexact=candidate) | Q(email__iexact=candidate),
+                    is_active=True,
+                )
+                .first()
+            )
+
+            if customer and any(
+                customer.check_password(candidate_password)
+                for candidate_password in password_candidates
+            ):
+                return customer
 
         return None
 

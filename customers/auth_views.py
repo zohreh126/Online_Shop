@@ -6,17 +6,14 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.serializers import (
-    TokenObtainPairSerializer,
-    TokenRefreshSerializer,
-)
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 
-from .authentication import CookieJWTAuthentication
+from .authentication import CookieJWTAuthentication, normalize_user_input
 from orders.cart_services import clear_guest_cart, merge_guest_cart
 from .otp import OTPDeliveryError, request_otp, verify_otp
 from .serializers import (
@@ -26,10 +23,6 @@ from .serializers import (
     PasswordChangeSerializer,
 )
 from .models import Customer
-from rest_framework.exceptions import AuthenticationFailed
-from unicodedata import normalize
-
-
 REFRESH_COOKIE_PATH = "/api/v1/auth/"
 LOGIN_OTP_TTL = 5 * 60
 
@@ -104,7 +97,9 @@ class CookieLoginView(APIView):
         request=inline_serializer(
             name="CookieLoginRequest",
             fields={
-                "username": serializers.CharField(),
+                "identifier": serializers.CharField(required=False),
+                "username": serializers.CharField(required=False),
+                "email": serializers.EmailField(required=False),
                 "password": serializers.CharField(),
             },
         ),
@@ -113,28 +108,35 @@ class CookieLoginView(APIView):
     def post(self, request):
         _enforce_csrf(request)
 
-        login_data = request.data.copy()
-        identifier = login_data.get("identifier") or login_data.get("email")
-        if identifier and not login_data.get("username"):
-            login_data["username"] = normalize("NFC", str(identifier)).strip()
-
-        serializer = TokenObtainPairSerializer(
-            data=login_data,
-            context={"request": request},
+        raw_identifier = (
+            request.data.get("identifier")
+            or request.data.get("email")
+            or request.data.get("username")
         )
+        identifier = normalize_user_input(raw_identifier or "")
+        password = request.data.get("password")
 
-        try:
-            serializer.is_valid(raise_exception=True)
-        except AuthenticationFailed as exc:
+        if not identifier or password in (None, ""):
             return Response(
-                {"detail": exc.detail},
-                status=status.HTTP_401_UNAUTHORIZED,
-                headers={
-                    "WWW-Authenticate": 'Bearer realm="api"',
+                {
+                    "error_code": "missing_credentials",
+                    "detail": "نام کاربری/ایمیل و رمز عبور را وارد کن.",
                 },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        return _login_response(request, serializer.user)
+        user = authenticate(request, username=identifier, password=password)
+        if user is None:
+            return Response(
+                {
+                    "error_code": "invalid_credentials",
+                    "detail": "نام کاربری/ایمیل یا رمز عبور صحیح نیست.",
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+                headers={"WWW-Authenticate": 'Bearer realm="api"'},
+            )
+
+        return _login_response(request, user)
 
 
 class LoginOTPRequestView(APIView):
@@ -158,16 +160,13 @@ class LoginOTPRequestView(APIView):
         raw_email = request.data.get("email")
         raw_identifier = request.data.get("identifier")
         password = request.data.get("password")
-        identifier = normalize(
-            "NFC",
-            str(raw_identifier or raw_email or ""),
-        ).strip()
+        identifier = normalize_user_input(raw_identifier or raw_email or "")
 
         # The customer-facing OTP flow intentionally needs only the email.
         # Keep identifier + password support for existing API clients while
         # preventing staff accounts from using the customer login route.
         if raw_email or (identifier and "@" in identifier and not password):
-            email = normalize("NFC", str(raw_email or identifier)).strip().lower()
+            email = normalize_user_input(raw_email or identifier).lower()
             user = (
                 Customer.objects.filter(
                     email__iexact=email,
@@ -216,8 +215,8 @@ class LoginOTPVerifyView(APIView):
     @extend_schema(request=inline_serializer(name="LoginOTPVerifyRequest", fields={"email": serializers.EmailField(), "code": serializers.RegexField(regex=r"^\d{6}$")}), responses={200: OpenApiTypes.OBJECT, 400: OpenApiTypes.OBJECT})
     def post(self, request):
         _enforce_csrf(request)
-        email = normalize("NFC", str(request.data.get("email", ""))).strip().lower()
-        code = str(request.data.get("code", "")).strip()
+        email = normalize_user_input(request.data.get("email", "")).lower()
+        code = normalize_user_input(request.data.get("code", ""))
         user_id = cache.get(_login_otp_key(email))
         if not user_id:
             return Response({"detail": "کد ورود منقضی شده است؛ دوباره درخواست کد بده."}, status=status.HTTP_400_BAD_REQUEST)

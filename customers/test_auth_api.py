@@ -136,6 +136,23 @@ class CookieJWTAuthAPITests(APITestCase):
             response.status_code,
             status.HTTP_401_UNAUTHORIZED,
         )
+        self.assertEqual(response.data["error_code"], "invalid_credentials")
+
+    def test_login_accepts_persian_digits_in_password(self):
+        csrf_token = self.get_csrf_token()
+        self.client.credentials(HTTP_X_CSRFTOKEN=csrf_token)
+
+        response = self.client.post(
+            self.login_url,
+            {
+                "identifier": "authuser",
+                "password": "SecurePass#۲۰۲۶",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["user"]["username"], "authuser")
 
     def test_login_accepts_email_as_identifier(self):
         csrf_token = self.get_csrf_token()

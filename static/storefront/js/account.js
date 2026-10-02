@@ -3,6 +3,19 @@ const tr = (key) => window.NexoraI18n?.t(key) || key;
 let registerMode = false;
 let loginOTPEmail = "";
 
+function normalizeDigits(value) {
+  return String(value || "").replace(/[۰-۹٠-٩]/g, (digit) => {
+    const code = digit.charCodeAt(0);
+    return String(code >= 0x06f0 && code <= 0x06f9
+      ? code - 0x06f0
+      : code - 0x0660);
+  });
+}
+
+function normalizeIdentifier(value) {
+  return normalizeDigits(String(value || "").normalize("NFC")).trim();
+}
+
 function setupTheme() {
   const root = document.documentElement;
   const button = document.querySelector("#theme-toggle");
@@ -35,15 +48,24 @@ async function csrf() {
 }
 
 async function request(path, method, payload) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method,
-    credentials: "same-origin",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": await csrf(),
-    },
-    body: JSON.stringify(payload),
-  });
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      method,
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": await csrf(),
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    throw Object.assign(
+      new Error(error?.message || tr("networkError")),
+      { data: {}, status: 0, cause: error },
+    );
+  }
+
   const responseText = await response.text();
   let data = {};
   try {
@@ -56,12 +78,23 @@ async function request(path, method, payload) {
       ? tr("emailDeliveryFailed")
       : data.error_code === "otp_rate_limited"
         ? tr("otpRateLimited")
+      : data.error_code === "invalid_credentials"
+        ? tr("invalidCredentials")
+      : data.error_code === "missing_credentials"
+        ? tr("missingCredentials")
       : "";
+    const detail = Array.isArray(data.detail)
+      ? data.detail.join(" | ")
+      : typeof data.detail === "string"
+        ? data.detail
+        : "";
     const messages = Object.entries(data).flatMap(([field, value]) => (
+      field === "detail" || field === "error_code" ? [] : (
       Array.isArray(value) ? value : [value]
-    ).map((item) => `${field}: ${item}`));
+      ).map((item) => `${field}: ${item}`)
+    ));
     throw Object.assign(
-      new Error(codeMessage || messages.join(" | ") || data.detail || `${tr("operationFailed")} (${response.status})`),
+      new Error(codeMessage || detail || messages.join(" | ") || `${tr("operationFailed")} (${response.status})`),
       { data, status: response.status },
     );
   }
@@ -141,6 +174,7 @@ document.querySelector("#login-form").addEventListener("submit", async (event) =
   clearFieldErrors(formElement);
   try {
     const form = Object.fromEntries(new FormData(formElement));
+    form.identifier = normalizeIdentifier(form.identifier);
     const response = await request("auth/login/", "POST", form);
     finishLogin(response);
   } catch (error) {
@@ -151,7 +185,7 @@ document.querySelector("#login-form").addEventListener("submit", async (event) =
 document.querySelector("#request-login-otp").addEventListener("click", async () => {
   const formElement = document.querySelector("#login-form");
   clearFieldErrors(formElement);
-  const email = String(new FormData(formElement).get("identifier") || "").trim();
+  const email = normalizeIdentifier(new FormData(formElement).get("identifier"));
   if (!email || !email.includes("@")) {
     showFieldErrors(formElement, { identifier: tr("otpEmailOnly") });
     return;
@@ -177,7 +211,7 @@ document.querySelector("#login-otp-form").addEventListener("submit", async (even
     const form = Object.fromEntries(new FormData(formElement));
     const response = await request("auth/login/otp/verify/", "POST", {
       email: loginOTPEmail,
-      code: form.code,
+      code: normalizeDigits(form.code).replace(/\s+/g, ""),
     });
     finishLogin(response);
   } catch (error) {
