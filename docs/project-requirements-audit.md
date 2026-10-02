@@ -1,6 +1,6 @@
 # ممیزی الزامات پروژه Nexora
 
-مرجع: `final_project_119.pdf`، بررسی کد موجود در ۲۶ سپتامبر ۲۰۲۶.
+مرجع: `final_project_119.pdf`، بررسی کد موجود در ۲ اکتبر ۲۰۲۶.
 
 ## نتیجه‌ی ممیزی
 
@@ -12,8 +12,8 @@
 | ثبت‌نام، پروفایل و تغییر رمز | انجام شده | API و صفحات account/profile |
 | OTP ایمیلی، hash، انقضا و rate limit | انجام شده | cache/Redis؛ مشتری بین username/password و email/OTP انتخاب می‌کند و staff از OTP مشتری استفاده نمی‌کند |
 | ایمیل واقعی | آماده‌ی production | SMTP باید با مقادیر واقعی `.env` تنظیم شود |
-| نقش مدیر محصولات، ناظر و اپراتور | انجام شده | Group، Permission و نقش روی کاربر |
-| تشخیص نقش و دسترسی Admin | انجام شده | نقش‌ها به `is_staff` و مسیر Admin متصل‌اند |
+| نقش مدیر محصولات، ناظر و اپراتور | انجام شده | مدیر محصولات روی محصول، دسته‌بندی و تخفیف CRUD دارد؛ ناظر تمام مدل‌های پروژه را فقط مشاهده می‌کند؛ اپراتور مشتری، سفارش و آدرس را CRUD می‌کند |
+| تشخیص نقش و دسترسی Admin | انجام شده | نقش‌ها به Group و Permission متصل‌اند و `is_staff` فقط برای نقش‌های کارمندی فعال می‌شود |
 | پروفایل و پنل مشتری | انجام شده | اطلاعات شخصی، آدرس‌ها، سفارش‌ها و امنیت |
 | آدرس پیش‌فرض، ویرایش و حذف | انجام شده | API و UI checkout/profile |
 | دسته‌بندی self-relation و نمایش درختی | انجام شده | serializer تو در تو و منوی بازشونده‌ی فرانت‌اند |
@@ -30,7 +30,7 @@
 | حذف منطقی و حذف حساب مشتری | انجام شده | حذف مدیر و مشتری با anonymize اطلاعات شخصی، آزادشدن ایمیل/نام کاربری، غیرفعال‌شدن سبد/علاقه‌مندی/اعلان و حفظ سفارش‌ها برای سابقه |
 | Celery cleanup کاربران تأییدنشده | انجام شده | task و schedule ساعتی؛ اجرای واقعی نیازمند worker/beat است |
 | Redis و PostgreSQL | آماده‌ی اجرا | تنظیمات و Docker Compose موجود است؛ محیط فعلی local با SQLite/LocMem است |
-| پنل Admin اختصاصی و مجوز نقش‌ها | انجام شده | branding، fieldsets، inline و permission mixin |
+| پنل Admin اختصاصی و مجوز نقش‌ها | انجام شده | branding، fieldsets، inline، Admin اختصاصی برای تمام مدل‌های پروژه و permission mixin نقش‌محور |
 | صفحات 404 و 500 اختصاصی | انجام شده | handlerهای پروژه و template اختصاصی |
 | چندزبانه واقعی و RTL/LTR | انجام شده | ترجمه‌ی مرکزی فارسی/انگلیسی و ترجمه‌ی محتوای داینامیک |
 | Dark Mode صفحات storefront | انجام شده | CSS و script صفحات اصلی |
@@ -47,13 +47,13 @@
 | پیشنهادهای مرتبط محصول | انجام شده | دریافت محصولات هم‌دسته از API و رتبه‌بندی سبک بر اساس امتیاز/تخفیف |
 | اعلان کاهش قیمت و برگشت موجودی | انجام شده | اشتراک کاربر، آستانه‌ی قیمت، ایمیل و اجرای دوره‌ای با Celery |
 | باشگاه امتیازی مشتری | انجام شده | ثبت خودکار امتیاز برای سفارش پرداخت‌شده، API موجودی/تاریخچه و نمایش در پروفایل |
-| تست مدل، API، نقش و Admin | انجام شده | suite فعلی ۲۳۱ تست موفق دارد |
+| تست مدل، API، نقش و Admin | انجام شده | suite فعلی ۲۴۰ تست موفق دارد |
 | پوشش تست بالای ۸۰٪ | انجام شده | پوشش فعلی ۹۲٪ |
-| Selenium مسیر خرید | کد آماده؛ نیازمند driver هم‌نسخه‌ی مرورگر | تست‌ها با ChromeDriver ۱۵۲ قبلاً موفق بودند؛ مرورگر محیط فعلی `154.0.8037.57` است و driver ۱۵۴ لازم دارد |
+| Selenium مسیر خرید | انجام شده | هر ۸ سناریوی Selenium در ۲ اکتبر ۲۰۲۶ با Chrome `154.0.8037.97` و ChromeDriver `154.0.8037.57` پاس شدند |
 | ERD داخل مخزن | انجام شده | `docs/ERD.md` با Mermaid |
 | README تحویل | انجام شده | اجرای local، Docker، API، تست و وضعیت محیطی مستند شده |
 | شاخه‌ی `develop` | انجام شده | شاخه‌ی توسعه‌ی فعلی |
-| شاخه‌ی `master` و merge فازها | نیازمند اقدام Git | باید در remote/فرآیند تحویل ایجاد و از `develop` merge شود |
+| شاخه‌ی `master` و merge فازها | نیازمند اقدام Git | پس از ثبت commit ممیزی نهایی باید `develop` به `master` merge و هر دو شاخه push شوند |
 
 ## قابلیت‌های تکمیلی اضافه‌شده در فازهای تکمیلی
 
@@ -68,22 +68,28 @@
 - کنترل نقش Administrator و حذف superuser از فهرست مشتریان.
 - پنل Admin اختصاصی با KPI، عملیات سریع، پایش موجودی، رادار تخفیف، نبض تجربه مشتری و Dark Mode.
 - پنل Admin اکنون زبان فارسی و English را با تغییر واقعی cookie زبان، ترجمه داشبورد، عددها، واحد پول، وضعیت سفارش و RTL/LTR پشتیبانی می‌کند.
+- تمام مدل‌های پروژه (`Customer`، `Address`، `Favorite`، `ProductWatch`، `SiteFeedback`، اعلان‌ها، کاتالوگ، نقد و پرسش، سبد، سفارش و امتیازها) در Admin ثبت و قابل مشاهده/مدیریت نقش‌محور هستند.
+- مسیر `/favicon.ico` و آیکون واقعی Nexora اضافه شد تا درخواست پیش‌فرض مرورگر با 404 تمام نشود.
 
 ## محدودیت‌های محیطی
 
 برای تحویل واقعی هنوز این موارد خارج از کد باید روی محیط مقصد انجام شوند:
 
-1. تنظیم SMTP واقعی و دامنه/گواهی HTTPS در production.
-2. اجرای PostgreSQL، Redis، Celery worker و Celery beat.
+1. تنظیم دامنه/گواهی HTTPS در production؛ SMTP محلی فروشگاه در `.env` تنظیم و با `manage.py test_email` تست شده است، اما secret آن عمداً در Git نیست.
+2. اجرای PostgreSQL، Redis، Celery worker و Celery beat روی محیط مقصد.
 3. اجرای migration، `seed_roles` و `seed_nexora` روی محیط مقصد.
 4. ایجاد/به‌روزرسانی شاخه‌ی `master` و push commitها به remote.
-5. دسترسی به registry معتبر Docker؛ در محیط فعلی pull مستقیم `postgres:16-alpine` و `redis:7-alpine` با خطای 403/RBAC متوقف می‌شود.
+5. دسترسی به registry معتبر Docker؛ فایل Compose با `docker compose config --quiet` معتبر است، اما در محیط فعلی pull مستقیم `postgres:16-alpine` و `redis:7-alpine` با خطای 403/RBAC متوقف می‌شود و اجرای runtime این سرویس‌ها در همین محیط قابل تأیید نیست.
 
 ## اعتبارسنجی آخرین دور
 
 - `manage.py check`: موفق
 - `makemigrations --check --dry-run`: بدون migration جاافتاده
-- `manage.py test`: ۲۳۱ تست موفق؛ ۸ تست Selenium عمومی به‌صورت skip نگه داشته شده‌اند و اجرای دوباره‌ی آن‌ها به ChromeDriver هم‌نسخه با Chrome فعلی نیاز دارد
+- `manage.py test`: ۲۴۰ تست موفق؛ ۸ تست Selenium در اجرای عادی به‌دلیل نیاز به مرورگر skip می‌شوند
+- `RUN_SELENIUM=1 ... manage.py test config.test_selenium`: هر ۸ تست Selenium موفق
 - Coverage: ۹۲٪ (`coverage report -m --fail-under=80`)
+- `manage.py spectacular --validate`: موفق
+- `docker compose config --quiet`: موفق
+- `manage.py check --deploy` با تنظیمات production و secret امن: بدون warning
 - syntax تمام فایل‌های JavaScript: موفق
 - `git diff --check`: موفق

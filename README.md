@@ -17,7 +17,7 @@
 - زمان‌بندی تحویل در checkout؛ انتخاب تاریخ از دو تا هفت روز بعد و بازه‌ی صبح یا عصر
 - سفارش با snapshot اطلاعات محصول و کنترل موجودی هنگام پرداخت
 - خرید مجدد سریع از تاریخچه سفارش با کنترل دوباره‌ی موجودی و وضعیت محصول
-- داشبورد مشتری، تاریخچه سفارش و پنل Admin سفارشی
+- پنل مشتری یکپارچه‌ی پروفایل، تاریخچه سفارش و پنل Admin سفارشی
 - امتیازدهی و نقد محصول، رأی مفید بودن نقدها، نظرسنجی تجربه خرید و بخش پرسش‌های متداول تعاملی
 - پرسش‌وپاسخ عمومی برای هر محصول با امکان پاسخ‌گویی تیم از پنل Admin
 - نشان «خرید تأییدشده» برای نظرهایی که به سفارش پرداخت‌شده‌ی همان محصول متصل‌اند
@@ -26,6 +26,7 @@
 - پیشنهادهای مرتبط در صفحه محصول بر اساس دسته‌بندی و سیگنال‌های امتیاز/تخفیف
 - فارسی/انگلیسی واقعی، RTL/LTR، Dark Mode و صفحات 404/500 اختصاصی
 - OpenAPI/Swagger/ReDoc، health check و Celery Beat برای cleanup کاربران تأییدنشده
+- تمام مدل‌های پروژه در Admin با list display، فیلتر، جست‌وجو، fieldset/inline مناسب و دسترسی نقش‌محور ثبت شده‌اند
 
 نقشه‌ی مدل‌ها در [docs/ERD.md](docs/ERD.md) و مسیرهای تجربه‌ی کاربر در [docs/storefront-storyboard.md](docs/storefront-storyboard.md) قرار دارد.
 
@@ -126,8 +127,8 @@ python manage.py test
 coverage run manage.py test
 coverage report -m
 
-# تست مرورگر واقعی مسیر خرید (نیازمند Chrome و ChromeDriver)
-RUN_SELENIUM=1 python manage.py test config.test_selenium
+# تست مرورگر واقعی مسیر خرید (نیازمند Chrome و ChromeDriver هم‌نسخه)
+RUN_SELENIUM=1 CHROMEDRIVER_PATH=/path/to/chromedriver python manage.py test config.test_selenium
 ```
 
 اگر Selenium Manager روی سیستم driver هماهنگ را پیدا نکرد، مقدار `CHROMEDRIVER_PATH` را به مسیر ChromeDriver هم‌نسخه با Chrome تنظیم کن.
