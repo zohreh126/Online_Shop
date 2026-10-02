@@ -24,13 +24,21 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-from core.health import health_check
-from core.admin_dashboard import nexora_admin_index
 
 import customers.schema  # noqa: F401
+from core.admin_dashboard import nexora_admin_index
+from core.health import health_check
 
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
+    path(
+        "favicon.ico",
+        RedirectView.as_view(
+            url="/static/storefront/images/favicon.svg",
+            permanent=False,
+        ),
+        name="favicon",
+    ),
     path("", TemplateView.as_view(template_name="storefront/index.html"), name="storefront-home"),
     path("about/", TemplateView.as_view(template_name="storefront/about.html"), name="storefront-about"),
     path("contact/", TemplateView.as_view(template_name="storefront/contact.html"), name="storefront-contact"),

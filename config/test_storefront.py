@@ -348,3 +348,12 @@ class StorefrontPageTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertContains(response, "این صفحه اینجا نیست.", status_code=404)
+
+    def test_storefront_favicon_is_available(self):
+        response = self.client.get("/favicon.ico")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response["Location"],
+            "/static/storefront/images/favicon.svg",
+        )
