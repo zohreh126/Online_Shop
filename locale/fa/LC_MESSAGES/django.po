@@ -1,0 +1,738 @@
+# Nexora Store Persian translations.
+# This file is distributed under the same license as the project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Nexora Store 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-25 01:11+0330\n"
+"PO-Revision-Date: 2026-09-24 00:00+0330\n"
+"Last-Translator: Nexora Team <noreply@nexora.local>\n"
+"Language-Team: Persian <fa@li.org>\n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: core/admin.py:5
+msgid "Nexora Admin"
+msgstr "پنل مدیریت نکستورا"
+
+#: core/admin.py:6
+msgid "Nexora Store Management"
+msgstr "مدیریت فروشگاه نکستورا"
+
+#: core/admin.py:7
+msgid "Store management center"
+msgstr "مرکز مدیریت فروشگاه"
+
+#: core/admin.py:15
+msgid "Token blacklist"
+msgstr "فهرست سیاه توکن"
+
+#: core/admin.py:17
+msgid "Blacklisted token"
+msgstr "توکن در فهرست سیاه"
+
+#: core/admin.py:20
+msgid "Blacklisted tokens"
+msgstr "توکن‌های فهرست سیاه"
+
+#: core/admin.py:23
+msgid "Outstanding token"
+msgstr "توکن فعال"
+
+#: core/admin.py:26
+msgid "Outstanding tokens"
+msgstr "توکن‌های فعال"
+
+#: core/models.py:7
+msgid "Created at"
+msgstr "ایجاد شده در"
+
+#: core/models.py:12
+msgid "Updated at"
+msgstr "به‌روزرسانی شده در"
+
+#: customers/admin.py:76
+msgid "Personal information"
+msgstr "اطلاعات شخصی"
+
+#: customers/admin.py:86
+msgid "Permissions"
+msgstr "دسترسی‌ها"
+
+#: customers/admin.py:95
+msgid "Important dates"
+msgstr "تاریخ‌های مهم"
+
+#: customers/admin.py:132 customers/models.py:91
+msgid "Role"
+msgstr "نقش"
+
+#: customers/admin.py:135 customers/admin.py:137
+msgid "Administrator"
+msgstr "مدیر کل"
+
+#: customers/admin.py:140 customers/models.py:59
+msgid "Product manager"
+msgstr "مدیر محصولات"
+
+#: customers/admin.py:141 customers/models.py:60
+msgid "Supervisor"
+msgstr "ناظر"
+
+#: customers/admin.py:142 customers/models.py:61
+msgid "Operator"
+msgstr "اپراتور"
+
+#: customers/admin.py:144 customers/models.py:121 customers/models.py:152
+#: customers/models.py:190 customers/models.py:233 customers/models.py:306
+#: customers/models.py:346 orders/models.py:18 orders/models.py:174
+#: orders/models.py:310 products/models.py:213 products/models.py:262
+#: products/models.py:298 products/models.py:469
+msgid "Customer"
+msgstr "مشتری"
+
+#: customers/apps.py:8 customers/models.py:122
+msgid "Customers"
+msgstr "مشتری‌ها"
+
+#: customers/models.py:64
+msgid "Username"
+msgstr "نام کاربری"
+
+#: customers/models.py:69
+msgid "Email address"
+msgstr "نشانی ایمیل"
+
+#: customers/models.py:73
+msgid "First name"
+msgstr "نام"
+
+#: customers/models.py:79
+msgid "Last name"
+msgstr "نام خانوادگی"
+
+#: customers/models.py:85
+msgid "Phone number"
+msgstr "شماره تلفن"
+
+#: customers/models.py:98
+msgid "Staff status"
+msgstr "وضعیت کارمندی"
+
+#: customers/models.py:99 customers/models.py:164 customers/models.py:200
+#: customers/models.py:264 customers/models.py:316 orders/models.py:39
+#: products/models.py:34 products/models.py:165 products/models.py:224
+#: products/models.py:306 products/models.py:380 products/models.py:544
+msgid "Active"
+msgstr "فعال"
+
+#: customers/models.py:100
+msgid "Email verified"
+msgstr "ایمیل تأییدشده"
+
+#: customers/models.py:103
+msgid "Date of birth"
+msgstr "تاریخ تولد"
+
+#: customers/models.py:106
+msgid "Jalali date in YYYY/MM/DD format."
+msgstr "تاریخ شمسی در قالب YYYY/MM/DD."
+
+#: customers/models.py:110
+msgid "Date joined"
+msgstr "تاریخ عضویت"
+
+#: customers/models.py:156 customers/models.py:351 products/models.py:221
+msgid "Title"
+msgstr "عنوان"
+
+#: customers/models.py:157
+msgid "Province"
+msgstr "استان"
+
+#: customers/models.py:158
+msgid "City"
+msgstr "شهر"
+
+#: customers/models.py:159 customers/models.py:175
+msgid "Address"
+msgstr "نشانی"
+
+#: customers/models.py:160
+msgid "Postal code"
+msgstr "کد پستی"
+
+#: customers/models.py:161 orders/models.py:272
+msgid "Recipient name"
+msgstr "نام گیرنده"
+
+#: customers/models.py:162 orders/models.py:273
+msgid "Recipient phone"
+msgstr "تلفن گیرنده"
+
+#: customers/models.py:163
+msgid "Default address"
+msgstr "نشانی پیش‌فرض"
+
+#: customers/models.py:176
+msgid "Addresses"
+msgstr "نشانی‌ها"
+
+#: customers/models.py:196 customers/models.py:239 orders/models.py:92
+#: orders/models.py:354 products/models.py:173 products/models.py:207
+#: products/models.py:292 products/models.py:335
+msgid "Product"
+msgstr "محصول"
+
+#: customers/models.py:204
+msgid "Favorite"
+msgstr "علاقه‌مندی"
+
+#: customers/models.py:205
+msgid "Favorites"
+msgstr "علاقه‌مندی‌ها"
+
+#: customers/models.py:243
+msgid "Notify on price drop"
+msgstr "اعلان کاهش قیمت"
+
+#: customers/models.py:244
+msgid "Notify on restock"
+msgstr "اعلان موجود شدن"
+
+#: customers/models.py:251
+msgid "Target price"
+msgstr "قیمت هدف"
+
+#: customers/models.py:252
+msgid "Optional threshold for price-drop notifications."
+msgstr "آستانه اختیاری برای اعلان کاهش قیمت."
+
+#: customers/models.py:255
+msgid "Last seen price"
+msgstr "آخرین قیمت مشاهده‌شده"
+
+#: customers/models.py:261
+msgid "Last seen stock quantity"
+msgstr "آخرین موجودی مشاهده‌شده"
+
+#: customers/models.py:262
+msgid "Last price notification"
+msgstr "آخرین اعلان قیمت"
+
+#: customers/models.py:263
+msgid "Last restock notification"
+msgstr "آخرین اعلان موجودی"
+
+#: customers/models.py:268
+msgid "Product watch"
+msgstr "پیگیری محصول"
+
+#: customers/models.py:269
+msgid "Product watches"
+msgstr "پیگیری‌های محصول"
+
+#: customers/models.py:298
+msgid "Very bad"
+msgstr "خیلی بد"
+
+#: customers/models.py:299
+msgid "Bad"
+msgstr "بد"
+
+#: customers/models.py:300
+msgid "Average"
+msgstr "متوسط"
+
+#: customers/models.py:301
+msgid "Good"
+msgstr "خوب"
+
+#: customers/models.py:302
+msgid "Excellent"
+msgstr "عالی"
+
+#: customers/models.py:312 orders/models.py:25
+msgid "Session key"
+msgstr "کلید نشست"
+
+#: customers/models.py:313 products/models.py:218
+msgid "Rating"
+msgstr "امتیاز"
+
+#: customers/models.py:314 products/models.py:222
+msgid "Comment"
+msgstr "نظر"
+
+#: customers/models.py:315
+msgid "Page"
+msgstr "صفحه"
+
+#: customers/models.py:320 customers/models.py:321
+msgid "Site feedback"
+msgstr "بازخورد سایت"
+
+#: customers/models.py:339
+msgid "New product"
+msgstr "محصول جدید"
+
+#: customers/models.py:340
+msgid "Store campaign"
+msgstr "کمپین فروشگاه"
+
+#: customers/models.py:341
+msgid "Birthday reward"
+msgstr "هدیه تولد"
+
+#: customers/models.py:342
+msgid "Account update"
+msgstr "به‌روزرسانی حساب"
+
+#: customers/models.py:350
+msgid "Type"
+msgstr "نوع"
+
+#: customers/models.py:352
+msgid "Message"
+msgstr "پیام"
+
+#: customers/models.py:353
+msgid "Link"
+msgstr "پیوند"
+
+#: customers/models.py:354
+msgid "Read"
+msgstr "خوانده‌شده"
+
+#: customers/models.py:358
+msgid "Customer notification"
+msgstr "اعلان مشتری"
+
+#: customers/models.py:359
+msgid "Customer notifications"
+msgstr "اعلان‌های مشتری"
+
+#: orders/admin.py:66 orders/models.py:281 orders/models.py:316
+#: orders/models.py:348
+msgid "Order"
+msgstr "سفارش"
+
+#: orders/admin.py:67
+msgid "Payment"
+msgstr "پرداخت"
+
+#: orders/admin.py:68
+msgid "Totals"
+msgstr "جمع مبالغ"
+
+#: orders/admin.py:69
+msgid "Shipping"
+msgstr "ارسال"
+
+#: orders/admin.py:70 orders/models.py:275
+msgid "Notes"
+msgstr "یادداشت‌ها"
+
+#: orders/apps.py:8 orders/models.py:282
+msgid "Orders"
+msgstr "سفارش‌ها"
+
+#: orders/models.py:33 orders/models.py:255 products/models.py:550
+msgid "Discount code"
+msgstr "کد تخفیف"
+
+#: orders/models.py:43 orders/models.py:86
+msgid "Cart"
+msgstr "سبد خرید"
+
+#: orders/models.py:44
+msgid "Carts"
+msgstr "سبدهای خرید"
+
+#: orders/models.py:97 orders/models.py:380
+msgid "Quantity"
+msgstr "تعداد"
+
+#: orders/models.py:105
+msgid "Cart item"
+msgstr "آیتم سبد خرید"
+
+#: orders/models.py:106
+msgid "Cart items"
+msgstr "آیتم‌های سبد خرید"
+
+#: orders/models.py:147 orders/models.py:157
+msgid "Pending"
+msgstr "در انتظار"
+
+#: orders/models.py:148
+msgid "Confirmed"
+msgstr "تأیید شده"
+
+#: orders/models.py:149
+msgid "Processing"
+msgstr "در حال پردازش"
+
+#: orders/models.py:150
+msgid "Shipped"
+msgstr "ارسال شده"
+
+#: orders/models.py:151
+msgid "Delivered"
+msgstr "تحویل شده"
+
+#: orders/models.py:152
+msgid "Cancelled"
+msgstr "لغو شده"
+
+#: orders/models.py:153 orders/models.py:160
+msgid "Refunded"
+msgstr "بازپرداخت شده"
+
+#: orders/models.py:156
+msgid "Unpaid"
+msgstr "پرداخت نشده"
+
+#: orders/models.py:158
+msgid "Paid"
+msgstr "پرداخت شده"
+
+#: orders/models.py:159
+msgid "Failed"
+msgstr "ناموفق"
+
+#: orders/models.py:163
+msgid "Mock payment"
+msgstr "پرداخت آزمایشی"
+
+#: orders/models.py:164
+msgid "Cash on delivery"
+msgstr "پرداخت در محل"
+
+#: orders/models.py:167
+msgid "Order number"
+msgstr "شماره سفارش"
+
+#: orders/models.py:179
+msgid "Status"
+msgstr "وضعیت"
+
+#: orders/models.py:185
+msgid "Payment status"
+msgstr "وضعیت پرداخت"
+
+#: orders/models.py:191
+msgid "Payment method"
+msgstr "روش پرداخت"
+
+#: orders/models.py:197
+msgid "Payment reference"
+msgstr "شناسه پرداخت"
+
+#: orders/models.py:203
+msgid "Currency"
+msgstr "واحد پول"
+
+#: orders/models.py:208
+msgid "Subtotal"
+msgstr "جمع جزء"
+
+#: orders/models.py:217
+msgid "Product discount"
+msgstr "تخفیف محصول"
+
+#: orders/models.py:226
+msgid "Coupon discount"
+msgstr "تخفیف کد"
+
+#: orders/models.py:235
+msgid "Shipping amount"
+msgstr "هزینه ارسال"
+
+#: orders/models.py:244
+msgid "Total amount"
+msgstr "مبلغ نهایی"
+
+#: orders/models.py:262
+msgid "Discount code text"
+msgstr "متن کد تخفیف"
+
+#: orders/models.py:267
+msgid "Shipping address title"
+msgstr "عنوان نشانی ارسال"
+
+#: orders/models.py:268
+msgid "Shipping province"
+msgstr "استان ارسال"
+
+#: orders/models.py:269
+msgid "Shipping city"
+msgstr "شهر ارسال"
+
+#: orders/models.py:270
+msgid "Shipping address"
+msgstr "نشانی ارسال"
+
+#: orders/models.py:271
+msgid "Shipping postal code"
+msgstr "کد پستی ارسال"
+
+#: orders/models.py:276
+msgid "Paid at"
+msgstr "زمان پرداخت"
+
+#: orders/models.py:277
+msgid "Cancelled at"
+msgstr "زمان لغو"
+
+#: orders/models.py:321
+msgid "Points"
+msgstr "امتیازها"
+
+#: orders/models.py:325
+msgid "Reason"
+msgstr "دلیل"
+
+#: orders/models.py:332
+msgid "Reward transaction"
+msgstr "تراکنش امتیاز"
+
+#: orders/models.py:333
+msgid "Reward transactions"
+msgstr "تراکنش‌های امتیاز"
+
+#: orders/models.py:360
+msgid "Product name"
+msgstr "نام محصول"
+
+#: orders/models.py:361
+msgid "Product SKU"
+msgstr "شناسه کالای محصول"
+
+#: orders/models.py:363
+msgid "Unit price"
+msgstr "قیمت واحد"
+
+#: orders/models.py:371
+msgid "Unit discount"
+msgstr "تخفیف واحد"
+
+#: orders/models.py:386
+msgid "Line total"
+msgstr "جمع ردیف"
+
+#: orders/models.py:397
+msgid "Order item"
+msgstr "آیتم سفارش"
+
+#: orders/models.py:398
+msgid "Order items"
+msgstr "آیتم‌های سفارش"
+
+#: products/admin.py:44
+msgid "Identity"
+msgstr "مشخصات اصلی"
+
+#: products/admin.py:45
+msgid "Catalog content"
+msgstr "محتوای کاتالوگ"
+
+#: products/admin.py:46
+msgid "Pricing and inventory"
+msgstr "قیمت‌گذاری و موجودی"
+
+#: products/admin.py:47
+msgid "Dates"
+msgstr "تاریخ‌ها"
+
+#: products/admin.py:69
+msgid "Helpful votes"
+msgstr "رأی‌های مفید"
+
+#: products/admin.py:97 products/models.py:302
+msgid "Question"
+msgstr "پرسش"
+
+#: products/admin.py:101 products/models.py:303
+msgid "Answer"
+msgstr "پاسخ"
+
+#: products/admin.py:103
+msgid "Answered"
+msgstr "پاسخ داده شده"
+
+#: products/admin.py:103
+msgid "Waiting"
+msgstr "در انتظار پاسخ"
+
+#: products/apps.py:8 products/models.py:174
+msgid "Products"
+msgstr "محصولات"
+
+#: products/models.py:13 products/models.py:102
+msgid "Name"
+msgstr "نام"
+
+#: products/models.py:18 products/models.py:107
+msgid "Slug"
+msgstr "شناسه متنی"
+
+#: products/models.py:26
+msgid "Parent category"
+msgstr "دسته‌بندی والد"
+
+#: products/models.py:40 products/models.py:121
+msgid "Category"
+msgstr "دسته‌بندی"
+
+#: products/models.py:41
+msgid "Categories"
+msgstr "دسته‌بندی‌ها"
+
+#: products/models.py:114
+msgid "SKU"
+msgstr "شناسه کالا"
+
+#: products/models.py:127
+msgid "Brand"
+msgstr "برند"
+
+#: products/models.py:133
+msgid "Description"
+msgstr "توضیحات"
+
+#: products/models.py:138
+msgid "Specifications"
+msgstr "مشخصات"
+
+#: products/models.py:144
+msgid "Price"
+msgstr "قیمت"
+
+#: products/models.py:153
+msgid "Stock quantity"
+msgstr "موجودی"
+
+#: products/models.py:158
+msgid "Image"
+msgstr "تصویر"
+
+#: products/models.py:223 products/models.py:305
+msgid "Approved"
+msgstr "تأیید شده"
+
+#: products/models.py:228 products/models.py:256
+msgid "Product review"
+msgstr "نظر محصول"
+
+#: products/models.py:229
+msgid "Product reviews"
+msgstr "نظرات محصولات"
+
+#: products/models.py:268
+msgid "Product review helpful vote"
+msgstr "رأی مفید بودن نظر"
+
+#: products/models.py:269
+msgid "Product review helpful votes"
+msgstr "رأی‌های مفید بودن نظر"
+
+#: products/models.py:304
+msgid "Answered at"
+msgstr "زمان پاسخ"
+
+#: products/models.py:310
+msgid "Product question"
+msgstr "پرسش محصول"
+
+#: products/models.py:311
+msgid "Product questions"
+msgstr "پرسش‌های محصولات"
+
+#: products/models.py:330
+msgid "Percentage"
+msgstr "درصدی"
+
+#: products/models.py:331
+msgid "Fixed amount"
+msgstr "مبلغ ثابت"
+
+#: products/models.py:341 products/models.py:484
+msgid "Discount type"
+msgstr "نوع تخفیف"
+
+#: products/models.py:347 products/models.py:490
+msgid "Value"
+msgstr "مقدار"
+
+#: products/models.py:356 products/models.py:499
+msgid "Maximum discount"
+msgstr "سقف تخفیف"
+
+#: products/models.py:364 products/models.py:507
+msgid "Only applies to percentage discounts."
+msgstr "فقط برای تخفیف‌های درصدی اعمال می‌شود."
+
+#: products/models.py:368 products/models.py:532
+msgid "Starts at"
+msgstr "شروع از"
+
+#: products/models.py:374 products/models.py:538
+msgid "Ends at"
+msgstr "پایان در"
+
+#: products/models.py:386
+msgid "Discount"
+msgstr "تخفیف"
+
+#: products/models.py:387
+msgid "Discounts"
+msgstr "تخفیف‌ها"
+
+#: products/models.py:474
+msgid "Leave empty for a store-wide campaign code."
+msgstr "برای کد کمپین سراسری فروشگاه خالی بگذارید."
+
+#: products/models.py:478
+msgid "Code"
+msgstr "کد"
+
+#: products/models.py:511
+msgid "Minimum order amount"
+msgstr "حداقل مبلغ سفارش"
+
+#: products/models.py:521
+msgid "Usage limit"
+msgstr "سقف استفاده"
+
+#: products/models.py:527
+msgid "Used count"
+msgstr "تعداد استفاده"
+
+#: products/models.py:551
+msgid "Discount codes"
+msgstr "کدهای تخفیف"
+
+#: templates/admin/base_site.html:17
+msgid "Welcome,"
+msgstr "خوش آمدید،"
+
+#: templates/admin/base_site.html:23
+msgid "View site"
+msgstr "مشاهده وبگاه"
+
+#: templates/admin/base_site.html:27
+msgid "Documentation"
+msgstr "مستندات"
+
+#: templates/admin/base_site.html:30
+msgid "Change password"
+msgstr "تغییر گذرواژه"
+
+#: templates/admin/base_site.html:34
+msgid "Log out"
+msgstr "خروج"

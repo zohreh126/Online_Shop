@@ -1,0 +1,59 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% block title %}{{ title }} | {% if LANGUAGE_CODE == "en" %}Nexora Control Center{% else %}مرکز فرماندهی نکستورا{% endif %}{% endblock %}
+{% block branding %}
+  <a class="nexora-admin-brand" href="{% url 'admin:index' %}">
+    <span class="nexora-admin-mark" aria-hidden="true">N</span>
+    <span class="nexora-admin-brand-copy">
+      <strong>NEXORA</strong>
+      <small>{% if LANGUAGE_CODE == "en" %}STORE OPERATIONS / ADMIN{% else %}مدیریت فروشگاه / STORE OPERATIONS{% endif %}</small>
+    </span>
+  </a>
+{% endblock %}
+{% block usertools %}
+  {% if has_permission %}
+    <div id="user-tools" class="nexora-admin-user-tools">
+      <div class="nexora-admin-welcome">
+        <span>{% translate "Welcome," %}</span>
+        <strong>{% firstof user.get_short_name user.get_username %}</strong>
+      </div>
+      <div class="nexora-admin-actions">
+        <nav class="nexora-admin-links" aria-label="{% if LANGUAGE_CODE == 'en' %}Account links{% else %}پیوندهای حساب کاربری{% endif %}">
+          {% if site_url %}
+            <a href="{{ site_url }}">{% translate "View site" %}</a>
+          {% endif %}
+          {% url 'django-admindocs-docroot' as docsroot %}
+          {% if docsroot and user.is_active and user.is_staff %}
+            <a href="{{ docsroot }}">{% translate "Documentation" %}</a>
+          {% endif %}
+          {% if user.has_usable_password %}
+            <a href="{% url 'admin:password_change' %}">{% translate "Change password" %}</a>
+          {% endif %}
+          <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+            {% csrf_token %}
+            <button type="submit">{% translate "Log out" %}</button>
+          </form>
+        </nav>
+        <div class="nexora-admin-controls" aria-label="{% if LANGUAGE_CODE == 'en' %}Panel settings{% else %}تنظیمات پنل{% endif %}">
+          <form class="nexora-admin-language" action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" name="language" value="en"{% if LANGUAGE_CODE == "en" %} class="is-active" aria-current="page"{% endif %}>English</button>
+            <button type="submit" name="language" value="fa"{% if LANGUAGE_CODE == "fa" %} class="is-active" aria-current="page"{% endif %}>فارسی</button>
+          </form>
+          <button class="nexora-admin-theme-toggle" type="button" data-admin-theme-toggle aria-label="{% if LANGUAGE_CODE == 'en' %}Toggle display mode{% else %}تغییر حالت نمایش{% endif %}" title="{% if LANGUAGE_CODE == 'en' %}Toggle display mode{% else %}تغییر حالت نمایش{% endif %}">
+            <span aria-hidden="true" data-theme-icon>☾</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="{% static 'admin/css/nexora-admin.css' %}">
+  <script src="{% static 'admin/js/nexora-admin.js' %}" defer></script>
+{% endblock %}

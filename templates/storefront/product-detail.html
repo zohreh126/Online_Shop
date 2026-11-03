@@ -1,0 +1,52 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nexora | جزئیات محصول</title>
+  <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
+</head>
+<body>
+  <div class="announcement"><span data-i18n="freeShipping">ارسال رایگان برای سفارش‌های بالای ۲ میلیون تومان</span> <b>✦</b> <span data-i18n="securePayment">پرداخت امن و پشتیبانی واقعی</span></div>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/" aria-label="Nexora"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
+      <nav class="desktop-nav"><a href="/" data-i18n="shop">فروشگاه</a><a class="active" href="#product-detail" data-i18n="productDetails">جزئیات محصول</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></nav>
+      <div class="nav-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="Theme">☼</button><button class="language-button" data-language-toggle type="button">English</button>{% include "storefront/favorites-nav.html" %}<span id="account-area"><a class="account-link" href="/account/" data-i18n="login">ورود</a></span><a class="cart-button icon-action-button" href="/?cart=open" data-i18n-aria-label="cartIconLabel" data-i18n-title="cartIconLabel" aria-label="باز کردن سبد خرید" title="باز کردن سبد خرید"><span class="cart-icon" aria-hidden="true">🛒</span><span class="cart-label sr-only" data-i18n="cart">سبد خرید</span><b data-cart-count>۰</b></a></div>
+    </div>
+  </header>
+  <main class="product-detail-page container" id="product-detail">
+    <a class="back-link" href="/">← <span data-i18n="backToStore">بازگشت به فروشگاه</span></a>
+    <div id="product-detail-state" class="state-card"><span class="loader"></span><p data-i18n="loadingProduct">در حال بارگذاری محصول...</p></div>
+    <section id="product-detail-content" class="product-detail-layout" hidden></section>
+    <section id="product-recommendations" class="product-recommendations-section" hidden>
+      <div class="section-title-row"><div><p class="eyebrow"><span></span> <span data-i18n="recommendedForYou">پیشنهاد برای تو</span></p><h2 data-i18n="youMayLike">شاید این‌ها را هم بپسندی.</h2></div><a class="text-link" href="/" data-i18n="browseAllProducts">مشاهده همه محصولات <span>←</span></a></div>
+      <p class="recommendation-help" data-i18n="recommendationHint">بر اساس دسته‌بندی و سلیقه‌ی خریدت، چند انتخاب نزدیک را کنار هم گذاشته‌ایم.</p>
+      <div id="product-recommendations-grid" class="product-grid recommendation-grid"></div>
+    </section>
+    <section id="product-reviews" class="product-reviews-section" hidden>
+      <div class="section-title-row"><div><p class="eyebrow"><span></span> <span data-i18n="customerVoices">صدای مشتریان</span></p><h2 data-i18n="reviews">نظر و امتیاز کاربران</h2></div><div id="review-rating-summary" class="review-rating-summary"></div></div>
+      <div class="reviews-layout">
+        <div class="review-composer-column"><div id="review-composer" class="review-composer"></div></div>
+        <div class="review-list-column"><div class="reviews-public-heading"><div><span class="reviews-public-kicker" data-i18n="publishedReviews">نظرهای منتشرشده</span><strong data-i18n="publicReviewsHint">تجربه‌های واقعی خریداران</strong><span id="reviews-public-count" class="reviews-public-count"></span></div><div class="reviews-public-tools"><label class="review-sort-label" for="review-sort" data-i18n="reviewSortLabel">مرتب‌سازی</label><select id="review-sort"><option value="newest" data-i18n="reviewSortNewest">جدیدترین</option><option value="highest" data-i18n="reviewSortHighest">بالاترین امتیاز</option><option value="helpful" data-i18n="reviewSortHelpful">مفیدترین</option></select></div><span aria-hidden="true">✦</span></div><div id="reviews-list" class="reviews-list" aria-live="polite"></div></div>
+      </div>
+    </section>
+    <section id="product-questions" class="product-questions-section" hidden>
+      <div class="section-title-row"><div><p class="eyebrow"><span></span> <span data-i18n="publishedQuestions">پرسش‌های منتشرشده</span></p><h2 data-i18n="productQuestions">پرسش و پاسخ محصول</h2><p class="section-help" data-i18n="productQuestionsHint">سؤال‌های واقعی مشتریان و پاسخ‌های تیم نکستورا را ببین.</p></div><span id="questions-count" class="questions-count"></span></div>
+      <div class="questions-layout">
+        <div class="question-composer-column"><div id="question-composer" class="question-composer"></div></div>
+        <div class="question-list-column"><div class="questions-public-heading"><div><span class="reviews-public-kicker" data-i18n="askQuestion">سؤال خودت را بپرس</span><strong data-i18n="productQuestionsHint">سؤال‌های واقعی مشتریان و پاسخ‌های تیم نکستورا را ببین.</strong></div><span aria-hidden="true">?</span></div><div id="questions-list" class="questions-list"></div></div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container footer-grid"><div class="footer-intro"><a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a><p data-i18n="footerText">برای زندگی دیجیتال، انتخاب‌های بهتر.</p></div><div class="footer-column"><h3 data-i18n="quickAccess">دسترسی سریع</h3><a href="/" data-i18n="shop">فروشگاه</a><a href="/about/" data-i18n="about">درباره ما</a><a href="/contact/" data-i18n="contact">ارتباط با ما</a></div><div class="footer-column footer-contact"><h3 data-i18n="contactColumn">ارتباط با ما</h3><span dir="ltr">nexorastore.zp@gmail.com</span><span dir="ltr">۰۲۱ ۴۳۶۵۸۷۹۱</span><span data-i18n="supportHours">شنبه تا پنج‌شنبه، ۹ تا ۱۸</span></div></div><div class="container footer-bottom"><span>© ۲۰۲۶ Nexora</span><span data-i18n="footerNote">ساخته‌شده برای انتخاب‌های دقیق‌تر.</span></div></footer>
+  <script src="{% static 'storefront/js/i18n.js' %}" defer></script>
+  <script src="{% static 'storefront/js/account-nav.js' %}" defer></script>
+  <script src="{% static 'storefront/js/cart-nav.js' %}" defer></script>
+  <script src="{% static 'storefront/js/favorites.js' %}" defer></script>
+  <script src="{% static 'storefront/js/notifications.js' %}" defer></script>
+  <script src="{% static 'storefront/js/product-detail.js' %}" defer></script>
+  <script src="{% static 'storefront/js/navigation.js' %}" defer></script>
+</body>
+</html>

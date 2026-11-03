@@ -1,0 +1,44 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="account">حساب کاربری | Nexora</title>
+  <link rel="stylesheet" href="{% static 'storefront/css/app.css' %}">
+</head>
+<body>
+  <header class="site-header"><div class="container nav-wrap">
+    <a class="brand" href="/"><span class="brand-mark">N</span><span>NEXORA<small>SMART ESSENTIALS</small></span></a>
+    <div class="page-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم">☾</button><button class="language-button" data-language-toggle type="button">English</button>{% include "storefront/favorites-nav.html" %}<a class="cart-button icon-action-button" href="/?cart=open" data-i18n-aria-label="cartIconLabel" data-i18n-title="cartIconLabel" aria-label="باز کردن سبد خرید" title="باز کردن سبد خرید"><span class="cart-icon" aria-hidden="true">🛒</span><span class="cart-label sr-only" data-i18n="cart">سبد خرید</span><b data-cart-count>۰</b></a><a class="text-link" data-i18n="storeBack" href="/">بازگشت به فروشگاه <span>←</span></a></div>
+  </div></header>
+  <main class="account-page container">
+    <section class="account-card">
+      <p class="eyebrow"><span></span> <span data-i18n="account">حساب نکستورا</span></p>
+      <h1 id="account-title" data-i18n="loginTitle">ورود به حساب</h1>
+      <p id="account-subtitle" class="account-subtitle" data-i18n="loginSubtitle">برای ادامه‌ی خرید وارد حساب کاربری‌ات شو.</p>
+      <div id="account-alert" class="account-alert" hidden></div>
+      <form id="login-form" autocomplete="on">
+        <label><span data-i18n="usernameOrEmail">نام کاربری یا ایمیل</span><input name="identifier" required autocomplete="username"></label>
+        <label class="password-field"><span data-i18n="password">رمز عبور</span><span class="password-input-wrap"><input id="login-password" name="password" type="password" required autocomplete="current-password"><button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="نمایش رمز عبور" title="نمایش رمز عبور">◉</button></span></label>
+        <button class="primary-button account-submit" type="submit"><span data-i18n="loginWithPassword">ورود با نام کاربری و رمز</span> <span>←</span></button>
+        <button class="secondary-button account-otp-request" id="request-login-otp" type="button"><span data-i18n="loginWithEmailCode">ورود با ایمیل و کد</span> <span aria-hidden="true">✉</span></button>
+        <small class="account-login-hint" data-i18n="emailLoginHint">برای ورود با کد، ایمیل کامل حساب کاربری را در همین کادر وارد کن.</small>
+      </form>
+      <form id="login-otp-form" hidden>
+        <p class="account-subtitle"><span data-i18n="otpSubtitle">کد شش‌رقمی ارسال‌شده به</span> <strong id="login-otp-email"></strong></p>
+        <label><span data-i18n="otpCode">کد ورود</span><input name="code" required inputmode="numeric" pattern="[0-9۰-۹]{6}" maxlength="6" autocomplete="one-time-code"></label>
+        <button class="primary-button account-submit" type="submit"><span data-i18n="confirmLogin">تأیید و ورود</span> <span>←</span></button>
+        <button class="account-switch" id="login-otp-back" type="button" data-i18n="backStep">بازگشت به مرحله قبل</button>
+      </form>
+      <form id="register-form" hidden>
+        <div class="form-grid"><label><span data-i18n="username">نام کاربری</span><input name="username" required autocomplete="username"></label><label><span data-i18n="email">ایمیل</span><input name="email" type="email" required autocomplete="email"></label><label><span data-i18n="firstName">نام</span><input name="first_name"></label><label><span data-i18n="lastName">نام خانوادگی</span><input name="last_name"></label><label><span data-i18n="dateOfBirth">تاریخ تولد شمسی</span><input name="date_of_birth" inputmode="numeric" placeholder="۱۴۰۰/۰۱/۰۱" maxlength="10"></label><label class="password-field"><span data-i18n="password">رمز عبور</span><span class="password-input-wrap"><input id="register-password" name="password" type="password" minlength="8" required autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="register-password" aria-label="نمایش رمز عبور" title="نمایش رمز عبور">◉</button></span></label><label class="password-field"><span data-i18n="confirmPassword">تکرار رمز عبور</span><span class="password-input-wrap"><input id="register-password-confirm" name="password_confirm" type="password" minlength="8" required autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="register-password-confirm" aria-label="نمایش رمز عبور" title="نمایش رمز عبور">◉</button></span></label></div>
+        <button class="primary-button account-submit" type="submit"><span data-i18n="createAccount">ساخت حساب</span> <span>←</span></button>
+      </form>
+      <button class="account-switch" id="account-switch" type="button" data-i18n="noAccount">حساب ندارم؛ ثبت‌نام می‌کنم</button>
+    </section>
+  </main>
+  <script src="{% static 'storefront/js/i18n.js' %}?v=20261002-auth" defer></script><script src="{% static 'storefront/js/cart-nav.js' %}" defer></script><script src="{% static 'storefront/js/favorites.js' %}" defer></script><script src="{% static 'storefront/js/notifications.js' %}" defer></script><script src="{% static 'storefront/js/password-toggle.js' %}" defer></script><script src="{% static 'storefront/js/account.js' %}?v=20261002-auth" defer></script>
+  <script src="{% static 'storefront/js/navigation.js' %}" defer></script>
+</body>
+</html>

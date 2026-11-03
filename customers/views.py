@@ -1,0 +1,262 @@
+from django.conf import settings
+from django.db import transaction
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
+from rest_framework import generics, mixins, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from orders.models import RewardTransaction
+from products.models import Product
+
+from .models import Address, CustomerNotification, Favorite, ProductWatch, SiteFeedback
+from .serializers import (
+    AccountDeletionSerializer,
+    AddressSerializer,
+    CustomerProfileSerializer,
+    CustomerRegistrationSerializer,
+    CustomerNotificationSerializer,
+    FavoriteSerializer,
+    FavoriteToggleSerializer,
+    ProductWatchSerializer,
+    RewardSummarySerializer,
+    RewardTransactionSerializer,
+    SiteFeedbackSerializer,
+)
+
+
+class CustomerRegistrationView(generics.CreateAPIView):
+    serializer_class = CustomerRegistrationSerializer
+    permission_classes = (permissions.AllowAny,)
+
+
+class CustomerProfileView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
+
+    def get_serializer_class(self):
+        if self.request.method in ("PUT", "PATCH"):
+            from .serializers import CustomerProfileUpdateSerializer
+            return CustomerProfileUpdateSerializer
+        return CustomerProfileSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        customer = self.get_object()
+        serializer = AccountDeletionSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+
+        customer.delete()
+
+        refresh_token = request.COOKIES.get(settings.AUTH_COOKIE_REFRESH)
+        if refresh_token:
+            try:
+                RefreshToken(refresh_token).blacklist()
+            except TokenError:
+                pass
+
+        response = Response(
+            {
+                "detail": "Account deleted successfully.",
+                "clear_client_state": True,
+            },
+            status=status.HTTP_200_OK,
+        )
+        response.delete_cookie(settings.AUTH_COOKIE_ACCESS, path="/")
+        response.delete_cookie(
+            settings.AUTH_COOKIE_REFRESH,
+            path="/api/v1/auth/",
+        )
+        return response
+
+
+class SiteFeedbackListCreateView(generics.ListCreateAPIView):
+    serializer_class = SiteFeedbackSerializer
+    permission_classes = (permissions.AllowAny,)
+
+    def get_queryset(self):
+        queryset = SiteFeedback.objects.filter(is_active=True).select_related("customer")
+        page = (self.request.query_params.get("page_path") or "").strip()
+        if page:
+            queryset = queryset.filter(page=page[:120])
+        return queryset.order_by("-created_at")
+
+    def perform_create(self, serializer):
+        if not self.request.session.session_key:
+            self.request.session.save()
+
+        page = serializer.validated_data.get("page") or self.request.path
+        if not page.startswith("/"):
+            page = self.request.path
+
+        customer = self.request.user if self.request.user.is_authenticated else None
+        serializer.save(
+            customer=customer,
+            session_key=self.request.session.session_key or "",
+            page=page[:120],
+        )
+
+
+class AddressViewSet(viewsets.ModelViewSet):
+    serializer_class = AddressSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Address.objects.none()
+
+        return Address.objects.filter(
+            customer=self.request.user,
+            is_active=True,
+        ).order_by("-is_default", "-id")
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+
+class RewardSummaryView(generics.GenericAPIView):
+    serializer_class = RewardSummarySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    @extend_schema(responses=RewardSummarySerializer)
+    def get(self, request):
+        queryset = RewardTransaction.objects.filter(
+            customer=request.user,
+        ).select_related("order")
+        balance = queryset.aggregate(total=Sum("points"))["total"] or 0
+        transactions = queryset[:20]
+        payload = {
+            "balance": int(balance),
+            "transaction_count": queryset.count(),
+            "points_per_100000_toman": 1,
+            "transactions": transactions,
+        }
+        return Response(
+            RewardSummarySerializer(payload, context={"request": request}).data
+        )
+
+
+class FavoriteViewSet(
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = FavoriteSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Favorite.objects.none()
+
+        return (
+            Favorite.objects.filter(
+                customer=self.request.user,
+                is_active=True,
+                product__is_active=True,
+            )
+            .select_related("product", "product__category", "product__discount")
+            .prefetch_related("product__category__children")
+            .order_by("-created_at")
+        )
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+    @action(detail=False, methods=("post",), url_path="toggle")
+    @transaction.atomic
+    def toggle(self, request):
+        input_serializer = FavoriteToggleSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+        product = get_object_or_404(
+            Product.objects.active(),
+            pk=input_serializer.validated_data["product_id"],
+        )
+        favorite = Favorite.objects.filter(
+            customer=request.user,
+            product=product,
+        ).first()
+
+        if favorite and favorite.is_active:
+            favorite.delete()
+            return Response(
+                {
+                    "detail": "Favorite removed.",
+                    "is_favorite": False,
+                    "favorite": None,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        if favorite:
+            favorite.is_active = True
+            favorite.save(update_fields=("is_active", "updated_at"))
+        else:
+            favorite = Favorite.objects.create(
+                customer=request.user,
+                product=product,
+            )
+
+        return Response(
+            {
+                "detail": "Favorite added.",
+                "is_favorite": True,
+                "favorite": FavoriteSerializer(
+                    favorite,
+                    context={"request": request},
+                ).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = CustomerNotificationSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return CustomerNotification.objects.none()
+        return CustomerNotification.objects.filter(customer=self.request.user).order_by("-created_at")
+
+    @action(detail=True, methods=("post",), url_path="read")
+    def mark_read(self, request, pk=None):
+        notification = self.get_object()
+        if not notification.is_read:
+            notification.is_read = True
+            notification.save(update_fields=("is_read", "updated_at"))
+        return Response(CustomerNotificationSerializer(notification).data)
+
+    @action(detail=False, methods=("post",), url_path="read-all")
+    def mark_all_read(self, request):
+        self.get_queryset().filter(is_read=False).update(is_read=True)
+        return Response({"detail": "Notifications marked as read."})
+
+
+class ProductWatchViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductWatchSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ProductWatch.objects.none()
+
+        return (
+            ProductWatch.objects.filter(
+                customer=self.request.user,
+                is_active=True,
+                product__is_active=True,
+            )
+            .select_related("product", "product__category", "product__discount")
+            .prefetch_related("product__category__children")
+            .order_by("-created_at")
+        )
+
+    def perform_destroy(self, instance):
+        instance.delete()
